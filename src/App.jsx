@@ -275,15 +275,14 @@ function Faq() {
 /* ============================================================================ */
 export default function App() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [heroIndex, setHeroIndex] = useState(0);
-  const heroRef = useRef(null);
+  const [videoOk, setVideoOk] = useState(true);
+  const heroVid = useRef(null);
   useEffect(() => {
-    const vids = heroRef.current ? heroRef.current.querySelectorAll("video") : [];
-    vids.forEach((v) => { v.muted = true; const p = v.play(); if (p) p.catch(() => {}); });
-  }, []);
-  useEffect(() => {
-    const id = setInterval(() => setHeroIndex((i) => (i + 1) % 3), 5000);
-    return () => clearInterval(id);
+    const v = heroVid.current;
+    if (!v) return;
+    v.muted = true;
+    const p = v.play();
+    if (p && p.catch) p.catch(() => setVideoOk(false));
   }, []);
   const progress = useScrollProgress();
   const scrollTo = (id) => (e) => {
@@ -337,28 +336,22 @@ export default function App() {
 
       {/* HERO */}
       <section className="hero" id="top">
-        <div className="hero__media" ref={heroRef}>
-          <div className="hero__track" style={{ transform: `translateX(-${heroIndex * 100}%)` }}>
-            <div className="hero__slide"><video src="/video1.mp4" autoPlay muted loop playsInline preload="auto" /></div>
-            <div className="hero__slide"><video src="/video2.mp4" autoPlay muted loop playsInline preload="auto" /></div>
-            <div className="hero__slide"><video src="/video3.mp4" autoPlay muted loop playsInline preload="auto" /></div>
-          </div>
+        <div className="hero__media">
+          {videoOk ? (
+            <video ref={heroVid} className="hero__vid" src="/hero.mp4" autoPlay muted loop playsInline preload="auto" />
+          ) : (
+            <img className="hero__vid" src="/anto2.png" alt="Antonella entrenando" />
+          )}
           <div className="hero__scrim" />
-          <div className="hero__dots">
-            {[0, 1, 2].map((i) => (
-              <button key={i} className={i === heroIndex ? "on" : ""} onClick={() => setHeroIndex(i)} aria-label={`Ver vídeo ${i + 1}`} />
-            ))}
-          </div>
         </div>
         <div className="wrap hero__content">
-          <p className="eyebrow eyebrow--light hero__eyebrow">Nutricionista · Naturópata · Fitoterapeuta · Entrenadora</p>
+          <p className="eyebrow eyebrow--light hero__eyebrow">Nutricionista · Naturópata · Entrenadora</p>
           <h1 className="hero__title">
             <span className="line-wrap"><span className="line">Vuelve</span></span>
             <span className="line-wrap"><span className="line"><em>a ti.</em></span></span>
           </h1>
           <p className="hero__lead">
             No se trata solo de moverte. Se trata de <em>sentir</em> para poder transformarte.
-            Un método que une cuerpo, mente y emociones para que el cambio sea real y dure toda la vida.
           </p>
           <div className="hero__cta">
             <a className="btn btn--wine btn--lg" href="#test" onClick={scrollTo("test")}>Descubre tu punto de partida <ArrowRight size={18} /></a>
@@ -701,6 +694,7 @@ function Styles() {
     /* HERO */
     .hero{position:relative;min-height:92vh;min-height:92dvh;display:flex;align-items:flex-end;color:var(--cream);overflow:hidden}
     .hero__media{position:absolute;inset:0;z-index:0;overflow:hidden;background:linear-gradient(160deg,#2a1440,#4a1c52 55%,#1a0f2e)}
+    .hero__vid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
     .hero__track{display:flex;width:100%;height:100%;transition:transform 1.1s cubic-bezier(.7,0,.2,1)}
     .hero__slide{position:relative;flex:0 0 100%;width:100%;height:100%}
     .hero__slide video{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
@@ -718,7 +712,7 @@ function Styles() {
     .hero__scrim{position:absolute;inset:0;background:linear-gradient(180deg,rgba(18,10,26,.12) 0%,rgba(18,10,26,.42) 55%,rgba(18,10,26,.85) 100%),linear-gradient(90deg,rgba(18,10,26,.58) 0%,rgba(18,10,26,.14) 55%,transparent 100%)}
     @keyframes kenburns{from{transform:scale(1)}to{transform:scale(1.09)}}
     .hero__content{position:relative;z-index:2;padding-top:120px;padding-bottom:88px;max-width:900px}
-    .hero__eyebrow{animation:fadein 1s ease .15s both}
+    .hero__eyebrow{color:var(--cream);-webkit-text-fill-color:var(--cream);font-size:11px;letter-spacing:.16em;margin-bottom:14px;animation:fadein 1s ease .15s both}
     .hero__title{font-family:var(--serif);font-weight:300;font-size:clamp(60px,12vw,150px);line-height:.92;letter-spacing:-.03em;margin:0 0 26px}
     .line-wrap{display:block;overflow:hidden;padding-bottom:.06em}
     .line{display:block;animation:rise 1.05s cubic-bezier(.2,.7,.2,1) both}
