@@ -276,8 +276,13 @@ function Faq() {
 export default function App() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [heroIndex, setHeroIndex] = useState(0);
+  const heroRef = useRef(null);
   useEffect(() => {
-    const id = setInterval(() => setHeroIndex((i) => (i + 1) % 3), 6500);
+    const vids = heroRef.current ? heroRef.current.querySelectorAll("video") : [];
+    vids.forEach((v) => { v.muted = true; const p = v.play(); if (p) p.catch(() => {}); });
+  }, []);
+  useEffect(() => {
+    const id = setInterval(() => setHeroIndex((i) => (i + 1) % 3), 5000);
     return () => clearInterval(id);
   }, []);
   const progress = useScrollProgress();
@@ -332,11 +337,11 @@ export default function App() {
 
       {/* HERO */}
       <section className="hero" id="top">
-        <div className="hero__media">
+        <div className="hero__media" ref={heroRef}>
           <div className="hero__track" style={{ transform: `translateX(-${heroIndex * 100}%)` }}>
-            <div className="hero__slide"><video src="/video1.mp4" autoPlay muted loop playsInline /></div>
-            <div className="hero__slide"><video src="/video2.mp4" autoPlay muted loop playsInline /></div>
-            <div className="hero__slide"><video src="/video3.mp4" autoPlay muted loop playsInline /></div>
+            <div className="hero__slide"><video src="/video1.mp4" autoPlay muted loop playsInline preload="auto" /></div>
+            <div className="hero__slide"><video src="/video2.mp4" autoPlay muted loop playsInline preload="auto" /></div>
+            <div className="hero__slide"><video src="/video3.mp4" autoPlay muted loop playsInline preload="auto" /></div>
           </div>
           <div className="hero__scrim" />
           <div className="hero__dots">
