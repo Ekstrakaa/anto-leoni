@@ -361,8 +361,8 @@ export default function App() {
             Un método que une cuerpo, mente y emociones para que el cambio sea real y dure toda la vida.
           </p>
           <div className="hero__cta">
-            <a className="btn btn--cream" href="#test" onClick={scrollTo("test")}>Descubre tu punto de partida <ArrowRight size={18} /></a>
-            <a className="btn btn--ghost-light" href="#metodo" onClick={scrollTo("metodo")}>Conoce el método</a>
+            <a className="btn btn--wine btn--lg" href="#test" onClick={scrollTo("test")}>Descubre tu punto de partida <ArrowRight size={18} /></a>
+            <a className="btn btn--glass btn--lg" href="#metodo" onClick={scrollTo("metodo")}>Conoce el método</a>
           </div>
         </div>
         <div className="hero__cue"><span /></div>
@@ -653,13 +653,16 @@ function Styles() {
     }
 
     /* BOTONES */
-    .btn{display:inline-flex;align-items:center;gap:9px;font-family:var(--sans);font-weight:600;font-size:15px;padding:14px 24px;border-radius:100px;cursor:pointer;border:1.5px solid transparent;transition:transform .25s ease,background-position .5s ease,color .25s ease,border-color .25s ease,box-shadow .3s ease}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;font-family:var(--sans);font-weight:600;font-size:15px;letter-spacing:.01em;padding:14px 26px;border-radius:100px;cursor:pointer;border:1.5px solid transparent;transition:transform .25s ease,background-position .5s ease,color .25s ease,border-color .25s ease,box-shadow .3s ease}
+    .btn--lg{padding:17px 30px;font-size:16px}
     .btn:hover{transform:translateY(-2px)}
     .btn svg{transition:transform .25s ease}
     .btn:hover svg:last-child{transform:translateX(3px)}
     .btn--sm{padding:10px 20px;font-size:14px}
-    .btn--wine{background:var(--grad);background-size:200% auto;color:#fff;box-shadow:0 12px 30px -8px rgba(124,92,230,.6);animation:shimmer 4s linear infinite}
-    .btn--wine:hover{box-shadow:0 20px 46px -10px rgba(236,95,134,.75)}
+    .btn--wine{background:var(--grad);background-size:200% auto;color:#fff;box-shadow:0 12px 34px -8px rgba(124,92,230,.65);animation:shimmer 4s linear infinite}
+    .btn--wine:hover{box-shadow:0 20px 50px -10px rgba(236,95,134,.8)}
+    .btn--glass{background:rgba(255,255,255,.13);border-color:rgba(255,255,255,.4);color:var(--cream);backdrop-filter:blur(10px)}
+    .btn--glass:hover{background:rgba(255,255,255,.22)}
     .btn--cream{background:var(--cream);color:var(--ink)}
     .btn--cream:hover{background:#fff;box-shadow:0 12px 30px -12px rgba(0,0,0,.35)}
     .btn--ghost-light{border-color:rgba(245,239,228,.5);color:var(--cream)}
