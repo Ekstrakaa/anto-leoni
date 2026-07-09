@@ -408,9 +408,9 @@ export default function App() {
         <div className="wrap sobre__grid">
           <Reveal className="sobre__media">
             <div className="sobre__collage">
-              <img className="c1" src="/anto1.jpg" alt="Antonella compitiendo en fitness" />
-              <img className="c2" src="/anto2.jpg" alt="Antonella entrenando" />
-              <img className="c3" src="/anto3.jpg" alt="Antonella con su medalla" />
+              <img className="c1" src="/anto1.png" alt="Antonella compitiendo en fitness" />
+              <img className="c2" src="/anto2.png" alt="Antonella entrenando" />
+              <img className="c3" src="/anto3.png" alt="Antonella con su medalla" />
             </div>
           </Reveal>
           <Reveal delay={120} className="sobre__text">
