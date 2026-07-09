@@ -1,7 +1,6 @@
-
 import { useState, useEffect, useRef } from "react";
 import {
-  Camera, Instagram, Youtube, Mail, ArrowRight, ArrowUpRight,
+  Camera, Instagram, Youtube, Mail, ArrowRight, Menu, X,
   Plus, Minus, MapPin, MessageCircle, Play,
 } from "lucide-react";
 
@@ -148,8 +147,10 @@ function ContactForm() {
 
 /* ============================================================================ */
 export default function App() {
+  const [menuOpen, setMenuOpen] = useState(false);
   const scrollTo = (id) => (e) => {
     e.preventDefault();
+    setMenuOpen(false);
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
@@ -178,7 +179,17 @@ export default function App() {
             <a href="#servicios" onClick={scrollTo("servicios")}>Servicios</a>
             <a href="#resultados" onClick={scrollTo("resultados")}>Resultados</a>
           </nav>
-          <a href="#contacto" className="btn btn--wine btn--sm" onClick={scrollTo("contacto")}>Empieza aquí</a>
+          <a href="#contacto" className="btn btn--wine btn--sm nav__cta" onClick={scrollTo("contacto")}>Empieza aquí</a>
+          <button className="nav__burger" aria-label={menuOpen ? "Cerrar menú" : "Abrir menú"} aria-expanded={menuOpen} onClick={() => setMenuOpen((v) => !v)}>
+            {menuOpen ? <X size={26} /> : <Menu size={26} />}
+          </button>
+        </div>
+        <div className={`mobilemenu ${menuOpen ? "open" : ""}`}>
+          <a href="#metodo" onClick={scrollTo("metodo")}>Método</a>
+          <a href="#sobre" onClick={scrollTo("sobre")}>Sobre mí</a>
+          <a href="#servicios" onClick={scrollTo("servicios")}>Servicios</a>
+          <a href="#resultados" onClick={scrollTo("resultados")}>Resultados</a>
+          <a href="#contacto" className="btn btn--wine" onClick={scrollTo("contacto")}>Empieza aquí</a>
         </div>
       </header>
 
@@ -551,9 +562,16 @@ function Styles() {
     .nav__links{display:flex;gap:30px;font-size:15px;font-weight:500}
     .nav__links a{color:var(--ink2);transition:color .2s}
     .nav__links a:hover{color:var(--wine)}
+    .nav__burger{display:none;background:none;border:none;color:var(--ink);
+      cursor:pointer;padding:8px;margin:-8px;align-items:center;justify-content:center}
+    .mobilemenu{display:none}
+    .mobilemenu a{display:block;padding:17px 28px;font-size:18px;font-weight:600;
+      color:var(--ink);border-top:1px solid var(--line)}
+    .mobilemenu a.btn{display:flex;justify-content:center;margin:16px 28px 22px;
+      padding:16px 24px;border-top:none;color:var(--cream)}
 
     /* HERO */
-    .hero{position:relative;min-height:92vh;display:flex;align-items:flex-end;
+    .hero{position:relative;min-height:92vh;min-height:92dvh;display:flex;align-items:flex-end;
       color:var(--cream);overflow:hidden}
     .hero__media{position:absolute;inset:0;z-index:0}
     .hero__slot{border-radius:0;border:none;min-height:100%;
@@ -723,7 +741,13 @@ function Styles() {
     @media(max-width:860px){
       .tri__grid,.aprende__grid{grid-template-columns:1fr}
       .res__grid{grid-template-columns:1fr}
-      .nav__links{display:none}
+      .nav__links,.nav__cta{display:none}
+      .nav__burger{display:inline-flex}
+      .mobilemenu{display:block;overflow:hidden;max-height:0;
+        transition:max-height .4s cubic-bezier(.2,.7,.2,1);
+        background:rgba(236,228,214,.98);backdrop-filter:blur(12px);
+        border-bottom:1px solid var(--line)}
+      .mobilemenu.open{max-height:440px}
       .mstep{grid-template-columns:64px 1fr;gap:16px}
     }
     @media(max-width:560px){
@@ -731,7 +755,17 @@ function Styles() {
       .stats__grid{grid-template-columns:1fr;gap:18px}
       .stat{border-left:none;padding-left:0}
       .otros__grid{grid-template-columns:1fr}
-      .hero__content{padding-top:100px;padding-bottom:64px}
+      .hero__content{padding-top:96px;padding-bottom:60px}
+      .hero__cta .btn{width:100%;justify-content:center}
+      .prog{padding:30px 22px}
+      .res__ba .slot{min-height:170px}
+      .cform__actions .btn{width:100%;justify-content:center}
+      .footer__grid{flex-direction:column;align-items:flex-start}
+      .footer__legal{flex-direction:column;gap:8px}
+    }
+    @media(max-width:380px){
+      .hero__title{font-size:clamp(52px,17vw,64px)}
+      .brand__name{font-size:15px}
     }
     `}</style>
   );
