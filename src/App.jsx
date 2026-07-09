@@ -293,8 +293,8 @@ export default function App() {
   return (
     <div className="page">
       <Styles />
-      <div className="bgfx" aria-hidden style={{ filter: `hue-rotate(${progress * 45}deg)` }}>
-        <span className="fx fx1" /><span className="fx fx2" /><span className="fx fx3" /><span className="fx fx4" />
+      <div className="bgfx" aria-hidden style={{ filter: `hue-rotate(${progress * 40}deg)` }}>
+        <span className="silk s1" /><span className="silk s2" /><span className="silk s3" />
       </div>
       <div className="scrollbar" style={{ width: `${progress * 100}%` }} />
 
@@ -406,7 +406,13 @@ export default function App() {
       {/* SOBRE MÍ */}
       <section className="sobre" id="sobre">
         <div className="wrap sobre__grid">
-          <Reveal className="sobre__media"><PhotoSlot label="Retrato de Antonella" hint="Vertical. Cercana, natural." tall /></Reveal>
+          <Reveal className="sobre__media">
+            <div className="sobre__collage">
+              <img className="c1" src="/anto1.jpg" alt="Antonella compitiendo en fitness" />
+              <img className="c2" src="/anto2.jpg" alt="Antonella entrenando" />
+              <img className="c3" src="/anto3.jpg" alt="Antonella con su medalla" />
+            </div>
+          </Reveal>
           <Reveal delay={120} className="sobre__text">
             <p className="eyebrow">Sobre mí</p>
             <h2 className="h2">Nací en Uruguay. Con 20 años emigré sola para empezar de cero.</h2>
@@ -593,16 +599,15 @@ function Styles() {
 
     .scrollbar{position:fixed;top:0;left:0;height:3px;background:var(--grad);background-size:200% auto;z-index:100;width:0;animation:shimmer 5s linear infinite}
 
-    /* FONDO ANIMADO GLOBAL */
-    .bgfx{position:fixed;inset:-12%;z-index:0;pointer-events:none;overflow:hidden;transition:filter .25s linear}
-    .fx{position:absolute;border-radius:50%;filter:blur(90px);opacity:.55;mix-blend-mode:multiply}
-    .fx1{width:48vw;height:48vw;left:-8vw;top:-6vw;background:radial-gradient(circle,#EC5F86,transparent 62%);animation:fxa 20s ease-in-out infinite alternate}
-    .fx2{width:44vw;height:44vw;right:-6vw;top:16vh;background:radial-gradient(circle,#7C5CE6,transparent 62%);animation:fxb 26s ease-in-out infinite alternate}
-    .fx3{width:42vw;height:42vw;left:16vw;top:52vh;background:radial-gradient(circle,#F2926B,transparent 62%);animation:fxc 23s ease-in-out infinite alternate}
-    .fx4{width:38vw;height:38vw;right:10vw;bottom:-6vh;background:radial-gradient(circle,#C651A8,transparent 62%);animation:fxa 28s ease-in-out infinite alternate-reverse}
-    @keyframes fxa{to{transform:translate(9vw,7vh) scale(1.16)}}
-    @keyframes fxb{to{transform:translate(-7vw,9vh) scale(1.12)}}
-    @keyframes fxc{to{transform:translate(7vw,-7vh) scale(1.22)}}
+    /* FONDO ANIMADO GLOBAL — cintas de seda que fluyen */
+    .bgfx{position:fixed;inset:-15%;z-index:0;pointer-events:none;overflow:hidden;transition:filter .25s linear}
+    .silk{position:absolute;filter:blur(55px);opacity:.6;mix-blend-mode:multiply;border-radius:50%;will-change:transform}
+    .s1{width:85vw;height:32vw;left:-28vw;bottom:-8vw;background:linear-gradient(112deg,transparent 8%,#7C5CE6 38%,#5b8bff 58%,transparent 88%);animation:silk1 24s ease-in-out infinite alternate}
+    .s2{width:82vw;height:30vw;right:-28vw;top:6vh;background:linear-gradient(112deg,transparent 8%,#C651A8 40%,#7C5CE6 60%,transparent 90%);animation:silk2 30s ease-in-out infinite alternate}
+    .s3{width:72vw;height:26vw;left:2vw;top:42vh;background:linear-gradient(100deg,transparent 10%,#EC5F86 42%,#F2926B 60%,transparent 90%);animation:silk3 27s ease-in-out infinite alternate}
+    @keyframes silk1{from{transform:rotate(-18deg) translate(0,0)}to{transform:rotate(-7deg) translate(7vw,-4vh)}}
+    @keyframes silk2{from{transform:rotate(20deg) translate(0,0)}to{transform:rotate(9deg) translate(-7vw,5vh)}}
+    @keyframes silk3{from{transform:rotate(-8deg) translate(0,0) scale(1)}to{transform:rotate(-1deg) translate(5vw,-3vh) scale(1.1)}}
     .page > *:not(.bgfx):not(.scrollbar){position:relative;z-index:1}
 
     @keyframes shimmer{to{background-position:200% center}}
@@ -628,7 +633,7 @@ function Styles() {
     .reveal.in{opacity:1;transform:none}
     @media (prefers-reduced-motion:reduce){
       .reveal{opacity:1!important;transform:none!important;transition:none}
-      .line,.hero__lead,.hero__cta,.hero__eyebrow,.marquee__track,.hero__media,.fx,.btn--wine,
+      .line,.hero__lead,.hero__cta,.hero__eyebrow,.marquee__track,.hero__media,.silk,.btn--wine,
       .manifesto,.metodo,.filo,.contacto,.quiz,.scrollbar,.h2,.eyebrow,.h2 em,.hero__title em,.stat__big{animation:none!important}
     }
 
@@ -771,8 +776,13 @@ function Styles() {
 
     /* SOBRE */
     .sobre{padding:clamp(64px,9vw,120px) 0}
-    .sobre__grid{display:grid;grid-template-columns:.85fr 1.15fr;gap:60px;align-items:stretch}
-    .sobre__media{min-height:520px}
+    .sobre__grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:60px;align-items:start}
+    .sobre__media{min-height:auto}
+    .sobre__collage{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .sobre__collage img{width:100%;height:100%;object-fit:cover;border-radius:14px;display:block;box-shadow:0 24px 55px -28px rgba(30,10,40,.5)}
+    .sobre__collage .c1{grid-column:1;grid-row:1 / 3}
+    .sobre__collage .c2{grid-column:2;grid-row:1;aspect-ratio:1 / 1}
+    .sobre__collage .c3{grid-column:2;grid-row:2;aspect-ratio:1 / 1}
     .sobre__text p{color:var(--ink2);max-width:560px}
     .chips{display:flex;flex-wrap:wrap;gap:9px;margin-top:24px}
     .chip{font-size:13px;font-weight:500;padding:7px 15px;border:1px solid rgba(255,255,255,.5);border-radius:100px;background:rgba(255,255,255,.5)}
