@@ -703,12 +703,12 @@ function Styles() {
     .hero__media{position:absolute;inset:0;z-index:0;overflow:hidden;background:linear-gradient(160deg,#2a1440,#4a1c52 55%,#1a0f2e)}
     .hero__track{display:flex;width:100%;height:100%;transition:transform 1.1s cubic-bezier(.7,0,.2,1)}
     .hero__slide{position:relative;flex:0 0 100%;width:100%;height:100%}
-    .hero__slide video{width:100%;height:100%;object-fit:cover;display:block}
-    .hero__slide video::-webkit-media-controls-start-playback-button,
-    .hero__slide video::-webkit-media-controls-play-button,
-    .hero__slide video::-webkit-media-controls-overlay-play-button,
-    .hero__slide video::-webkit-media-controls-panel,
-    .hero__slide video::-webkit-media-controls{display:none!important;-webkit-appearance:none;appearance:none;opacity:0!important}
+    .hero__slide video{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
+    video::-webkit-media-controls-start-playback-button,
+    video::-webkit-media-controls-overlay-play-button,
+    video::-webkit-media-controls-play-button,
+    video::-webkit-media-controls-panel,
+    video::-webkit-media-controls{display:none!important;-webkit-appearance:none!important;appearance:none!important;opacity:0!important}
     .hero__dots{position:absolute;right:22px;bottom:22px;display:flex;gap:8px;z-index:3}
     .hero__dots button{width:9px;height:9px;border-radius:50%;border:none;background:rgba(245,239,228,.45);cursor:pointer;padding:0;transition:all .3s}
     .hero__dots button.on{background:var(--cream);width:26px;border-radius:100px}
