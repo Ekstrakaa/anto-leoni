@@ -278,14 +278,16 @@ export default function App() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [videoOk, setVideoOk] = useState(true);
   const [vi, setVi] = useState(0);
-  const heroVid = useRef(null);
+  const heroMedia = useRef(null);
   useEffect(() => {
-    const v = heroVid.current;
-    if (!v) return;
-    v.muted = true;
-    const p = v.play();
-    if (p && p.catch) p.catch(() => setVideoOk(false));
-  }, [vi]);
+    const el = heroMedia.current;
+    if (!el) return;
+    const vids = el.querySelectorAll("video");
+    if (!vids.length) return;
+    vids.forEach((v) => { v.muted = true; const p = v.play(); if (p && p.catch) p.catch(() => {}); });
+    const first = vids[0].play();
+    if (first && first.catch) first.catch(() => setVideoOk(false));
+  }, []);
   useEffect(() => {
     if (!videoOk) return;
     const id = setTimeout(() => setVi((i) => (i + 1) % HERO_VIDEOS.length), 5000);
@@ -343,11 +345,18 @@ export default function App() {
 
       {/* HERO */}
       <section className="hero" id="top">
-        <div className="hero__media">
+        <div className="hero__media" ref={heroMedia}>
           {videoOk ? (
-            <video ref={heroVid} className="hero__vid" src={HERO_VIDEOS[vi]} autoPlay muted loop playsInline preload="auto" />
+            HERO_VIDEOS.map((src, i) => (
+              <video
+                key={src}
+                className={`hero__vid ${i === vi ? "on" : ""}`}
+                src={src}
+                autoPlay muted loop playsInline preload="auto"
+              />
+            ))
           ) : (
-            <img className="hero__vid" src="/anto2.png" alt="Antonella entrenando" />
+            <img className="hero__vid on" src="/anto2.png" alt="Antonella entrenando" />
           )}
           <div className="hero__scrim" />
         </div>
@@ -700,7 +709,8 @@ function Styles() {
     /* HERO */
     .hero{position:relative;min-height:92vh;min-height:92dvh;display:flex;align-items:flex-end;color:var(--cream);overflow:hidden}
     .hero__media{position:absolute;inset:0;z-index:0;overflow:hidden;background:linear-gradient(160deg,#2a1440,#4a1c52 55%,#1a0f2e)}
-    .hero__vid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
+    .hero__vid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;opacity:0;transition:opacity 1.1s ease}
+    .hero__vid.on{opacity:1}
     .hero__track{display:flex;width:100%;height:100%;transition:transform 1.1s cubic-bezier(.7,0,.2,1)}
     .hero__slide{position:relative;flex:0 0 100%;width:100%;height:100%}
     .hero__slide video{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
