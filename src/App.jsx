@@ -13,6 +13,7 @@ import {
 
 const WHATSAPP = "34610939223";
 const EMAIL = "alslife24@gmail.com";
+const HERO_VIDEOS = ["/video1.mp4", "/video2.mp4", "/video3.mp4"];
 const waLink = (msg) => `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`;
 
 /* -------------------- hooks -------------------- */
@@ -276,6 +277,7 @@ function Faq() {
 export default function App() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [videoOk, setVideoOk] = useState(true);
+  const [vi, setVi] = useState(0);
   const heroVid = useRef(null);
   useEffect(() => {
     const v = heroVid.current;
@@ -283,7 +285,7 @@ export default function App() {
     v.muted = true;
     const p = v.play();
     if (p && p.catch) p.catch(() => setVideoOk(false));
-  }, []);
+  }, [vi]);
   const progress = useScrollProgress();
   const scrollTo = (id) => (e) => {
     e.preventDefault();
@@ -338,7 +340,8 @@ export default function App() {
       <section className="hero" id="top">
         <div className="hero__media">
           {videoOk ? (
-            <video ref={heroVid} className="hero__vid" src="/hero.mp4" autoPlay muted loop playsInline preload="auto" />
+            <video ref={heroVid} className="hero__vid" src={HERO_VIDEOS[vi]} autoPlay muted playsInline preload="auto"
+              onEnded={() => setVi((i) => (i + 1) % HERO_VIDEOS.length)} />
           ) : (
             <img className="hero__vid" src="/anto2.png" alt="Antonella entrenando" />
           )}
