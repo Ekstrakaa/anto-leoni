@@ -286,6 +286,11 @@ export default function App() {
     const p = v.play();
     if (p && p.catch) p.catch(() => setVideoOk(false));
   }, [vi]);
+  useEffect(() => {
+    if (!videoOk) return;
+    const id = setTimeout(() => setVi((i) => (i + 1) % HERO_VIDEOS.length), 5000);
+    return () => clearTimeout(id);
+  }, [vi, videoOk]);
   const progress = useScrollProgress();
   const scrollTo = (id) => (e) => {
     e.preventDefault();
@@ -340,8 +345,7 @@ export default function App() {
       <section className="hero" id="top">
         <div className="hero__media">
           {videoOk ? (
-            <video ref={heroVid} className="hero__vid" src={HERO_VIDEOS[vi]} autoPlay muted playsInline preload="auto"
-              onEnded={() => setVi((i) => (i + 1) % HERO_VIDEOS.length)} />
+            <video ref={heroVid} className="hero__vid" src={HERO_VIDEOS[vi]} autoPlay muted loop playsInline preload="auto" />
           ) : (
             <img className="hero__vid" src="/anto2.png" alt="Antonella entrenando" />
           )}
