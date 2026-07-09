@@ -605,7 +605,7 @@ function Styles() {
     em{font-style:italic}
     :focus-visible{outline:2.5px solid var(--rose);outline-offset:3px;border-radius:2px}
 
-    .scrollbar{position:fixed;top:0;left:0;height:3px;background:var(--grad);background-size:200% auto;z-index:100;width:0;animation:shimmer 5s linear infinite}
+    .scrollbar{position:fixed;top:0;left:0;height:3px;background:var(--grad);z-index:100;width:0}
 
     /* FONDO ANIMADO GLOBAL — cintas de seda que fluyen */
     .bgfx{position:fixed;inset:-15%;z-index:0;pointer-events:none;overflow:hidden;transition:filter .25s linear}
@@ -621,12 +621,11 @@ function Styles() {
     @keyframes shimmer{to{background-position:200% center}}
     @keyframes wave{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
 
-    /* gradiente animado en títulos, eyebrows y números */
+    /* gradiente suave en títulos, eyebrows y números (sin costura) */
     .h2,.h2 em,.hero__title em,.stat__big,.eyebrow,.grad-text{
-      background:var(--grad);background-size:200% auto;
+      background:var(--grad);
       -webkit-background-clip:text;background-clip:text;
-      -webkit-text-fill-color:transparent;color:transparent;
-      animation:shimmer 5s linear infinite}
+      -webkit-text-fill-color:transparent;color:transparent}
     .h2 em,.hero__title em{font-style:italic}
     .stat__big{font-style:normal}
 
@@ -652,8 +651,8 @@ function Styles() {
     .btn svg{transition:transform .25s ease}
     .btn:hover svg:last-child{transform:translateX(3px)}
     .btn--sm{padding:10px 20px;font-size:14px}
-    .btn--wine{background:var(--grad);background-size:200% auto;color:#fff;box-shadow:0 12px 34px -8px rgba(124,92,230,.65);animation:shimmer 4s linear infinite}
-    .btn--wine:hover{box-shadow:0 20px 50px -10px rgba(236,95,134,.8)}
+    .btn--wine{background:var(--grad);color:#fff;box-shadow:0 12px 32px -10px rgba(124,92,230,.5)}
+    .btn--wine:hover{box-shadow:0 20px 48px -12px rgba(236,95,134,.6);filter:brightness(1.06)}
     .btn--glass{background:rgba(255,255,255,.13);border-color:rgba(255,255,255,.4);color:var(--cream);backdrop-filter:blur(10px)}
     .btn--glass:hover{background:rgba(255,255,255,.22)}
     .btn--cream{background:var(--cream);color:var(--ink)}
@@ -735,7 +734,7 @@ function Styles() {
     .stat__small{font-size:13px;color:var(--ink2);letter-spacing:.02em}
 
     /* MARQUEE */
-    .marquee{background:var(--grad);background-size:200% auto;animation:shimmer 8s linear infinite;color:var(--cream);padding:18px 0;overflow:hidden;white-space:nowrap}
+    .marquee{background:var(--grad);color:var(--cream);padding:18px 0;overflow:hidden;white-space:nowrap}
     .marquee__track{display:inline-flex;animation:marq 24s linear infinite;will-change:transform}
     .marquee:hover .marquee__track{animation-play-state:paused}
     .marquee span{font-family:var(--serif);font-style:italic;font-size:clamp(22px,3.4vw,38px);padding:0 30px;opacity:.96}
@@ -756,7 +755,7 @@ function Styles() {
     .quiz__step{font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--sand);white-space:nowrap}
     .quiz__step b{color:var(--cream)}
     .quiz__bar{flex:1;height:4px;border-radius:100px;background:rgba(245,239,228,.16);overflow:hidden}
-    .quiz__fill{height:100%;background:var(--grad);background-size:200% auto;border-radius:100px;transition:width .5s cubic-bezier(.2,.7,.2,1);animation:shimmer 4s linear infinite}
+    .quiz__fill{height:100%;background:var(--grad);border-radius:100px;transition:width .5s cubic-bezier(.2,.7,.2,1)}
     .quiz__body{min-height:238px}
     .stepin{animation:stepin .45s cubic-bezier(.2,.7,.2,1)}
     @keyframes stepin{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
