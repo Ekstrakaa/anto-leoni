@@ -710,7 +710,7 @@ function Styles() {
     .hero__video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
     .hero__slot{border-radius:0;border:none;min-height:100%;background:linear-gradient(160deg,#2a1440,#4a1c52 55%,#1a0f2e);color:rgba(245,239,228,.55)}
     .hero__slot .slot__label,.hero__slot .slot__hint{color:rgba(245,239,228,.6)}
-    .hero__scrim{position:absolute;inset:0;background:linear-gradient(180deg,rgba(20,12,28,.15) 0%,rgba(20,12,28,.4) 55%,rgba(20,12,28,.82) 100%)}
+    .hero__scrim{position:absolute;inset:0;background:linear-gradient(180deg,rgba(18,10,26,.12) 0%,rgba(18,10,26,.42) 55%,rgba(18,10,26,.85) 100%),linear-gradient(90deg,rgba(18,10,26,.58) 0%,rgba(18,10,26,.14) 55%,transparent 100%)}
     @keyframes kenburns{from{transform:scale(1)}to{transform:scale(1.09)}}
     .hero__content{position:relative;z-index:2;padding-top:120px;padding-bottom:88px;max-width:900px}
     .hero__eyebrow{animation:fadein 1s ease .15s both}
