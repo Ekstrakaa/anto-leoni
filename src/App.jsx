@@ -275,6 +275,11 @@ function Faq() {
 /* ============================================================================ */
 export default function App() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [heroIndex, setHeroIndex] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setHeroIndex((i) => (i + 1) % 3), 6500);
+    return () => clearInterval(id);
+  }, []);
   const progress = useScrollProgress();
   const scrollTo = (id) => (e) => {
     e.preventDefault();
@@ -328,12 +333,17 @@ export default function App() {
       {/* HERO */}
       <section className="hero" id="top">
         <div className="hero__media">
-          {/* --- VÍDEO DE FONDO (opcional): meté hero.mp4 en /public y descomentá ---
-          <video className="hero__video" autoPlay muted loop playsInline poster="/hero-poster.jpg">
-            <source src="/hero.mp4" type="video/mp4" />
-          </video> */}
-          <PhotoSlot label="Foto o VÍDEO principal — Antonella entrenando" hint="Es lo primero que se ve. Alta resolución." className="hero__slot" tall />
+          <div className="hero__track" style={{ transform: `translateX(-${heroIndex * 100}%)` }}>
+            <div className="hero__slide"><video src="/video1.mp4" autoPlay muted loop playsInline /></div>
+            <div className="hero__slide"><video src="/video2.mp4" autoPlay muted loop playsInline /></div>
+            <div className="hero__slide"><video src="/video3.mp4" autoPlay muted loop playsInline /></div>
+          </div>
           <div className="hero__scrim" />
+          <div className="hero__dots">
+            {[0, 1, 2].map((i) => (
+              <button key={i} className={i === heroIndex ? "on" : ""} onClick={() => setHeroIndex(i)} aria-label={`Ver vídeo ${i + 1}`} />
+            ))}
+          </div>
         </div>
         <div className="wrap hero__content">
           <p className="eyebrow eyebrow--light hero__eyebrow">Nutricionista · Naturópata · Fitoterapeuta · Entrenadora</p>
@@ -682,7 +692,13 @@ function Styles() {
 
     /* HERO */
     .hero{position:relative;min-height:92vh;min-height:92dvh;display:flex;align-items:flex-end;color:var(--cream);overflow:hidden}
-    .hero__media{position:absolute;inset:0;z-index:0;animation:kenburns 22s ease-in-out infinite alternate}
+    .hero__media{position:absolute;inset:0;z-index:0;overflow:hidden;background:linear-gradient(160deg,#2a1440,#4a1c52 55%,#1a0f2e)}
+    .hero__track{display:flex;width:100%;height:100%;transition:transform 1.1s cubic-bezier(.7,0,.2,1)}
+    .hero__slide{position:relative;flex:0 0 100%;width:100%;height:100%}
+    .hero__slide video{width:100%;height:100%;object-fit:cover;display:block}
+    .hero__dots{position:absolute;right:22px;bottom:22px;display:flex;gap:8px;z-index:3}
+    .hero__dots button{width:9px;height:9px;border-radius:50%;border:none;background:rgba(245,239,228,.45);cursor:pointer;padding:0;transition:all .3s}
+    .hero__dots button.on{background:var(--cream);width:26px;border-radius:100px}
     .hero__video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
     .hero__slot{border-radius:0;border:none;min-height:100%;background:linear-gradient(160deg,#2a1440,#4a1c52 55%,#1a0f2e);color:rgba(245,239,228,.55)}
     .hero__slot .slot__label,.hero__slot .slot__hint{color:rgba(245,239,228,.6)}
