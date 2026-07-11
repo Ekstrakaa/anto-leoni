@@ -643,7 +643,6 @@ export default function App() {
             <span>Tenerife Sur, España</span>
           </div>
         </div>
-        <div className="footer__big" aria-hidden>ANTO&nbsp;LEONI</div>
         <div className="wrap footer__legal">
           <span>© {new Date().getFullYear()} Anto Leoni · Todos los derechos reservados</span>
           <span>Feel&Move Method®</span>
@@ -1014,8 +1013,7 @@ function Styles() {
     .footer__social{display:flex;gap:12px;margin-top:2px}
     .footer__social a{width:44px;height:44px;border:1px solid var(--line);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--ink);transition:all .3s var(--ease)}
     .footer__social a:hover{background:var(--grad);color:#fff;border-color:transparent;transform:translateY(-3px);box-shadow:0 14px 30px -14px rgba(236,95,134,.6)}
-    .footer__big{font-family:var(--sans);font-weight:800;font-size:clamp(46px,13.5vw,200px);letter-spacing:.02em;line-height:.86;text-align:center;color:transparent;-webkit-text-stroke:1.4px rgba(34,25,38,.13);user-select:none;pointer-events:none;white-space:nowrap;margin:6px 0 0}
-    .footer__legal{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:14px;padding:22px 28px 30px;border-top:1px solid var(--line);font-size:13px;color:var(--ink3)}
+    .footer__legal{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:22px;padding:22px 28px 30px;border-top:1px solid var(--line);font-size:13px;color:var(--ink3)}
     @media(max-width:860px){
       .footer__cols{grid-template-columns:1fr 1fr;gap:32px 24px}
       .footer__col--brand{grid-column:1 / -1}
