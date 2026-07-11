@@ -152,6 +152,8 @@ const QUIZ = [
     options: ["Sin motivación", "Estancado/a", "Sin energía", "Con ganas de un cambio"] },
   { id: "metas", type: "multi", q: "¿Qué te gustaría lograr?", help: "Puedes elegir varias",
     options: ["Sentirme mejor", "Ganar energía", "Mejorar mis hábitos", "Perder grasa", "Ganar fuerza", "Reconectar conmigo"] },
+  { id: "tiempo", type: "single", q: "¿Cuánto tiempo puedes dedicarle a la semana?", help: "Sé sincera: preparo el plan a tu medida",
+    options: ["2-3 días", "4-5 días", "Todos los días", "Aún no lo sé"] },
   { id: "modalidad", type: "single", q: "¿Cómo prefieres trabajar?",
     options: ["Online", "Presencial (Tenerife)", "Combinado", "Aún no lo sé"] },
 ];
@@ -183,6 +185,7 @@ function Quiz() {
     const L = ["¡Hola Anto! Hice el test de Feel&Move y quiero mi plan 💪"];
     if (ans.estado) L.push(`• Cómo me siento: ${ans.estado}`);
     if (ans.metas?.length) L.push(`• Quiero lograr: ${ans.metas.join(", ")}`);
+    if (ans.tiempo) L.push(`• Tiempo disponible: ${ans.tiempo}`);
     if (ans.modalidad) L.push(`• Modalidad: ${ans.modalidad}`);
     L.push(`• Nombre: ${form.nombre}`);
     L.push(`• Contacto: ${form.contacto}`);
@@ -194,24 +197,31 @@ function Quiz() {
   return (
     <div className="quizcard">
       <div className="quiz__top">
-        <span className="quiz__step">PASO <b>{Math.min(step + 1, TOTAL)}</b>/{TOTAL}</span>
-        <div className="quiz__bar"><div className="quiz__fill" style={{ width: `${((step + 1) / TOTAL) * 100}%` }} /></div>
+        <div className="quiz__toprow">
+          <span className="quiz__step">Paso <b>{Math.min(step + 1, TOTAL)}</b> de {TOTAL}</span>
+          <span className="quiz__free">Gratis · 1 min</span>
+        </div>
+        <div className="quiz__segs">
+          {Array.from({ length: TOTAL }).map((_, i) => (
+            <span key={i} className={`seg ${i < step ? "past" : ""} ${i === step ? "now" : ""}`} />
+          ))}
+        </div>
       </div>
 
       <div className="quiz__body" key={done ? "done" : step}>
         {done ? (
           <div className="quiz__done stepin">
-            <span className="quiz__doneicon"><Check size={26} /></span>
-            <h3>¡Listo!</h3>
-            <p>Te abrí WhatsApp con tus respuestas ya escritas. Solo pulsa enviar y Anto te responde en persona.</p>
-            <button className="btn btn--cream" onClick={() => { setDone(false); setStep(0); setAns({}); setForm({ nombre: "", contacto: "" }); }}>
-              Empezar de nuevo
+            <span className="quiz__doneicon"><Check size={28} strokeWidth={2.5} /></span>
+            <h3>Tu propuesta está en camino</h3>
+            <p>Te he abierto WhatsApp con tus respuestas ya escritas. Solo pulsa enviar y te responderé personalmente.</p>
+            <button className="quiz__restart" onClick={() => { setDone(false); setStep(0); setAns({}); setForm({ nombre: "", contacto: "" }); }}>
+              Volver a empezar
             </button>
           </div>
         ) : isForm ? (
           <div className="stepin">
-            <h3 className="quiz__q">Último paso: ¿a dónde te envío tu plan?</h3>
-            <p className="quiz__help">Con tus respuestas, Anto prepara una propuesta personalizada.</p>
+            <h3 className="quiz__q">¿A dónde te envío tu propuesta?</h3>
+            <p className="quiz__help">Con tus respuestas prepararé algo pensado solo para ti.</p>
             <label className="quiz__field">
               <span>Tu nombre</span>
               <input value={form.nombre} onChange={(e) => setForm({ ...form, nombre: e.target.value })} placeholder="Nombre" />
@@ -226,12 +236,12 @@ function Quiz() {
             <h3 className="quiz__q">{s.q}</h3>
             {s.help && <p className="quiz__help">{s.help}</p>}
             <div className="opts">
-              {s.options.map((op) => {
+              {s.options.map((op, oi) => {
                 const sel = s.type === "multi" ? (ans[s.id] || []).includes(op) : ans[s.id] === op;
                 return (
                   <button key={op} className={`opt ${sel ? "sel" : ""}`} onClick={() => pick(s.id, op, s.type === "multi")}>
-                    {s.type === "multi" && <span className="opt__check">{sel && <Check size={12} strokeWidth={3} />}</span>}
-                    {op}
+                    <span className="opt__key">{sel ? <Check size={13} strokeWidth={3.2} /> : String.fromCharCode(65 + oi)}</span>
+                    <span className="opt__txt">{op}</span>
                   </button>
                 );
               })}
@@ -244,16 +254,16 @@ function Quiz() {
         <div className="quiz__foot">
           {step > 0 ? (
             <button className="quiz__back" onClick={() => setStep((x) => x - 1)}><ArrowLeft size={18} /> Atrás</button>
-          ) : <span />}
+          ) : <span className="quiz__hint">Sin compromiso</span>}
           {isForm ? (
             <button className="btn btn--wine" disabled={!canNext} onClick={submit}>
-              <MessageCircle size={18} /> Recibir mi plan
+              <MessageCircle size={18} /> Recibir mi propuesta
             </button>
           ) : s.type === "multi" ? (
             <button className="btn btn--wine" disabled={!canNext} onClick={() => setStep((x) => x + 1)}>
               Siguiente <ArrowRight size={18} />
             </button>
-          ) : <span className="quiz__hint">Toca una opción</span>}
+          ) : <span className="quiz__hint">Elige una opción</span>}
         </div>
       )}
     </div>
@@ -410,7 +420,7 @@ export default function App() {
             <p className="eyebrow eyebrow--light">Empieza por aquí</p>
             <h2 className="h2 h2--light">Descubre tu punto de partida<em>.</em></h2>
             <p className="quiz__lead">
-              Responde 4 preguntas rápidas. Al terminar te preparo una propuesta pensada
+              Responde unas preguntas rápidas. Al terminar te preparo una propuesta pensada
               para ti, sin compromiso. Menos de un minuto.
             </p>
           </Reveal>
@@ -498,13 +508,19 @@ export default function App() {
       <section className="servicios" id="servicios">
         <div className="wrap servicios__grid">
           <Reveal className="prog">
+            <span className="prog__badge">Más elegido</span>
             <p className="eyebrow">Programa destacado</p>
             <h2 className="h2">Programa Online Feel&Move</h2>
-            <p className="prog__lead">El acompañamiento completo, estés donde estés. Un proceso pensado para que aprendas a cuidarte de verdad, no para depender de un plan.</p>
+            <p className="prog__lead">
+              El acompañamiento completo, estés donde estés. Un proceso pensado para que aprendas
+              a cuidarte de verdad, no para depender de un plan.
+            </p>
             <ul className="prog__list">
-              {["Nutrición personalizada", "Entrenamiento adaptado a ti", "Seguimiento continuo", "Clase privada semanal por Zoom", "Educación en hábitos", "Asesoramiento en suplementación"].map((x) => <li key={x}><span className="dot" />{x}</li>)}
+              {["Nutrición personalizada", "Entrenamiento adaptado a ti", "Seguimiento continuo", "Clase privada semanal por Zoom", "Educación en hábitos", "Asesoramiento en suplementación"].map((x) => (
+                <li key={x}><span className="tick"><Check size={12} strokeWidth={3.2} /></span>{x}</li>
+              ))}
             </ul>
-            <a className="btn btn--wine" href="#test" onClick={scrollTo("test")}>Quiero información <ArrowRight size={18} /></a>
+            <a className="btn btn--wine btn--lg" href="#test" onClick={scrollTo("test")}>Quiero información <ArrowRight size={18} /></a>
           </Reveal>
           <Reveal delay={120} className="otros">
             <p className="eyebrow">Otros servicios</p>
@@ -832,36 +848,46 @@ function Styles() {
     .quiz{padding:clamp(64px,9vw,120px) 0}
     .quiz__grid{display:grid;grid-template-columns:.85fr 1.15fr;gap:56px;align-items:center}
     .quiz__lead{color:rgba(245,239,228,.78);max-width:380px}
-    .quizcard{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:24px;padding:clamp(24px,4vw,40px);box-shadow:0 40px 90px -40px rgba(0,0,0,.65);backdrop-filter:blur(12px)}
-    .quiz__top{display:flex;align-items:center;gap:14px;margin-bottom:26px}
-    .quiz__step{font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--sand);white-space:nowrap}
-    .quiz__step b{color:var(--cream)}
-    .quiz__bar{flex:1;height:5px;border-radius:100px;background:rgba(245,239,228,.16);overflow:hidden}
-    .quiz__fill{height:100%;background:var(--grad);border-radius:100px;transition:width .55s var(--ease)}
-    .quiz__body{min-height:238px}
+    .quizcard{position:relative;overflow:hidden;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.2);border-radius:26px;padding:clamp(26px,4vw,42px);box-shadow:0 50px 100px -45px rgba(0,0,0,.7);backdrop-filter:blur(14px)}
+    .quizcard::before{content:"";position:absolute;left:0;top:0;width:100%;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.5),transparent)}
+    .quiz__top{margin-bottom:28px}
+    .quiz__toprow{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+    .quiz__step{font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,239,228,.6)}
+    .quiz__step b{color:var(--cream);font-weight:700}
+    .quiz__free{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--sand);border:1px solid rgba(241,184,206,.4);border-radius:100px;padding:5px 12px;white-space:nowrap}
+    .quiz__segs{display:flex;gap:6px}
+    .seg{flex:1;height:4px;border-radius:100px;background:rgba(245,239,228,.16);transition:background .45s var(--ease),transform .45s var(--ease)}
+    .seg.past{background:rgba(241,184,206,.75)}
+    .seg.now{background:var(--grad);transform:scaleY(1.5)}
+    .quiz__body{min-height:262px}
     .stepin{animation:stepin .5s var(--ease)}
     @keyframes stepin{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
-    .quiz__q{font-family:var(--serif);font-weight:400;font-size:clamp(22px,3vw,31px);line-height:1.15;margin:0 0 6px;color:var(--cream)}
-    .quiz__help{font-size:14px;color:rgba(245,239,228,.62);margin:0 0 22px}
-    .opts{display:flex;flex-wrap:wrap;gap:12px}
-    .opt{display:inline-flex;align-items:center;gap:9px;padding:14px 20px;border-radius:100px;border:1.5px solid rgba(245,239,228,.3);background:transparent;color:var(--cream);font-family:var(--sans);font-size:15px;font-weight:500;cursor:pointer;transition:all .25s var(--ease)}
-    .opt:hover{border-color:var(--sand);transform:translateY(-2px);box-shadow:0 10px 26px -12px rgba(236,95,134,.5)}
-    .opt.sel{background:var(--grad);border-color:transparent;box-shadow:0 10px 30px -12px rgba(236,95,134,.6)}
-    .opt__check{width:18px;height:18px;border-radius:50%;border:1.5px solid rgba(245,239,228,.45);display:flex;align-items:center;justify-content:center;flex:none}
-    .opt.sel .opt__check{background:var(--cream);border-color:var(--cream);color:var(--rose)}
-    .quiz__foot{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:28px}
-    .quiz__back{background:none;border:none;color:rgba(245,239,228,.72);cursor:pointer;display:inline-flex;align-items:center;gap:8px;font-family:var(--sans);font-weight:600;font-size:15px;padding:8px 4px}
-    .quiz__back:hover{color:var(--cream)}
-    .quiz__hint{font-size:13px;color:rgba(245,239,228,.5);font-style:italic}
+    .quiz__q{font-family:var(--serif);font-weight:400;font-size:clamp(23px,3vw,32px);line-height:1.18;margin:0 0 6px;color:var(--cream)}
+    .quiz__help{font-size:14px;color:rgba(245,239,228,.62);margin:0 0 20px}
+    .opts{display:flex;flex-direction:column;gap:10px}
+    .opt{position:relative;overflow:hidden;display:flex;align-items:center;gap:14px;width:100%;text-align:left;padding:15px 18px;border-radius:14px;border:1.5px solid rgba(245,239,228,.22);background:rgba(255,255,255,.04);color:var(--cream);font-family:var(--sans);font-size:15px;font-weight:500;cursor:pointer;transition:all .28s var(--ease)}
+    .opt:hover{border-color:rgba(241,184,206,.7);background:rgba(255,255,255,.09);transform:translateX(4px)}
+    .opt.sel{background:var(--grad);border-color:transparent;box-shadow:0 14px 34px -14px rgba(236,95,134,.7);transform:translateX(4px)}
+    .opt__key{flex:none;width:28px;height:28px;border-radius:9px;display:flex;align-items:center;justify-content:center;background:rgba(245,239,228,.1);border:1px solid rgba(245,239,228,.2);font-size:12px;font-weight:700;color:rgba(245,239,228,.75);transition:all .28s var(--ease)}
+    .opt:hover .opt__key{border-color:rgba(241,184,206,.6);color:var(--cream)}
+    .opt.sel .opt__key{background:#fff;border-color:#fff;color:var(--rose)}
+    .opt__txt{flex:1}
+    .quiz__foot{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:26px;padding-top:22px;border-top:1px solid rgba(245,239,228,.12)}
+    .quiz__back{background:none;border:none;color:rgba(245,239,228,.7);cursor:pointer;display:inline-flex;align-items:center;gap:8px;font-family:var(--sans);font-weight:600;font-size:15px;padding:8px 4px;transition:color .25s,transform .25s var(--ease)}
+    .quiz__back:hover{color:var(--cream);transform:translateX(-3px)}
+    .quiz__hint{font-size:13px;color:rgba(245,239,228,.45)}
     .quiz__field{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
-    .quiz__field span{font-size:13px;font-weight:600;letter-spacing:.04em;color:var(--sand)}
-    .quiz__field input{background:rgba(245,239,228,.08);border:1px solid rgba(245,239,228,.25);border-radius:12px;padding:14px 16px;color:var(--cream);font-family:var(--sans);font-size:16px;transition:border-color .25s,background .25s}
-    .quiz__field input::placeholder{color:rgba(245,239,228,.45)}
-    .quiz__field input:focus{outline:none;border-color:var(--sand);background:rgba(245,239,228,.13)}
-    .quiz__done{text-align:center;padding:18px 0}
-    .quiz__doneicon{display:inline-flex;width:56px;height:56px;border-radius:50%;background:var(--grad);color:#fff;align-items:center;justify-content:center;margin-bottom:6px;box-shadow:0 14px 34px -12px rgba(236,95,134,.65)}
-    .quiz__done h3{font-family:var(--serif);font-weight:400;font-size:28px;margin:8px 0}
-    .quiz__done p{color:rgba(245,239,228,.75);max-width:360px;margin:0 auto 20px}
+    .quiz__field span{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:rgba(245,239,228,.6)}
+    .quiz__field input{background:rgba(245,239,228,.07);border:1.5px solid rgba(245,239,228,.2);border-radius:14px;padding:15px 17px;color:var(--cream);font-family:var(--sans);font-size:16px;transition:border-color .25s,background .25s,box-shadow .25s}
+    .quiz__field input::placeholder{color:rgba(245,239,228,.4)}
+    .quiz__field input:focus{outline:none;border-color:var(--sand);background:rgba(245,239,228,.12);box-shadow:0 0 0 4px rgba(241,184,206,.12)}
+    .quiz__done{text-align:center;padding:24px 0}
+    .quiz__doneicon{display:inline-flex;width:62px;height:62px;border-radius:50%;background:var(--grad);color:#fff;align-items:center;justify-content:center;margin-bottom:10px;box-shadow:0 18px 40px -14px rgba(236,95,134,.7);animation:pop .55s var(--ease) both}
+    @keyframes pop{0%{transform:scale(.4);opacity:0}60%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+    .quiz__done h3{font-family:var(--serif);font-weight:400;font-size:clamp(24px,3vw,30px);margin:10px 0}
+    .quiz__done p{color:rgba(245,239,228,.75);max-width:360px;margin:0 auto 22px}
+    .quiz__restart{background:none;border:none;color:rgba(245,239,228,.6);font-family:var(--sans);font-size:14px;font-weight:600;cursor:pointer;text-decoration:underline;text-underline-offset:4px;padding:6px}
+    .quiz__restart:hover{color:var(--cream)}
 
     /* MANIFESTO */
     .manifesto{padding:clamp(80px,12vw,150px) 0}
@@ -917,17 +943,20 @@ function Styles() {
     /* SERVICIOS */
     .servicios{padding:clamp(64px,9vw,120px) 0}
     .servicios__grid{display:grid;grid-template-columns:1.1fr .9fr;gap:56px;align-items:start}
-    .prog{background:rgba(255,255,255,.55);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.5);border-radius:22px;padding:44px;box-shadow:0 30px 70px -40px rgba(30,10,40,.35);transition:transform .4s var(--ease),box-shadow .4s}
-    .prog:hover{transform:translateY(-4px);box-shadow:0 40px 90px -40px rgba(124,92,230,.45)}
+    .prog{position:relative;background:rgba(255,255,255,.58);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.55);border-radius:24px;padding:44px;box-shadow:0 30px 70px -40px rgba(30,10,40,.35);transition:transform .4s var(--ease),box-shadow .4s}
+    .prog::before{content:"";position:absolute;left:0;top:0;width:100%;height:4px;background:var(--grad);border-radius:24px 24px 0 0}
+    .prog:hover{transform:translateY(-5px);box-shadow:0 44px 95px -40px rgba(124,92,230,.5)}
+    .prog__badge{position:absolute;top:-13px;right:28px;background:var(--grad);color:#fff;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:7px 15px;border-radius:100px;box-shadow:0 12px 28px -12px rgba(236,95,134,.6)}
     .prog__lead{color:var(--ink2);max-width:440px}
-    .prog__list{list-style:none;padding:0;margin:0 0 30px}
-    .prog__list li{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--line);font-weight:500;transition:padding-left .3s var(--ease)}
+    .prog__list{list-style:none;padding:0;margin:0 0 32px}
+    .prog__list li{display:flex;align-items:center;gap:13px;padding:13px 0;border-bottom:1px solid var(--line);font-weight:500;transition:padding-left .3s var(--ease)}
     .prog__list li:hover{padding-left:8px}
     .prog__list li:last-child{border-bottom:none}
+    .tick{flex:none;width:22px;height:22px;border-radius:50%;background:var(--grad);color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 14px -6px rgba(236,95,134,.6)}
     .dot{width:8px;height:8px;border-radius:50%;background:var(--grad);flex:none}
     .otros__grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px}
-    .otros__item{background:rgba(255,255,255,.45);backdrop-filter:blur(6px);border-radius:14px;padding:18px 16px;font-size:14px;font-weight:600;transition:all .3s var(--ease)}
-    .otros__item:hover{background:var(--grad);color:#fff;transform:translateY(-3px);box-shadow:0 16px 36px -16px rgba(236,95,134,.55)}
+    .otros__item{background:rgba(255,255,255,.5);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.5);border-radius:14px;padding:18px 16px;font-size:14px;font-weight:600;transition:all .3s var(--ease)}
+    .otros__item:hover{background:var(--grad);color:#fff;border-color:transparent;transform:translateY(-3px);box-shadow:0 16px 36px -16px rgba(236,95,134,.55)}
 
     /* RESULTADOS */
     .resultados{background:transparent;padding:clamp(64px,9vw,120px) 0}
