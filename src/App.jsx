@@ -270,6 +270,52 @@ function Quiz() {
   );
 }
 
+/* -------------------- ANTES / DESPUÉS -------------------- */
+const CASES = [
+  { antes: "/antes1.jpg", despues: "/despues1.jpg", quote: "", nombre: "Cliente 1" },
+  { antes: "/antes2.jpg", despues: "/despues2.jpg", quote: "", nombre: "Cliente 2" },
+  { antes: "/antes3.jpg", despues: "/despues3.jpg", quote: "", nombre: "Cliente 3" },
+];
+
+function BeforeAfter() {
+  const [c, setC] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setC((i) => (i + 1) % CASES.length), 6000);
+    return () => clearInterval(id);
+  }, []);
+  const go = (d) => setC((i) => (i + d + CASES.length) % CASES.length);
+
+  return (
+    <div className="ba">
+      <div className="ba__viewport">
+        <div className="ba__track" style={{ transform: `translateX(-${c * 100}%)` }}>
+          {CASES.map((cs, i) => (
+            <div className="ba__slide" key={i}>
+              <figure className="res__shot">
+                <img src={cs.antes} alt={`Antes — caso ${i + 1}`} loading="lazy" />
+                <figcaption className="cap cap--before">Antes</figcaption>
+              </figure>
+              <figure className="res__shot res__shot--after">
+                <img src={cs.despues} alt={`Después — caso ${i + 1}`} loading="lazy" />
+                <figcaption className="cap cap--after">Después</figcaption>
+              </figure>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="ba__nav">
+        <button className="ba__arrow" onClick={() => go(-1)} aria-label="Caso anterior"><ArrowLeft size={18} /></button>
+        <div className="ba__dots">
+          {CASES.map((_, i) => (
+            <button key={i} className={i === c ? "on" : ""} onClick={() => setC(i)} aria-label={`Caso ${i + 1}`} />
+          ))}
+        </div>
+        <button className="ba__arrow" onClick={() => go(1)} aria-label="Siguiente caso"><ArrowRight size={18} /></button>
+      </div>
+    </div>
+  );
+}
+
 /* -------------------- FAQ -------------------- */
 const FAQS = [
   { q: "¿Prometes resultados rápidos?", a: "No. No creo en las dietas milagro ni en los cambios imposibles en pocas semanas. Prometo que, si trabajamos con compromiso, constancia y confianza, conseguiremos una transformación real y sostenible." },
@@ -541,18 +587,10 @@ export default function App() {
           </Reveal>
           <div className="res__grid">
             <Reveal className="res__card res__card--wide">
-              <div className="res__ba">
-                <figure className="res__shot">
-                  <img src="/antes1.jpg" alt="Antes del proceso" />
-                  <figcaption>Antes</figcaption>
-                </figure>
-                <figure className="res__shot res__shot--after">
-                  <img src="/despues1.jpg" alt="Después del proceso" />
-                  <figcaption>Después</figcaption>
-                </figure>              </div>
+              <BeforeAfter />
               <div className="res__quote">
-                <p className="placeholder-text">[ Testimonio — pídele a la clienta unas líneas sobre cómo se siente ahora ]</p>
-                <span className="res__name">— Nombre de la clienta</span>
+                <p className="placeholder-text">[ Testimonio — pídele a cada persona unas líneas sobre cómo se siente ahora ]</p>
+                <span className="res__name">— Nombre del cliente</span>
               </div>
             </Reveal>
 
@@ -978,11 +1016,23 @@ function Styles() {
     .res__card{background:rgba(255,255,255,.5);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.45);border-radius:22px;padding:22px;display:flex;flex-direction:column;gap:18px;transition:transform .4s var(--ease),box-shadow .4s}
     .res__card:hover{transform:translateY(-5px);box-shadow:0 34px 70px -38px rgba(124,92,230,.45)}
     .res__ba{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .ba{display:flex;flex-direction:column;gap:14px}
+    .ba__viewport{overflow:hidden;border-radius:16px}
+    .ba__track{display:flex;transition:transform .75s var(--ease)}
+    .ba__slide{flex:0 0 100%;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .ba__nav{display:flex;align-items:center;justify-content:center;gap:16px}
+    .ba__arrow{width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:rgba(255,255,255,.6);color:var(--ink);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .3s var(--ease)}
+    .ba__arrow:hover{background:var(--grad);color:#fff;border-color:transparent;transform:scale(1.06)}
+    .ba__dots{display:flex;gap:7px}
+    .ba__dots button{width:8px;height:8px;border-radius:50%;border:none;background:rgba(34,25,38,.22);cursor:pointer;padding:0;transition:all .3s var(--ease)}
+    .ba__dots button.on{background:var(--grad);width:26px;border-radius:100px}
     .res__shot{position:relative;margin:0;display:flex;flex-direction:column;gap:10px}
-    .res__shot img{width:100%;aspect-ratio:3 / 4;object-fit:cover;display:block;border-radius:16px;background:rgba(124,92,230,.06);transition:transform 1s var(--ease)}
-    .res__shot:hover img{transform:scale(1.02)}
-    .res__shot figcaption{text-align:center;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink2);background:rgba(255,255,255,.6);border:1px solid var(--line);padding:8px 12px;border-radius:100px}
-    .res__shot--after figcaption{background:var(--grad);border-color:transparent;color:#fff;box-shadow:0 10px 24px -10px rgba(236,95,134,.6)}
+    .res__shot img{width:100%;aspect-ratio:3 / 4;object-fit:cover;display:block;border-radius:16px;background:rgba(124,92,230,.06)}
+    .cap{display:flex;align-items:center;justify-content:center;gap:7px;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:9px 12px;border-radius:100px}
+    .cap--before{background:var(--ink);color:var(--cream);box-shadow:0 10px 24px -12px rgba(34,25,38,.6)}
+    .cap--before::before{content:"";width:7px;height:7px;border-radius:50%;background:rgba(245,239,228,.55)}
+    .cap--after{background:var(--grad);color:#fff;box-shadow:0 10px 24px -10px rgba(236,95,134,.6)}
+    .cap--after::before{content:"";width:7px;height:7px;border-radius:50%;background:#fff}
     .res__quote{padding:4px 6px 8px}
     .res__name{font-weight:700;color:var(--rose);font-size:14px}
     .res__card--cta{background:rgba(255,255,255,.42);justify-content:center;align-items:flex-start;gap:14px;padding:38px 32px}
