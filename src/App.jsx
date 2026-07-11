@@ -537,18 +537,31 @@ export default function App() {
           <Reveal className="res__head">
             <p className="eyebrow">Resultados reales</p>
             <h2 className="h2">Personas, no cifras.</h2>
-            <p className="res__sub">Aquí irán transformaciones reales y testimonios. Contenido por completar.</p>
+            <p className="res__sub">Transformaciones de personas reales que confiaron en el proceso.</p>
           </Reveal>
           <div className="res__grid">
-            {[1, 2].map((i) => (
-              <Reveal key={i} delay={i * 100} className="res__card">
-                <div className="res__ba"><PhotoSlot label={`Antes — caso ${i}`} /><PhotoSlot label={`Después — caso ${i}`} /></div>
-                <div className="res__quote">
-                  <p className="placeholder-text">[ Testimonio {i} — texto por añadir, en español o inglés ]</p>
-                  <span className="res__name">— Nombre del cliente</span>
-                </div>
-              </Reveal>
-            ))}
+            <Reveal className="res__card res__card--wide">
+              <div className="res__ba">
+                <figure className="res__shot">
+                  <img src="/antes1.jpg" alt="Antes del proceso" />
+                  <figcaption>Antes</figcaption>
+                </figure>
+                <figure className="res__shot res__shot--after">
+                  <img src="/despues1.jpg" alt="Después del proceso" />
+                  <figcaption>Después</figcaption>
+                </figure>
+              </div>
+              <div className="res__quote">
+                <p className="placeholder-text">[ Testimonio — pídele a la clienta unas líneas sobre cómo se siente ahora ]</p>
+                <span className="res__name">— Nombre de la clienta</span>
+              </div>
+            </Reveal>
+
+            <Reveal delay={120} className="res__card res__card--cta">
+              <h3>¿Y si la próxima<br />historia es la tuya?</h3>
+              <p>No prometo milagros. Prometo un proceso real, acompañado y hecho a tu medida.</p>
+              <a className="btn btn--wine btn--lg" href="#test" onClick={scrollTo("test")}>Empezar mi proceso <ArrowRight size={18} /></a>
+            </Reveal>
           </div>
         </div>
       </section>
@@ -962,13 +975,20 @@ function Styles() {
     .resultados{background:transparent;padding:clamp(64px,9vw,120px) 0}
     .res__head{max-width:640px;margin-bottom:44px}
     .res__sub{color:var(--ink3);font-style:italic}
-    .res__grid{display:grid;grid-template-columns:1fr 1fr;gap:32px}
-    .res__card{background:rgba(255,255,255,.5);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.45);border-radius:20px;padding:22px;display:flex;flex-direction:column;gap:18px;transition:transform .4s var(--ease),box-shadow .4s}
+    .res__grid{display:grid;grid-template-columns:1.35fr .65fr;gap:26px;align-items:stretch}
+    .res__card{background:rgba(255,255,255,.5);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.45);border-radius:22px;padding:22px;display:flex;flex-direction:column;gap:18px;transition:transform .4s var(--ease),box-shadow .4s}
     .res__card:hover{transform:translateY(-5px);box-shadow:0 34px 70px -38px rgba(124,92,230,.45)}
     .res__ba{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    .res__ba .slot{min-height:230px}
+    .res__shot{position:relative;margin:0;border-radius:16px;overflow:hidden;background:rgba(124,92,230,.06);aspect-ratio:3 / 4}
+    .res__shot img{width:100%;height:100%;object-fit:cover;display:block;transition:transform 1s var(--ease)}
+    .res__shot:hover img{transform:scale(1.04)}
+    .res__shot figcaption{position:absolute;left:12px;top:12px;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#fff;background:rgba(34,25,38,.55);backdrop-filter:blur(6px);padding:6px 12px;border-radius:100px}
+    .res__shot--after figcaption{background:var(--grad);box-shadow:0 8px 20px -8px rgba(236,95,134,.7)}
     .res__quote{padding:4px 6px 8px}
     .res__name{font-weight:700;color:var(--rose);font-size:14px}
+    .res__card--cta{background:rgba(255,255,255,.42);justify-content:center;align-items:flex-start;gap:14px;padding:38px 32px}
+    .res__card--cta h3{font-family:var(--serif);font-weight:400;font-size:clamp(24px,2.6vw,32px);line-height:1.15;margin:0}
+    .res__card--cta p{color:var(--ink2);margin:0 0 8px}
 
     /* FILOSOFÍA */
     .filo{padding:clamp(64px,9vw,120px) 0}
