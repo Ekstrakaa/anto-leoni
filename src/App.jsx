@@ -599,20 +599,43 @@ export default function App() {
 
       {/* FOOTER */}
       <footer className="footer">
-        <div className="footer__big" aria-hidden>ANTO&nbsp;LEONI</div>
-        <div className="wrap footer__grid">
-          <div className="footer__brand"><span className="brand__name">ANTO LEONI</span><span className="footer__tag">Movimiento · Hábitos · Bienestar</span></div>
-          <div className="footer__social">
-            {/* TODO: enlaces reales */}
-            <a href="#" aria-label="Instagram"><Instagram size={20} /></a>
-            <a href="#" aria-label="TikTok"><TikTok size={20} /></a>
-            <a href="#" aria-label="YouTube"><Youtube size={20} /></a>
-            <a href={waLink("Hola Anto :)")} aria-label="WhatsApp"><MessageCircle size={20} /></a>
+        <div className="wrap footer__cta">
+          <div>
+            <p className="eyebrow">¿Empezamos?</p>
+            <h2 className="h2 footer__ctah">Tu mejor versión<br />te está esperando.</h2>
+          </div>
+          <a className="btn btn--wine btn--lg" href={waLink("Hola Anto, quiero empezar con Feel&Move.")} target="_blank" rel="noreferrer">Escríbeme por WhatsApp <ArrowRight size={18} /></a>
+        </div>
+        <div className="wrap footer__cols">
+          <div className="footer__col footer__col--brand">
+            <span className="brand__name">ANTO LEONI</span>
+            <span className="footer__tag">Feel&Move Method</span>
+            <p className="footer__desc">Movimiento consciente, hábitos y bienestar. Un método que une cuerpo, mente y emociones. Online y presencial · Tenerife Sur.</p>
+            <div className="footer__social">
+              <a href="#" aria-label="Instagram"><Instagram size={19} /></a>
+              <a href="#" aria-label="TikTok"><TikTok size={19} /></a>
+              <a href="#" aria-label="YouTube"><Youtube size={19} /></a>
+              <a href={waLink("Hola Anto :)")} target="_blank" rel="noreferrer" aria-label="WhatsApp"><MessageCircle size={19} /></a>
+            </div>
+          </div>
+          <nav className="footer__col">
+            <h4>Explora</h4>
+            <a href="#test" onClick={scrollTo("test")}>Hacer el test</a>
+            <a href="#metodo" onClick={scrollTo("metodo")}>El Método</a>
+            <a href="#sobre" onClick={scrollTo("sobre")}>Sobre mí</a>
+            <a href="#servicios" onClick={scrollTo("servicios")}>Servicios</a>
+          </nav>
+          <div className="footer__col">
+            <h4>Contacto</h4>
+            <a href={waLink("Hola Anto :)")} target="_blank" rel="noreferrer">+34 610 939 223</a>
+            <a href={`mailto:${EMAIL}`}>{EMAIL}</a>
+            <span>Tenerife Sur, España</span>
           </div>
         </div>
+        <div className="footer__big" aria-hidden>ANTO&nbsp;LEONI</div>
         <div className="wrap footer__legal">
-          <span>© {new Date().getFullYear()} Anto Leoni · Feel&Move Method</span>
-          <span>Sentir · Moverte · Nutrirte · Construir hábitos · Evolucionar</span>
+          <span>© {new Date().getFullYear()} Anto Leoni · Todos los derechos reservados</span>
+          <span>Feel&Move Method®</span>
         </div>
       </footer>
     </div>
@@ -958,15 +981,35 @@ function Styles() {
     @keyframes pulse{0%{transform:scale(.85);opacity:.9}70%{transform:scale(1.25);opacity:0}100%{opacity:0}}
 
     /* FOOTER */
-    .footer{position:relative;background:transparent;padding:24px 0 34px;border-top:1px solid var(--line);overflow:hidden}
-    .footer__big{font-family:var(--sans);font-weight:800;font-size:clamp(52px,12.5vw,170px);letter-spacing:.02em;line-height:1;text-align:center;color:transparent;-webkit-text-stroke:1.5px rgba(34,25,38,.16);user-select:none;pointer-events:none;margin-bottom:8px;white-space:nowrap}
-    .footer__grid{display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap}
-    .footer__brand{display:flex;flex-direction:column;gap:6px}
+    .footer{position:relative;background:transparent;border-top:1px solid var(--line);overflow:hidden}
+    .footer__cta{display:flex;align-items:center;justify-content:space-between;gap:30px;flex-wrap:wrap;padding:60px 28px 52px;border-bottom:1px solid var(--line)}
+    .footer__ctah{margin:0}
+    .footer__cta .eyebrow{margin-bottom:12px}
+    .footer__cols{display:grid;grid-template-columns:1.7fr 1fr 1fr;gap:40px;padding:52px 28px 26px}
+    .footer__col{display:flex;flex-direction:column;gap:12px}
+    .footer__col h4{font-family:var(--sans);font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3);margin:0 0 4px}
+    .footer__col a{color:var(--ink2);font-weight:500;transition:color .25s,transform .25s var(--ease);width:fit-content}
+    .footer__col a:hover{color:var(--rose);transform:translateX(3px)}
+    .footer__col span{color:var(--ink2)}
+    .footer__col--brand{gap:8px;max-width:360px}
+    .footer__col--brand .brand__name{font-family:var(--sans);font-weight:800;letter-spacing:.18em;font-size:18px;color:var(--ink)}
     .footer__tag{font-family:var(--serif);font-style:italic;color:var(--rose);font-size:15px}
-    .footer__social{display:flex;gap:16px}
-    .footer__social a{width:46px;height:46px;border:1px solid var(--line);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--ink);transition:all .3s var(--ease)}
+    .footer__desc{color:var(--ink2);font-size:14px;line-height:1.65;margin:6px 0 12px;max-width:320px}
+    .footer__social{display:flex;gap:12px;margin-top:2px}
+    .footer__social a{width:44px;height:44px;border:1px solid var(--line);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--ink);transition:all .3s var(--ease)}
     .footer__social a:hover{background:var(--grad);color:#fff;border-color:transparent;transform:translateY(-3px);box-shadow:0 14px 30px -14px rgba(236,95,134,.6)}
-    .footer__legal{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:30px;padding-top:22px;border-top:1px solid var(--line);font-size:13px;color:var(--ink3)}
+    .footer__big{font-family:var(--sans);font-weight:800;font-size:clamp(46px,13.5vw,200px);letter-spacing:.02em;line-height:.86;text-align:center;color:transparent;-webkit-text-stroke:1.4px rgba(34,25,38,.13);user-select:none;pointer-events:none;white-space:nowrap;margin:6px 0 0}
+    .footer__legal{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:14px;padding:22px 28px 30px;border-top:1px solid var(--line);font-size:13px;color:var(--ink3)}
+    @media(max-width:860px){
+      .footer__cols{grid-template-columns:1fr 1fr;gap:32px 24px}
+      .footer__col--brand{grid-column:1 / -1}
+      .footer__cta{flex-direction:column;align-items:flex-start;gap:22px}
+    }
+    @media(max-width:560px){
+      .footer__cols{grid-template-columns:1fr}
+      .footer__cta .btn{width:100%;justify-content:center}
+      .footer__legal{flex-direction:column;gap:8px}
+    }
 
     /* RESPONSIVE */
     @media(max-width:980px){
