@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import {
   Camera, Instagram, Youtube, Mail, ArrowRight, ArrowLeft, Menu, X,
-  Plus, Minus, MapPin, MessageCircle, Play, Check,
+  Plus, Minus, MapPin, MessageCircle, Play, Check, Activity, Apple, Heart,
 } from "lucide-react";
 
 /* ============================================================================
@@ -431,15 +431,26 @@ export default function App() {
 
       {/* TRÍPTICO */}
       <section className="tri">
-        <div className="wrap tri__grid">
-          {[["Muévete", "Entrena desde el conocimiento, no desde la obligación."],
-            ["Aliméntate", "Aprende a nutrir tu cuerpo sin restricciones extremas."],
-            ["Vuelve a ti", "Recupera la confianza, la energía y el equilibrio."]].map(([t, d], i) => (
-            <Reveal key={i} delay={i * 110} className="tri__card">
-              <span className="tri__idx">/ 0{i + 1}</span>
-              <h3>{t}</h3><p>{d}</p>
-            </Reveal>
-          ))}
+        <div className="wrap">
+          <Reveal className="tri__head">
+            <p className="eyebrow">Tres pilares, una forma de vivir</p>
+            <h2 className="h2">Todo lo que hago<br />nace de <em>tres ideas.</em></h2>
+          </Reveal>
+          <div className="tri__grid">
+            {[
+              { t: "Muévete", d: "Entrena desde el conocimiento, no desde la obligación.", Icon: Activity },
+              { t: "Aliméntate", d: "Aprende a nutrir tu cuerpo sin restricciones extremas.", Icon: Apple },
+              { t: "Vuelve a ti", d: "Recupera la confianza, la energía y el equilibrio.", Icon: Heart },
+            ].map(({ t, d, Icon }, i) => (
+              <Reveal key={i} delay={i * 110} className="tri__card">
+                <span className="tri__ghost" aria-hidden>0{i + 1}</span>
+                <span className="tri__icon"><Icon size={24} strokeWidth={1.6} /></span>
+                <span className="tri__idx">/ 0{i + 1}</span>
+                <h3>{t}</h3>
+                <p>{d}</p>
+              </Reveal>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -861,14 +872,19 @@ function Styles() {
 
     /* TRÍPTICO */
     .tri{padding:clamp(64px,9vw,110px) 0}
-    .tri__grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--line);border-radius:18px;overflow:hidden;border:1px solid var(--line)}
-    .tri__card{position:relative;background:rgba(255,255,255,.5);backdrop-filter:blur(8px);padding:46px 34px;min-height:230px;transition:background .35s,transform .35s var(--ease),box-shadow .35s}
-    .tri__card::before{content:"";position:absolute;left:0;top:0;width:100%;height:3px;background:var(--grad);transform:scaleX(0);transform-origin:left;transition:transform .45s var(--ease)}
-    .tri__card:hover{background:rgba(255,255,255,.75);transform:translateY(-4px);box-shadow:0 26px 55px -30px rgba(124,92,230,.4)}
+    .tri__head{max-width:640px;margin-bottom:44px}
+    .tri__grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+    .tri__card{position:relative;overflow:hidden;background:rgba(255,255,255,.5);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.55);border-radius:20px;padding:40px 34px 44px;min-height:290px;display:flex;flex-direction:column;transition:background .35s,transform .4s var(--ease),box-shadow .4s}
+    .tri__card::before{content:"";position:absolute;left:0;top:0;width:100%;height:3px;background:var(--grad);transform:scaleX(0);transform-origin:left;transition:transform .5s var(--ease)}
+    .tri__card:hover{background:rgba(255,255,255,.78);transform:translateY(-6px);box-shadow:0 34px 70px -34px rgba(124,92,230,.45)}
     .tri__card:hover::before{transform:scaleX(1)}
+    .tri__ghost{position:absolute;right:-6px;bottom:-30px;font-family:var(--serif);font-weight:300;font-size:170px;line-height:1;color:transparent;-webkit-text-stroke:1.4px rgba(124,92,230,.13);pointer-events:none;transition:transform .6s var(--ease)}
+    .tri__card:hover .tri__ghost{transform:translateY(-8px) rotate(-3deg)}
+    .tri__icon{width:54px;height:54px;border-radius:16px;display:flex;align-items:center;justify-content:center;background:var(--grad);color:#fff;margin-bottom:22px;box-shadow:0 14px 30px -14px rgba(236,95,134,.55);transition:transform .4s var(--ease)}
+    .tri__card:hover .tri__icon{transform:scale(1.08) rotate(-4deg)}
     .tri__idx{font-family:var(--sans);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--violet)}
-    .tri__card h3{font-family:var(--serif);font-weight:400;font-size:30px;margin:16px 0 12px}
-    .tri__card p{color:var(--ink2);margin:0}
+    .tri__card h3{font-family:var(--serif);font-weight:400;font-size:clamp(26px,2.6vw,32px);margin:10px 0 12px}
+    .tri__card p{color:var(--ink2);margin:0;position:relative}
 
     /* SOBRE */
     .sobre{padding:clamp(64px,9vw,120px) 0}
