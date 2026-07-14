@@ -297,6 +297,32 @@ function Quiz() {
   );
 }
 
+/* Filtro SVG: hace que los degradados ondulen como tela con viento */
+function ClothFilter() {
+  return (
+    <svg className="clothdefs" width="0" height="0" aria-hidden focusable="false">
+      <defs>
+        <filter id="cloth" x="-20%" y="-20%" width="140%" height="140%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.006 0.011" numOctaves="2" seed="7" result="noise">
+            <animate attributeName="baseFrequency"
+              dur="14s" repeatCount="indefinite"
+              values="0.006 0.011; 0.013 0.005; 0.004 0.014; 0.006 0.011" />
+          </feTurbulence>
+          <feDisplacementMap in="SourceGraphic" in2="noise" scale="60" xChannelSelector="R" yChannelSelector="G" />
+        </filter>
+        <filter id="cloth-soft" x="-20%" y="-20%" width="140%" height="140%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.004 0.009" numOctaves="2" seed="3" result="n2">
+            <animate attributeName="baseFrequency"
+              dur="20s" repeatCount="indefinite"
+              values="0.004 0.009; 0.010 0.004; 0.003 0.011; 0.004 0.009" />
+          </feTurbulence>
+          <feDisplacementMap in="SourceGraphic" in2="n2" scale="40" xChannelSelector="R" yChannelSelector="G" />
+        </filter>
+      </defs>
+    </svg>
+  );
+}
+
 /* -------------------- ANTES / DESPUÉS -------------------- */
 /* Para añadir el testimonio real: rellená "quote" y "nombre".
    Si quote está vacío, no se muestra nada (la sección igual se ve terminada). */
@@ -310,40 +336,60 @@ const CASES = [
 function BeforeAfter() {
   const [c, setC] = useState(0);
   const [paused, setPaused] = useState(false);
+  const touch = useRef({ x: 0, on: false });
+
   useEffect(() => {
     if (paused) return;
-    const id = setInterval(() => setC((i) => (i + 1) % CASES.length), 6500);
+    const id = setInterval(() => setC((i) => (i + 1) % CASES.length), 7000);
     return () => clearInterval(id);
   }, [paused]);
+
   const go = (d) => setC((i) => (i + d + CASES.length) % CASES.length);
   const cur = CASES[c];
 
-  return (
-    <div className="ba" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
-      <div className="ba__bar">
-        <span className="ba__count">Caso <b>{c + 1}</b> / {CASES.length}</span>
-        <div className="ba__nav">
-          <button className="ba__arrow" onClick={() => go(-1)} aria-label="Caso anterior"><ArrowLeft size={16} /></button>
-          <button className="ba__arrow" onClick={() => go(1)} aria-label="Siguiente caso"><ArrowRight size={16} /></button>
-        </div>
-      </div>
+  const onStart = (e) => { touch.current = { x: e.touches[0].clientX, on: true }; setPaused(true); };
+  const onEnd = (e) => {
+    if (!touch.current.on) return;
+    const dx = e.changedTouches[0].clientX - touch.current.x;
+    if (Math.abs(dx) > 45) go(dx < 0 ? 1 : -1);
+    touch.current.on = false;
+    setPaused(false);
+  };
 
-      <div className="ba__viewport">
-        <div className="ba__track" style={{ transform: `translateX(-${c * 100}%)` }}>
-          {CASES.map((cs, i) => (
-            <div className="ba__slide" key={i}>
-              <figure className="shot">
-                <span className="shot__tag shot__tag--before">Antes</span>
-                <img src={cs.antes} alt={`Antes — caso ${i + 1}`} loading="lazy" />
-              </figure>
-              <span className="ba__mid" aria-hidden><ArrowRight size={16} /></span>
-              <figure className="shot shot--after">
-                <span className="shot__tag shot__tag--after">Después</span>
-                <img src={cs.despues} alt={`Después — caso ${i + 1}`} loading="lazy" />
-              </figure>
-            </div>
-          ))}
+  return (
+    <div
+      className="ba"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      onTouchStart={onStart}
+      onTouchEnd={onEnd}
+    >
+      <div className="ba__stage">
+        <button className="ba__side ba__side--l" onClick={() => go(-1)} aria-label="Caso anterior">
+          <ArrowLeft size={18} />
+        </button>
+
+        <div className="ba__viewport">
+          <div className="ba__track" style={{ transform: `translateX(-${c * 100}%)` }}>
+            {CASES.map((cs, i) => (
+              <div className="ba__slide" key={i}>
+                <figure className="shot">
+                  <span className="shot__tag shot__tag--before">Antes</span>
+                  <img src={cs.antes} alt={`Antes — caso ${i + 1}`} loading="lazy" />
+                </figure>
+                <span className="ba__mid" aria-hidden><ArrowRight size={15} /></span>
+                <figure className="shot shot--after">
+                  <span className="shot__tag shot__tag--after">Después</span>
+                  <img src={cs.despues} alt={`Después — caso ${i + 1}`} loading="lazy" />
+                </figure>
+              </div>
+            ))}
+          </div>
         </div>
+
+        <button className="ba__side ba__side--r" onClick={() => go(1)} aria-label="Siguiente caso">
+          <ArrowRight size={18} />
+        </button>
       </div>
 
       {cur.quote && (
@@ -354,10 +400,14 @@ function BeforeAfter() {
         </blockquote>
       )}
 
-      <div className="ba__dots">
-        {CASES.map((_, i) => (
-          <button key={i} className={i === c ? "on" : ""} onClick={() => setC(i)} aria-label={`Caso ${i + 1}`} />
-        ))}
+      <div className="ba__foot">
+        <span className="ba__count">Caso <b>{c + 1}</b> de {CASES.length}</span>
+        <div className="ba__dots">
+          {CASES.map((_, i) => (
+            <button key={i} className={i === c ? "on" : ""} onClick={() => setC(i)} aria-label={`Caso ${i + 1}`} />
+          ))}
+        </div>
+        <span className="ba__swipe">Desliza →</span>
       </div>
     </div>
   );
@@ -430,6 +480,7 @@ export default function App() {
   return (
     <div className="page">
       <Styles />
+      <ClothFilter />
       <div className="bgfx" aria-hidden style={{ filter: `hue-rotate(${progress * 40}deg)` }}>
         <span className="silk s1" /><span className="silk s2" /><span className="silk s3" />
       </div>
@@ -920,50 +971,54 @@ function Styles() {
     .quiz__grid{display:grid;grid-template-columns:.85fr 1.15fr;gap:56px;align-items:center}
     .quiz__lead{color:rgba(245,239,228,.78);max-width:380px}
 
-    /* ===== TARJETA DEL TEST: degradado animado en movimiento ===== */
+    .clothdefs{position:absolute;width:0;height:0;overflow:hidden}
+
+    /* ===== TARJETA DEL TEST: degradado animado ondulando como sábana ===== */
     .quizcard{position:relative;overflow:hidden;border-radius:26px;padding:clamp(26px,4vw,42px);
-      border:1px solid rgba(255,255,255,.18);
+      border:1px solid rgba(255,255,255,.2);
       box-shadow:0 50px 100px -45px rgba(0,0,0,.8);
-      background:linear-gradient(125deg,#1b0a3d 0%,#4a1585 22%,#8e2192 45%,#c2367f 62%,#6b23a8 80%,#1b0a3d 100%);
-      background-size:400% 400%;
-      animation:meshflow 18s ease-in-out infinite;
+      background:#1b0a3d;
       isolation:isolate}
+
+    /* capa base: mesh de color desplazándose */
+    .qs1{position:absolute;inset:-25%;z-index:-3;pointer-events:none;
+      background:linear-gradient(125deg,#2d0f6b 0%,#5c1aa8 18%,#a3229b 38%,#e0417f 54%,#f2706b 66%,#7b28c4 84%,#2d0f6b 100%);
+      background-size:320% 320%;
+      animation:meshflow 11s ease-in-out infinite;
+      filter:url(#cloth);
+      will-change:background-position}
     @keyframes meshflow{
       0%{background-position:0% 50%}
       50%{background-position:100% 50%}
       100%{background-position:0% 50%}
     }
 
-    /* capa 1: luces de color que se desplazan */
-    .qsilk{position:absolute;inset:0;pointer-events:none;z-index:-1;will-change:background-position,transform}
-    .qs1{
+    /* capa media: luces que ondulan (la "sábana") */
+    .qs2{position:absolute;inset:-25%;z-index:-2;pointer-events:none;opacity:.9;
       background:
-        radial-gradient(58% 42% at 18% 28%, rgba(236,95,134,.62), transparent 62%),
-        radial-gradient(52% 38% at 82% 72%, rgba(124,92,230,.68), transparent 62%),
-        radial-gradient(48% 34% at 62% 14%, rgba(91,139,255,.48), transparent 62%);
-      background-size:220% 220%;
-      animation:lights 22s ease-in-out infinite alternate}
+        radial-gradient(60% 44% at 20% 26%, rgba(255,120,170,.75), transparent 62%),
+        radial-gradient(54% 40% at 82% 74%, rgba(130,100,255,.8), transparent 62%),
+        radial-gradient(46% 34% at 60% 12%, rgba(110,170,255,.6), transparent 62%);
+      background-size:230% 230%;
+      animation:lights 13s ease-in-out infinite alternate;
+      filter:url(#cloth-soft)}
     @keyframes lights{
       0%{background-position:0% 0%}
       100%{background-position:100% 100%}
     }
-    /* capa 2: cinta de seda que cruza */
-    .qs2{
-      background:linear-gradient(102deg,transparent 18%,rgba(255,255,255,.16) 38%,rgba(241,184,206,.28) 50%,rgba(255,255,255,.14) 62%,transparent 84%);
-      filter:blur(26px);
-      animation:band 15s ease-in-out infinite alternate}
-    @keyframes band{
-      from{transform:translate(-16%,10%) rotate(-9deg) scale(1.25)}
-      to{transform:translate(14%,-8%) rotate(4deg) scale(1.35)}
-    }
-    /* capa 3: brillo suave superior */
-    .qs3{
-      background:radial-gradient(70% 50% at 50% 0%, rgba(255,255,255,.22), transparent 65%);
-      animation:glow 9s ease-in-out infinite alternate}
-    @keyframes glow{from{opacity:.55}to{opacity:1}}
 
-    .quizcard.is-done{animation-duration:7s}
-    .quizcard.is-done .qs1{animation-duration:9s}
+    /* capa superior: pliegue de luz que cruza */
+    .qs3{position:absolute;inset:-25%;z-index:-1;pointer-events:none;
+      background:linear-gradient(102deg,transparent 20%,rgba(255,255,255,.22) 40%,rgba(255,220,235,.4) 50%,rgba(255,255,255,.2) 60%,transparent 82%);
+      filter:blur(22px) url(#cloth-soft);
+      animation:band 9s ease-in-out infinite alternate}
+    @keyframes band{
+      from{transform:translate(-14%,8%) rotate(-8deg) scale(1.2)}
+      to{transform:translate(12%,-8%) rotate(5deg) scale(1.3)}
+    }
+
+    .quizcard.is-done .qs1{animation-duration:5s}
+    .quizcard.is-done .qs2{animation-duration:6s}
 
     .quiz__top{margin-bottom:26px}
     .quiz__toprow{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
@@ -1117,22 +1172,22 @@ function Styles() {
     .res__card:hover{transform:translateY(-5px);box-shadow:0 34px 70px -38px rgba(124,92,230,.45)}
     .res__ba{display:grid;grid-template-columns:1fr 1fr;gap:12px}
     .ba{display:flex;flex-direction:column;gap:16px;width:100%;min-width:0}
-    .ba__bar{display:flex;align-items:center;justify-content:space-between;gap:12px}
-    .ba__count{font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3)}
-    .ba__count b{color:var(--rose);font-weight:700}
-    .ba__nav{display:flex;gap:8px}
-    .ba__arrow{width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:rgba(255,255,255,.65);color:var(--ink);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .3s var(--ease)}
-    .ba__arrow:hover{background:var(--grad);color:#fff;border-color:transparent;transform:scale(1.08)}
+    .ba__stage{position:relative;width:100%;min-width:0}
+    .ba__side{position:absolute;top:50%;transform:translateY(-50%);z-index:5;width:44px;height:44px;border-radius:50%;border:none;background:rgba(255,255,255,.9);color:var(--ink);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 14px 34px -12px rgba(30,10,40,.55);transition:all .3s var(--ease)}
+    .ba__side:hover{background:var(--grad);color:#fff;transform:translateY(-50%) scale(1.1)}
+    .ba__side:active{transform:translateY(-50%) scale(.94)}
+    .ba__side--l{left:-14px}
+    .ba__side--r{right:-14px}
 
     .ba__viewport{overflow:hidden;border-radius:18px;width:100%;min-width:0}
     .ba__track{display:flex;width:100%;transition:transform .8s var(--ease)}
     .ba__slide{position:relative;flex:0 0 100%;width:100%;min-width:0;display:grid;grid-template-columns:1fr 1fr;gap:12px}
 
     .shot{position:relative;margin:0;min-width:0;border-radius:16px;overflow:hidden;background:rgba(124,92,230,.06);box-shadow:0 20px 45px -26px rgba(30,10,40,.45)}
-    .shot img{width:100%;aspect-ratio:3 / 4;object-fit:cover;display:block;transition:transform 1.4s var(--ease);filter:saturate(.82) contrast(.98)}
-    .shot--after img{filter:saturate(1.06) contrast(1.02)}
+    .shot img{width:100%;aspect-ratio:3 / 4;object-fit:cover;display:block;transition:transform 1.4s var(--ease);filter:saturate(.8) contrast(.97)}
+    .shot--after img{filter:saturate(1.08) contrast(1.03)}
     .shot:hover img{transform:scale(1.045)}
-    .shot::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(18,10,26,.28) 0%,transparent 34%)}
+    .shot::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(18,10,26,.3) 0%,transparent 32%)}
     .shot__tag{position:absolute;top:12px;left:12px;z-index:2;display:inline-flex;align-items:center;gap:6px;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:7px 12px;border-radius:100px;backdrop-filter:blur(8px)}
     .shot__tag::before{content:"";width:5px;height:5px;border-radius:50%}
     .shot__tag--before{background:rgba(34,25,38,.72);color:rgba(245,239,228,.9)}
@@ -1147,9 +1202,13 @@ function Styles() {
     .ba__quote p{font-family:var(--serif);font-size:17px;line-height:1.55;color:var(--ink);margin:0 0 8px}
     .ba__quote cite{font-style:normal;font-weight:700;font-size:13px;color:var(--rose)}
 
-    .ba__dots{display:flex;gap:7px;justify-content:center}
+    .ba__foot{display:flex;align-items:center;justify-content:space-between;gap:14px}
+    .ba__count{font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);white-space:nowrap}
+    .ba__count b{color:var(--rose);font-weight:700}
+    .ba__dots{display:flex;gap:8px}
     .ba__dots button{width:8px;height:8px;border-radius:50%;border:none;background:rgba(34,25,38,.2);cursor:pointer;padding:0;transition:all .35s var(--ease)}
     .ba__dots button.on{background:var(--grad);width:28px;border-radius:100px}
+    .ba__swipe{font-family:var(--serif);font-style:italic;font-size:13px;color:var(--ink3);white-space:nowrap}
     .res__quote{padding:4px 6px 8px}
     .res__name{font-weight:700;color:var(--rose);font-size:14px}
     .res__card--cta{background:rgba(255,255,255,.42);justify-content:center;align-items:flex-start;gap:14px;padding:38px 32px}
@@ -1234,6 +1293,10 @@ function Styles() {
       .wrap{padding:0 20px}
       .pasos__grid{grid-template-columns:1fr}
       .ba__slide{gap:8px}
+      .ba__side{width:38px;height:38px}
+      .ba__side--l{left:6px}
+      .ba__side--r{right:6px}
+      .ba__swipe{display:none}
       .shot img{aspect-ratio:9 / 14}
       .shot__tag{font-size:9px;letter-spacing:.06em;padding:6px 9px;top:8px;left:8px}
       .ba__mid{width:28px;height:28px}
