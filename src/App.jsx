@@ -297,32 +297,6 @@ function Quiz() {
   );
 }
 
-/* Filtro SVG: hace que los degradados ondulen como tela con viento */
-function ClothFilter() {
-  return (
-    <svg className="clothdefs" width="0" height="0" aria-hidden focusable="false">
-      <defs>
-        <filter id="cloth" x="-20%" y="-20%" width="140%" height="140%">
-          <feTurbulence type="fractalNoise" baseFrequency="0.006 0.011" numOctaves="2" seed="7" result="noise">
-            <animate attributeName="baseFrequency"
-              dur="14s" repeatCount="indefinite"
-              values="0.006 0.011; 0.013 0.005; 0.004 0.014; 0.006 0.011" />
-          </feTurbulence>
-          <feDisplacementMap in="SourceGraphic" in2="noise" scale="60" xChannelSelector="R" yChannelSelector="G" />
-        </filter>
-        <filter id="cloth-soft" x="-20%" y="-20%" width="140%" height="140%">
-          <feTurbulence type="fractalNoise" baseFrequency="0.004 0.009" numOctaves="2" seed="3" result="n2">
-            <animate attributeName="baseFrequency"
-              dur="20s" repeatCount="indefinite"
-              values="0.004 0.009; 0.010 0.004; 0.003 0.011; 0.004 0.009" />
-          </feTurbulence>
-          <feDisplacementMap in="SourceGraphic" in2="n2" scale="40" xChannelSelector="R" yChannelSelector="G" />
-        </filter>
-      </defs>
-    </svg>
-  );
-}
-
 /* -------------------- ANTES / DESPUÉS -------------------- */
 /* Para añadir el testimonio real: rellená "quote" y "nombre".
    Si quote está vacío, no se muestra nada (la sección igual se ve terminada). */
@@ -480,7 +454,6 @@ export default function App() {
   return (
     <div className="page">
       <Styles />
-      <ClothFilter />
       <div className="bgfx" aria-hidden style={{ filter: `hue-rotate(${progress * 40}deg)` }}>
         <span className="silk s1" /><span className="silk s2" /><span className="silk s3" />
       </div>
@@ -973,19 +946,18 @@ function Styles() {
 
     .clothdefs{position:absolute;width:0;height:0;overflow:hidden}
 
-    /* ===== TARJETA DEL TEST: degradado animado ondulando como sábana ===== */
+    /* ===== TARJETA DEL TEST: degradado animado fluido (liviano) ===== */
     .quizcard{position:relative;overflow:hidden;border-radius:26px;padding:clamp(26px,4vw,42px);
       border:1px solid rgba(255,255,255,.2);
       box-shadow:0 50px 100px -45px rgba(0,0,0,.8);
       background:#1b0a3d;
       isolation:isolate}
 
-    /* capa base: mesh de color desplazándose */
-    .qs1{position:absolute;inset:-25%;z-index:-3;pointer-events:none;
+    /* capa base: mesh de color que se desplaza */
+    .qs1{position:absolute;inset:0;z-index:-3;pointer-events:none;
       background:linear-gradient(125deg,#2d0f6b 0%,#5c1aa8 18%,#a3229b 38%,#e0417f 54%,#f2706b 66%,#7b28c4 84%,#2d0f6b 100%);
-      background-size:320% 320%;
-      animation:meshflow 11s ease-in-out infinite;
-      filter:url(#cloth);
+      background-size:300% 300%;
+      animation:meshflow 12s ease-in-out infinite;
       will-change:background-position}
     @keyframes meshflow{
       0%{background-position:0% 50%}
@@ -993,32 +965,34 @@ function Styles() {
       100%{background-position:0% 50%}
     }
 
-    /* capa media: luces que ondulan (la "sábana") */
-    .qs2{position:absolute;inset:-25%;z-index:-2;pointer-events:none;opacity:.9;
+    /* capa media: dos luces grandes que se mueven en diagonal (efecto sábana) */
+    .qs2{position:absolute;inset:-30%;z-index:-2;pointer-events:none;opacity:.85;
       background:
-        radial-gradient(60% 44% at 20% 26%, rgba(255,120,170,.75), transparent 62%),
-        radial-gradient(54% 40% at 82% 74%, rgba(130,100,255,.8), transparent 62%),
-        radial-gradient(46% 34% at 60% 12%, rgba(110,170,255,.6), transparent 62%);
-      background-size:230% 230%;
-      animation:lights 13s ease-in-out infinite alternate;
-      filter:url(#cloth-soft)}
-    @keyframes lights{
-      0%{background-position:0% 0%}
-      100%{background-position:100% 100%}
+        radial-gradient(closest-side, rgba(255,120,170,.9), transparent 70%),
+        radial-gradient(closest-side, rgba(130,100,255,.9), transparent 70%);
+      background-size:75% 75%, 65% 65%;
+      background-position:12% 20%, 85% 78%;
+      background-repeat:no-repeat;
+      animation:drift 16s ease-in-out infinite alternate;
+      will-change:transform}
+    @keyframes drift{
+      from{transform:translate(-4%,-3%) rotate(-4deg) scale(1.05)}
+      to{transform:translate(4%,3%) rotate(4deg) scale(1.15)}
     }
 
-    /* capa superior: pliegue de luz que cruza */
-    .qs3{position:absolute;inset:-25%;z-index:-1;pointer-events:none;
-      background:linear-gradient(102deg,transparent 20%,rgba(255,255,255,.22) 40%,rgba(255,220,235,.4) 50%,rgba(255,255,255,.2) 60%,transparent 82%);
-      filter:blur(22px) url(#cloth-soft);
-      animation:band 9s ease-in-out infinite alternate}
+    /* capa superior: pliegue de luz suave que cruza */
+    .qs3{position:absolute;inset:-30%;z-index:-1;pointer-events:none;
+      background:linear-gradient(102deg,transparent 24%,rgba(255,255,255,.2) 44%,rgba(255,220,235,.34) 52%,rgba(255,255,255,.18) 60%,transparent 80%);
+      filter:blur(18px);
+      animation:band 11s ease-in-out infinite alternate;
+      will-change:transform}
     @keyframes band{
-      from{transform:translate(-14%,8%) rotate(-8deg) scale(1.2)}
-      to{transform:translate(12%,-8%) rotate(5deg) scale(1.3)}
+      from{transform:translate(-12%,7%) rotate(-7deg) scale(1.15)}
+      to{transform:translate(10%,-7%) rotate(4deg) scale(1.25)}
     }
 
-    .quizcard.is-done .qs1{animation-duration:5s}
-    .quizcard.is-done .qs2{animation-duration:6s}
+    .quizcard.is-done .qs1{animation-duration:6s}
+    .quizcard.is-done .qs2{animation-duration:8s}
 
     .quiz__top{margin-bottom:26px}
     .quiz__toprow{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
