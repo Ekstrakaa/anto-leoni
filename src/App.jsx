@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import {
   Camera, Instagram, Youtube, Mail, ArrowRight, ArrowLeft, Menu, X,
-  Plus, Minus, MapPin, MessageCircle, Play, Check, Activity, Apple, Heart,
+  Plus, Minus, MapPin, MessageCircle, Check,
 } from "lucide-react";
 
 /* ============================================================================
@@ -319,6 +319,7 @@ function BeforeAfter() {
 /* -------------------- FAQ -------------------- */
 const FAQS = [
   { q: "¿Prometes resultados rápidos?", a: "No. No creo en las dietas milagro ni en los cambios imposibles en pocas semanas. Prometo que, si trabajamos con compromiso, constancia y confianza, conseguiremos una transformación real y sostenible." },
+  { q: "¿En qué crees y en qué no?", a: "No creo en las soluciones rápidas, en las dietas milagro, ni en compararte con los demás. Tampoco en trabajar desde la culpa o el miedo. Sí creo en los hábitos, en la disciplina con equilibrio, en escuchar tu cuerpo y en el movimiento con intención. Cada persona necesita un proceso diferente." },
   { q: "¿Trabajas online o presencial?", a: "Ambas. Tengo un enfoque especial en el acompañamiento online, con seguimiento continuo y videollamadas, pero también entreno de forma presencial en Tenerife Sur." },
   { q: "¿A quién acompañas?", a: "Principalmente a mujeres de 20 a 60 años que quieren mejorar su salud hormonal, recuperar energía y construir hábitos duraderos. También a hombres que buscan mejorar su composición corporal y bienestar desde un enfoque integral." },
   { q: "¿Qué incluye el programa online?", a: "Nutrición personalizada, entrenamiento adaptado, seguimiento continuo, una clase privada semanal por Zoom, educación en hábitos y asesoramiento en suplementación cuando sea necesario." },
@@ -485,31 +486,6 @@ export default function App() {
         </div>
       </section>
 
-      {/* TRÍPTICO */}
-      <section className="tri">
-        <div className="wrap">
-          <Reveal className="tri__head">
-            <p className="eyebrow">Tres pilares, una forma de vivir</p>
-            <h2 className="h2">Todo lo que hago<br />nace de <em>tres ideas.</em></h2>
-          </Reveal>
-          <div className="tri__grid">
-            {[
-              { t: "Muévete", d: "Entrena desde el conocimiento, no desde la obligación.", Icon: Activity },
-              { t: "Aliméntate", d: "Aprende a nutrir tu cuerpo sin restricciones extremas.", Icon: Apple },
-              { t: "Vuelve a ti", d: "Recupera la confianza, la energía y el equilibrio.", Icon: Heart },
-            ].map(({ t, d, Icon }, i) => (
-              <Reveal key={i} delay={i * 110} className="tri__card">
-                <span className="tri__ghost" aria-hidden>0{i + 1}</span>
-                <span className="tri__icon"><Icon size={24} strokeWidth={1.6} /></span>
-                <span className="tri__idx">/ 0{i + 1}</span>
-                <h3>{t}</h3>
-                <p>{d}</p>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* SOBRE MÍ */}
       <section className="sobre" id="sobre">
         <div className="wrap sobre__grid">
@@ -544,6 +520,30 @@ export default function App() {
               <Reveal key={m.n} delay={i * 70} className="mstep">
                 <span className="mstep__n">{m.n}</span>
                 <div className="mstep__body"><h3>{m.t}</h3><p>{m.d}</p></div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CÓMO FUNCIONA */}
+      <section className="pasos">
+        <div className="wrap">
+          <Reveal className="pasos__head">
+            <p className="eyebrow">Cómo funciona</p>
+            <h2 className="h2">Empezar es <em>más simple</em> de lo que crees.</h2>
+          </Reveal>
+          <div className="pasos__grid">
+            {[
+              ["Me escribes", "Haces el test o me mandas un WhatsApp. Sin compromiso."],
+              ["Hablamos", "20 minutos para conocernos y entender dónde estás."],
+              ["Diseño tu plan", "Nutrición y entrenamiento hechos a tu medida."],
+              ["Empezamos", "Con seguimiento continuo. No estarás sola en el proceso."],
+            ].map(([t, d], i) => (
+              <Reveal key={i} delay={i * 90} className="paso">
+                <span className="paso__n">{i + 1}</span>
+                <h3>{t}</h3>
+                <p>{d}</p>
               </Reveal>
             ))}
           </div>
@@ -600,42 +600,6 @@ export default function App() {
               <a className="btn btn--wine btn--lg" href="#test" onClick={scrollTo("test")}>Empezar mi proceso <ArrowRight size={18} /></a>
             </Reveal>
           </div>
-        </div>
-      </section>
-
-      {/* FILOSOFÍA */}
-      <section className="filo">
-        <div className="wrap filo__grid">
-          <Reveal className="filo__col filo__col--no">
-            <p className="eyebrow eyebrow--light">Filosofía</p>
-            <h3>Lo que <em>no</em> hago</h3>
-            <ul>{["Soluciones rápidas", "Dietas milagro", "Comparar tu camino con el de los demás", "Trabajar desde la culpa o el miedo", "Vender cambios irreales"].map((x) => <li key={x}>{x}</li>)}</ul>
-          </Reveal>
-          <Reveal delay={120} className="filo__col filo__col--si">
-            <h3>Lo que <em>sí</em> hago</h3>
-            <ul>{["Creer en los hábitos", "Disciplina con equilibrio", "Escuchar el cuerpo", "Aprendizaje continuo", "Movimiento con intención", "Un proceso distinto para cada persona"].map((x) => <li key={x}>{x}</li>)}</ul>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* APRENDE CONMIGO */}
-      <section className="aprende">
-        <div className="wrap">
-          <Reveal className="aprende__head">
-            <p className="eyebrow">Aprende conmigo</p>
-            <h2 className="h2">Antes de empezar un programa, quiero que me conozcas.</h2>
-            <p className="aprende__sub">En mi canal comparto nutrición, entrenamientos, hábitos, reflexiones y mi día a día.</p>
-          </Reveal>
-          <div className="aprende__grid">
-            {[1, 2, 3].map((i) => (
-              <Reveal key={i} delay={i * 90} className="vid">
-                <PhotoSlot label={`Miniatura de vídeo ${i}`} hint="Horizontal 16:9" />
-                <span className="vid__play"><Play size={20} fill="currentColor" /></span>
-              </Reveal>
-            ))}
-          </div>
-          {/* TODO: reemplazar # por el enlace real del canal de YouTube */}
-          <div className="aprende__cta"><a className="btn btn--ghost-ink" href="#" target="_blank" rel="noreferrer"><Youtube size={18} /> Ver vídeos en YouTube</a></div>
         </div>
       </section>
 
@@ -945,21 +909,15 @@ function Styles() {
     .manifesto__q em{color:var(--sand)}
     .manifesto__sig{font-size:clamp(16px,1.8vw,20px);color:rgba(245,239,228,.75);max-width:640px}
 
-    /* TRÍPTICO */
-    .tri{padding:clamp(64px,9vw,110px) 0}
-    .tri__head{max-width:640px;margin-bottom:44px}
-    .tri__grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-    .tri__card{position:relative;overflow:hidden;background:rgba(255,255,255,.5);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.55);border-radius:20px;padding:40px 34px 44px;min-height:290px;display:flex;flex-direction:column;transition:background .35s,transform .4s var(--ease),box-shadow .4s}
-    .tri__card::before{content:"";position:absolute;left:0;top:0;width:100%;height:3px;background:var(--grad);transform:scaleX(0);transform-origin:left;transition:transform .5s var(--ease)}
-    .tri__card:hover{background:rgba(255,255,255,.78);transform:translateY(-6px);box-shadow:0 34px 70px -34px rgba(124,92,230,.45)}
-    .tri__card:hover::before{transform:scaleX(1)}
-    .tri__ghost{position:absolute;right:-6px;bottom:-30px;font-family:var(--serif);font-weight:300;font-size:170px;line-height:1;color:transparent;-webkit-text-stroke:1.4px rgba(124,92,230,.13);pointer-events:none;transition:transform .6s var(--ease)}
-    .tri__card:hover .tri__ghost{transform:translateY(-8px) rotate(-3deg)}
-    .tri__icon{width:54px;height:54px;border-radius:16px;display:flex;align-items:center;justify-content:center;background:var(--grad);color:#fff;margin-bottom:22px;box-shadow:0 14px 30px -14px rgba(236,95,134,.55);transition:transform .4s var(--ease)}
-    .tri__card:hover .tri__icon{transform:scale(1.08) rotate(-4deg)}
-    .tri__idx{font-family:var(--sans);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--violet)}
-    .tri__card h3{font-family:var(--serif);font-weight:400;font-size:clamp(26px,2.6vw,32px);margin:10px 0 12px}
-    .tri__card p{color:var(--ink2);margin:0;position:relative}
+    /* CÓMO FUNCIONA */
+    .pasos{padding:clamp(56px,8vw,100px) 0}
+    .pasos__head{max-width:620px;margin-bottom:40px}
+    .pasos__grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+    .paso{position:relative;background:rgba(255,255,255,.5);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.55);border-radius:18px;padding:28px 22px;transition:transform .35s var(--ease),box-shadow .35s,background .35s}
+    .paso:hover{transform:translateY(-4px);background:rgba(255,255,255,.72);box-shadow:0 26px 55px -32px rgba(124,92,230,.45)}
+    .paso__n{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;background:var(--grad);color:#fff;font-weight:700;font-size:15px;margin-bottom:16px;box-shadow:0 10px 22px -10px rgba(236,95,134,.6)}
+    .paso h3{font-family:var(--serif);font-weight:400;font-size:21px;margin:0 0 8px}
+    .paso p{color:var(--ink2);margin:0;font-size:15px;line-height:1.55}
 
     /* SOBRE */
     .sobre{padding:clamp(64px,9vw,120px) 0}
@@ -1040,31 +998,6 @@ function Styles() {
     .res__card--cta h3{font-family:var(--serif);font-weight:400;font-size:clamp(24px,2.6vw,32px);line-height:1.15;margin:0}
     .res__card--cta p{color:var(--ink2);margin:0 0 8px}
 
-    /* FILOSOFÍA */
-    .filo{padding:clamp(64px,9vw,120px) 0}
-    .filo__grid{display:grid;grid-template-columns:1fr 1fr;gap:60px}
-    .filo__col h3{font-family:var(--serif);font-weight:400;font-size:clamp(26px,3vw,38px);margin:0 0 22px}
-    .filo__col--no h3 em{color:var(--sand)} .filo__col--si h3 em{color:#f0c0d0}
-    .filo__col ul{list-style:none;padding:0;margin:0}
-    .filo__col li{padding:14px 0;border-top:1px solid rgba(245,239,228,.16);color:rgba(245,239,228,.88);transition:padding-left .3s var(--ease)}
-    .filo__col li:hover{padding-left:10px}
-    @media(min-width:861px){.filo__col--si{padding-top:44px}}
-    .filo__col--si li{position:relative;padding-left:26px}
-    .filo__col--si li:hover{padding-left:34px}
-    .filo__col--si li::before{content:"";position:absolute;left:0;top:22px;width:12px;height:2px;background:var(--sand)}
-
-    /* APRENDE */
-    .aprende{padding:clamp(64px,9vw,120px) 0}
-    .aprende__head{max-width:680px;margin-bottom:44px}
-    .aprende__sub{color:var(--ink2)}
-    .aprende__grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
-    .vid{position:relative;transition:transform .4s var(--ease)}
-    .vid:hover{transform:translateY(-4px)}
-    .vid .slot{min-height:200px}
-    .vid__play{position:absolute;inset:0;margin:auto;width:58px;height:58px;border-radius:50%;background:var(--grad);color:#fff;display:flex;align-items:center;justify-content:center;pointer-events:none;transition:transform .35s var(--ease);box-shadow:0 14px 34px -12px rgba(236,95,134,.6)}
-    .vid:hover .vid__play{transform:scale(1.14)}
-    .aprende__cta{margin-top:34px}
-
     /* FAQ */
     .faqs{background:transparent;padding:clamp(64px,9vw,120px) 0}
     .faqs__grid{display:grid;grid-template-columns:.7fr 1.3fr;gap:56px;align-items:start}
@@ -1126,12 +1059,12 @@ function Styles() {
 
     /* RESPONSIVE */
     @media(max-width:980px){
-      .sobre__grid,.servicios__grid,.contacto__grid,.filo__grid,.faqs__grid,.quiz__grid{grid-template-columns:1fr;gap:40px}
+      .sobre__grid,.servicios__grid,.contacto__grid,.faqs__grid,.quiz__grid{grid-template-columns:1fr;gap:40px}
       .stats__grid{grid-template-columns:1fr 1fr;gap:26px}
       .stat:nth-child(3){border-left:none;padding-left:0}
     }
     @media(max-width:860px){
-      .tri__grid,.aprende__grid{grid-template-columns:1fr}
+      .pasos__grid{grid-template-columns:1fr 1fr}
       .res__grid{grid-template-columns:1fr}
       .nav__links,.nav__cta{display:none}
       .nav__burger{display:inline-flex}
@@ -1141,6 +1074,7 @@ function Styles() {
     }
     @media(max-width:560px){
       .wrap{padding:0 20px}
+      .pasos__grid{grid-template-columns:1fr}
       .ba__slide{gap:8px}
       .res__shot img{aspect-ratio:9 / 14;border-radius:12px}
       .cap{font-size:9px;letter-spacing:.08em;padding:7px 6px;gap:5px}
