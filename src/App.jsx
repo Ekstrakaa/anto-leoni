@@ -847,7 +847,9 @@ function Styles() {
 
     /* HERO */
     .hero{position:relative;min-height:92vh;min-height:92dvh;display:flex;align-items:flex-start;color:var(--cream);overflow:hidden}
-    .hero__media{position:absolute;inset:0;z-index:0;overflow:hidden;background:linear-gradient(160deg,#2a1440,#4a1c52 55%,#1a0f2e)}
+    .hero__media{position:absolute;inset:0;z-index:0;overflow:hidden;
+      background:linear-gradient(125deg,#1b0a3d 0%,#4a1585 22%,#8e2192 45%,#c2367f 62%,#6b23a8 80%,#1b0a3d 100%);
+      background-size:400% 400%;animation:meshflow 20s ease-in-out infinite}
     .hero__vid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;opacity:0;transition:opacity .8s ease;transform:scale(1.02)}
     .hero__vid.on{opacity:1}
     video::-webkit-media-controls-start-playback-button,
@@ -856,6 +858,18 @@ function Styles() {
     video::-webkit-media-controls-panel,
     video::-webkit-media-controls{display:none!important;-webkit-appearance:none!important;appearance:none!important;opacity:0!important}
     .hero__scrim{position:absolute;inset:0;background:linear-gradient(180deg,rgba(18,10,26,.14) 0%,rgba(18,10,26,.42) 55%,rgba(18,10,26,.86) 100%),linear-gradient(90deg,rgba(18,10,26,.55) 0%,rgba(18,10,26,.12) 55%,transparent 100%)}
+
+    /* PANTALLA ANCHA: los vídeos son verticales, así que se muestran ENTEROS a la
+       derecha, apoyados sobre el degradado animado, con el texto a la izquierda.
+       (En el celular siguen a pantalla completa, que es donde calzan perfecto.) */
+    @media(min-width:981px){
+      .hero{align-items:center}
+      .hero__vid{object-fit:contain;object-position:80% center}
+      .hero__scrim{background:
+        linear-gradient(90deg,rgba(18,10,26,.78) 0%,rgba(18,10,26,.5) 40%,rgba(18,10,26,.12) 62%,transparent 80%),
+        linear-gradient(180deg,rgba(18,10,26,.2) 0%,transparent 32%,rgba(18,10,26,.38) 100%)}
+      .hero__content{max-width:600px;padding-top:40px;padding-bottom:40px}
+    }
     .hero__content{position:relative;z-index:2;padding-top:96px;padding-bottom:60px;max-width:900px;will-change:transform,opacity}
     .hero__badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.28);backdrop-filter:blur(8px);color:var(--cream);font-size:13px;font-weight:600;letter-spacing:.05em;padding:8px 16px;border-radius:100px;margin-bottom:18px;animation:fadein 1s ease .05s both}
     .hero__badge sup{font-size:9px}
