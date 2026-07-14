@@ -194,24 +194,42 @@ function Quiz() {
 
   const submit = () => { window.open(waLink(buildMsg()), "_blank"); setDone(true); };
 
+  const pct = Math.round(((done ? TOTAL : step) / TOTAL) * 100);
+  const chips = [ans.estado, ...(ans.metas || []), ans.tiempo, ans.modalidad].filter(Boolean);
+
   return (
-    <div className="quizcard">
+    <div className={`quizcard ${done ? "is-done" : ""}`}>
+      <span className="qsilk qs1" aria-hidden /><span className="qsilk qs2" aria-hidden /><span className="qsilk qs3" aria-hidden />
+
       <div className="quiz__top">
         <div className="quiz__toprow">
-          <span className="quiz__step">Paso <b>{Math.min(step + 1, TOTAL)}</b> de {TOTAL}</span>
-          <span className="quiz__free">Gratis · 1 min</span>
+          <span className="quiz__step">
+            <span className="quiz__pulse" />
+            Paso <b>{Math.min(step + 1, TOTAL)}</b> de {TOTAL}
+          </span>
+          <span className="quiz__pct">{pct}%</span>
         </div>
         <div className="quiz__segs">
           {Array.from({ length: TOTAL }).map((_, i) => (
-            <span key={i} className={`seg ${i < step ? "past" : ""} ${i === step ? "now" : ""}`} />
+            <span key={i} className={`seg ${i < step || done ? "past" : ""} ${i === step && !done ? "now" : ""}`} />
           ))}
         </div>
+        {chips.length > 0 && !done && (
+          <div className="quiz__chips">
+            {chips.slice(0, 4).map((c, i) => <span className="qchip" key={c + i}>{c}</span>)}
+            {chips.length > 4 && <span className="qchip qchip--more">+{chips.length - 4}</span>}
+          </div>
+        )}
       </div>
 
       <div className="quiz__body" key={done ? "done" : step}>
         {done ? (
-          <div className="quiz__done stepin">
-            <span className="quiz__doneicon"><Check size={28} strokeWidth={2.5} /></span>
+          <div className="quiz__done">
+            <span className="quiz__doneicon">
+              <Check size={30} strokeWidth={2.6} />
+              <i className="spark s1" /><i className="spark s2" /><i className="spark s3" />
+              <i className="spark s4" /><i className="spark s5" /><i className="spark s6" />
+            </span>
             <h3>Tu propuesta está en camino</h3>
             <p>Te he abierto WhatsApp con tus respuestas ya escritas. Solo pulsa enviar y te responderé personalmente.</p>
             <button className="quiz__restart" onClick={() => { setDone(false); setStep(0); setAns({}); setForm({ nombre: "", contacto: "" }); }}>
@@ -222,11 +240,11 @@ function Quiz() {
           <div className="stepin">
             <h3 className="quiz__q">¿A dónde te envío tu propuesta?</h3>
             <p className="quiz__help">Con tus respuestas prepararé algo pensado solo para ti.</p>
-            <label className="quiz__field">
+            <label className="quiz__field" style={{ "--i": 0 }}>
               <span>Tu nombre</span>
               <input value={form.nombre} onChange={(e) => setForm({ ...form, nombre: e.target.value })} placeholder="Nombre" />
             </label>
-            <label className="quiz__field">
+            <label className="quiz__field" style={{ "--i": 1 }}>
               <span>Email o teléfono</span>
               <input value={form.contacto} onChange={(e) => setForm({ ...form, contacto: e.target.value })} placeholder="Para poder responderte" />
             </label>
@@ -239,9 +257,18 @@ function Quiz() {
               {s.options.map((op, oi) => {
                 const sel = s.type === "multi" ? (ans[s.id] || []).includes(op) : ans[s.id] === op;
                 return (
-                  <button key={op} className={`opt ${sel ? "sel" : ""}`} onClick={() => pick(s.id, op, s.type === "multi")}>
-                    <span className="opt__key">{sel ? <Check size={13} strokeWidth={3.2} /> : String.fromCharCode(65 + oi)}</span>
+                  <button
+                    key={op}
+                    className={`opt ${sel ? "sel" : ""}`}
+                    style={{ "--i": oi }}
+                    onClick={() => pick(s.id, op, s.type === "multi")}
+                  >
+                    <span className="opt__key">
+                      <b className="opt__letter">{String.fromCharCode(65 + oi)}</b>
+                      <b className="opt__tick"><Check size={13} strokeWidth={3.4} /></b>
+                    </span>
                     <span className="opt__txt">{op}</span>
+                    <span className="opt__arrow"><ArrowRight size={15} /></span>
                   </button>
                 );
               })}
@@ -271,46 +298,66 @@ function Quiz() {
 }
 
 /* -------------------- ANTES / DESPUÉS -------------------- */
+/* Para añadir el testimonio real: rellená "quote" y "nombre".
+   Si quote está vacío, no se muestra nada (la sección igual se ve terminada). */
 const CASES = [
-  { antes: "/antes1.jpg", despues: "/despues1.jpg", quote: "", nombre: "Cliente 1" },
-  { antes: "/antes2.jpg", despues: "/despues2.jpg", quote: "", nombre: "Cliente 2" },
-  { antes: "/antes3.jpg", despues: "/despues3.jpg", quote: "", nombre: "Cliente 3" },
+  { antes: "/antes1.jpg", despues: "/despues1.jpg", quote: "", nombre: "" },
+  { antes: "/antes2.jpg", despues: "/despues2.jpg", quote: "", nombre: "" },
+  { antes: "/antes3.jpg", despues: "/despues3.jpg", quote: "", nombre: "" },
+  { antes: "/antes4.jpg", despues: "/despues4.jpg", quote: "", nombre: "" },
 ];
 
 function BeforeAfter() {
   const [c, setC] = useState(0);
+  const [paused, setPaused] = useState(false);
   useEffect(() => {
-    const id = setInterval(() => setC((i) => (i + 1) % CASES.length), 6000);
+    if (paused) return;
+    const id = setInterval(() => setC((i) => (i + 1) % CASES.length), 6500);
     return () => clearInterval(id);
-  }, []);
+  }, [paused]);
   const go = (d) => setC((i) => (i + d + CASES.length) % CASES.length);
+  const cur = CASES[c];
 
   return (
-    <div className="ba">
+    <div className="ba" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
+      <div className="ba__bar">
+        <span className="ba__count">Caso <b>{c + 1}</b> / {CASES.length}</span>
+        <div className="ba__nav">
+          <button className="ba__arrow" onClick={() => go(-1)} aria-label="Caso anterior"><ArrowLeft size={16} /></button>
+          <button className="ba__arrow" onClick={() => go(1)} aria-label="Siguiente caso"><ArrowRight size={16} /></button>
+        </div>
+      </div>
+
       <div className="ba__viewport">
         <div className="ba__track" style={{ transform: `translateX(-${c * 100}%)` }}>
           {CASES.map((cs, i) => (
             <div className="ba__slide" key={i}>
-              <figure className="res__shot">
+              <figure className="shot">
+                <span className="shot__tag shot__tag--before">Antes</span>
                 <img src={cs.antes} alt={`Antes — caso ${i + 1}`} loading="lazy" />
-                <figcaption className="cap cap--before">Antes</figcaption>
               </figure>
-              <figure className="res__shot res__shot--after">
+              <span className="ba__mid" aria-hidden><ArrowRight size={16} /></span>
+              <figure className="shot shot--after">
+                <span className="shot__tag shot__tag--after">Después</span>
                 <img src={cs.despues} alt={`Después — caso ${i + 1}`} loading="lazy" />
-                <figcaption className="cap cap--after">Después</figcaption>
               </figure>
             </div>
           ))}
         </div>
       </div>
-      <div className="ba__nav">
-        <button className="ba__arrow" onClick={() => go(-1)} aria-label="Caso anterior"><ArrowLeft size={18} /></button>
-        <div className="ba__dots">
-          {CASES.map((_, i) => (
-            <button key={i} className={i === c ? "on" : ""} onClick={() => setC(i)} aria-label={`Caso ${i + 1}`} />
-          ))}
-        </div>
-        <button className="ba__arrow" onClick={() => go(1)} aria-label="Siguiente caso"><ArrowRight size={18} /></button>
+
+      {cur.quote && (
+        <blockquote className="ba__quote">
+          <span className="ba__mark">“</span>
+          <p>{cur.quote}</p>
+          {cur.nombre && <cite>— {cur.nombre}</cite>}
+        </blockquote>
+      )}
+
+      <div className="ba__dots">
+        {CASES.map((_, i) => (
+          <button key={i} className={i === c ? "on" : ""} onClick={() => setC(i)} aria-label={`Caso ${i + 1}`} />
+        ))}
       </div>
     </div>
   );
@@ -588,10 +635,6 @@ export default function App() {
           <div className="res__grid">
             <Reveal className="res__card res__card--wide">
               <BeforeAfter />
-              <div className="res__quote">
-                <p className="placeholder-text">[ Testimonio — pídele a cada persona unas líneas sobre cómo se siente ahora ]</p>
-                <span className="res__name">— Nombre del cliente</span>
-              </div>
             </Reveal>
 
             <Reveal delay={120} className="res__card res__card--cta">
@@ -750,7 +793,7 @@ function Styles() {
     @media (prefers-reduced-motion:reduce){
       .reveal{opacity:1!important;transform:none!important;filter:none!important;transition:none}
       .line,.hero__lead,.hero__cta,.hero__eyebrow,.hero__badge,.marquee__track,.silk,.floatwa,
-      .quiz,.manifesto,.metodo,.filo,.contacto{animation:none!important}
+      .quiz,.manifesto,.metodo,.contacto,.quizcard,.qsilk{animation:none!important}
     }
 
     /* BOTONES */
@@ -854,53 +897,138 @@ function Styles() {
     @keyframes marqrev{from{transform:translateX(-50%)}to{transform:translateX(0)}}
 
     /* BANDAS VIOLETA */
-    .quiz,.manifesto,.metodo,.filo,.contacto{position:relative;color:var(--cream);background:var(--band);background-size:300% 300%;animation:wave 22s ease infinite;overflow:hidden}
-    .quiz::before,.manifesto::before,.metodo::before,.filo::before,.contacto::before{content:"";position:absolute;top:-25%;right:-12%;width:65%;height:90%;background:radial-gradient(circle,rgba(236,95,134,.45),transparent 60%);filter:blur(50px);pointer-events:none;z-index:0;animation:silk2 24s ease-in-out infinite alternate}
-    .manifesto{animation-duration:26s} .filo{animation-duration:24s} .contacto{animation-duration:20s}
+    .quiz,.manifesto,.metodo,.contacto{position:relative;color:var(--cream);background:var(--band);background-size:300% 300%;animation:wave 22s ease infinite;overflow:hidden}
+    .quiz::before,.manifesto::before,.metodo::before,.contacto::before{content:"";position:absolute;top:-25%;right:-12%;width:65%;height:90%;background:radial-gradient(circle,rgba(236,95,134,.45),transparent 60%);filter:blur(50px);pointer-events:none;z-index:0;animation:silk2 24s ease-in-out infinite alternate}
+    .manifesto{animation-duration:26s} .contacto{animation-duration:20s} .quiz{animation-duration:14s}
 
     /* QUIZ */
     .quiz{padding:clamp(64px,9vw,120px) 0}
     .quiz__grid{display:grid;grid-template-columns:.85fr 1.15fr;gap:56px;align-items:center}
     .quiz__lead{color:rgba(245,239,228,.78);max-width:380px}
-    .quizcard{position:relative;overflow:hidden;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.2);border-radius:26px;padding:clamp(26px,4vw,42px);box-shadow:0 50px 100px -45px rgba(0,0,0,.7);backdrop-filter:blur(14px)}
-    .quizcard::before{content:"";position:absolute;left:0;top:0;width:100%;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.5),transparent)}
-    .quiz__top{margin-bottom:28px}
+
+    /* ===== TARJETA DEL TEST: degradado animado en movimiento ===== */
+    .quizcard{position:relative;overflow:hidden;border-radius:26px;padding:clamp(26px,4vw,42px);
+      border:1px solid rgba(255,255,255,.18);
+      box-shadow:0 50px 100px -45px rgba(0,0,0,.8);
+      background:linear-gradient(125deg,#1b0a3d 0%,#4a1585 22%,#8e2192 45%,#c2367f 62%,#6b23a8 80%,#1b0a3d 100%);
+      background-size:400% 400%;
+      animation:meshflow 18s ease-in-out infinite;
+      isolation:isolate}
+    @keyframes meshflow{
+      0%{background-position:0% 50%}
+      50%{background-position:100% 50%}
+      100%{background-position:0% 50%}
+    }
+
+    /* capa 1: luces de color que se desplazan */
+    .qsilk{position:absolute;inset:0;pointer-events:none;z-index:-1;will-change:background-position,transform}
+    .qs1{
+      background:
+        radial-gradient(58% 42% at 18% 28%, rgba(236,95,134,.62), transparent 62%),
+        radial-gradient(52% 38% at 82% 72%, rgba(124,92,230,.68), transparent 62%),
+        radial-gradient(48% 34% at 62% 14%, rgba(91,139,255,.48), transparent 62%);
+      background-size:220% 220%;
+      animation:lights 22s ease-in-out infinite alternate}
+    @keyframes lights{
+      0%{background-position:0% 0%}
+      100%{background-position:100% 100%}
+    }
+    /* capa 2: cinta de seda que cruza */
+    .qs2{
+      background:linear-gradient(102deg,transparent 18%,rgba(255,255,255,.16) 38%,rgba(241,184,206,.28) 50%,rgba(255,255,255,.14) 62%,transparent 84%);
+      filter:blur(26px);
+      animation:band 15s ease-in-out infinite alternate}
+    @keyframes band{
+      from{transform:translate(-16%,10%) rotate(-9deg) scale(1.25)}
+      to{transform:translate(14%,-8%) rotate(4deg) scale(1.35)}
+    }
+    /* capa 3: brillo suave superior */
+    .qs3{
+      background:radial-gradient(70% 50% at 50% 0%, rgba(255,255,255,.22), transparent 65%);
+      animation:glow 9s ease-in-out infinite alternate}
+    @keyframes glow{from{opacity:.55}to{opacity:1}}
+
+    .quizcard.is-done{animation-duration:7s}
+    .quizcard.is-done .qs1{animation-duration:9s}
+
+    .quiz__top{margin-bottom:26px}
     .quiz__toprow{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
-    .quiz__step{font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,239,228,.6)}
+    .quiz__step{display:inline-flex;align-items:center;gap:9px;font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,239,228,.62)}
     .quiz__step b{color:var(--cream);font-weight:700}
-    .quiz__free{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--sand);border:1px solid rgba(241,184,206,.4);border-radius:100px;padding:5px 12px;white-space:nowrap}
+    .quiz__pulse{width:7px;height:7px;border-radius:50%;background:var(--rose);box-shadow:0 0 0 0 rgba(236,95,134,.7);animation:blip 1.9s ease-out infinite}
+    @keyframes blip{0%{box-shadow:0 0 0 0 rgba(236,95,134,.7)}70%{box-shadow:0 0 0 9px rgba(236,95,134,0)}100%{box-shadow:0 0 0 0 rgba(236,95,134,0)}}
+    .quiz__pct{font-family:var(--serif);font-size:20px;font-weight:500;color:var(--sand);font-variant-numeric:tabular-nums}
     .quiz__segs{display:flex;gap:6px}
-    .seg{flex:1;height:4px;border-radius:100px;background:rgba(245,239,228,.16);transition:background .45s var(--ease),transform .45s var(--ease)}
-    .seg.past{background:rgba(241,184,206,.75)}
-    .seg.now{background:var(--grad);transform:scaleY(1.5)}
-    .quiz__body{min-height:262px}
+    .seg{position:relative;flex:1;height:4px;border-radius:100px;background:rgba(245,239,228,.16);overflow:hidden;transition:transform .45s var(--ease)}
+    .seg.past::after{content:"";position:absolute;inset:0;background:var(--grad);animation:fill .5s var(--ease) both}
+    .seg.now{transform:scaleY(1.6)}
+    .seg.now::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(241,184,206,.9),transparent);animation:sweep 1.7s ease-in-out infinite}
+    @keyframes fill{from{transform:scaleX(0);transform-origin:left}to{transform:scaleX(1)}}
+    @keyframes sweep{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+
+    .quiz__chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
+    .qchip{font-size:11px;font-weight:600;color:rgba(245,239,228,.8);background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.16);border-radius:100px;padding:5px 11px;animation:chipin .4s var(--ease) both}
+    .qchip--more{background:rgba(236,95,134,.25);border-color:transparent}
+    @keyframes chipin{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:none}}
+
+    .quiz__body{min-height:268px}
     .stepin{animation:stepin .5s var(--ease)}
-    @keyframes stepin{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+    @keyframes stepin{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
     .quiz__q{font-family:var(--serif);font-weight:400;font-size:clamp(23px,3vw,32px);line-height:1.18;margin:0 0 6px;color:var(--cream)}
     .quiz__help{font-size:14px;color:rgba(245,239,228,.62);margin:0 0 20px}
+
     .opts{display:flex;flex-direction:column;gap:10px}
-    .opt{position:relative;overflow:hidden;display:flex;align-items:center;gap:14px;width:100%;text-align:left;padding:15px 18px;border-radius:14px;border:1.5px solid rgba(245,239,228,.22);background:rgba(255,255,255,.04);color:var(--cream);font-family:var(--sans);font-size:15px;font-weight:500;cursor:pointer;transition:all .28s var(--ease)}
-    .opt:hover{border-color:rgba(241,184,206,.7);background:rgba(255,255,255,.09);transform:translateX(4px)}
-    .opt.sel{background:var(--grad);border-color:transparent;box-shadow:0 14px 34px -14px rgba(236,95,134,.7);transform:translateX(4px)}
-    .opt__key{flex:none;width:28px;height:28px;border-radius:9px;display:flex;align-items:center;justify-content:center;background:rgba(245,239,228,.1);border:1px solid rgba(245,239,228,.2);font-size:12px;font-weight:700;color:rgba(245,239,228,.75);transition:all .28s var(--ease)}
+    .opt{position:relative;overflow:hidden;display:flex;align-items:center;gap:14px;width:100%;text-align:left;padding:15px 18px;border-radius:14px;border:1.5px solid rgba(245,239,228,.2);background:rgba(255,255,255,.045);color:var(--cream);font-family:var(--sans);font-size:15px;font-weight:500;cursor:pointer;
+      transition:border-color .3s var(--ease),background .3s var(--ease),transform .3s var(--ease),box-shadow .35s var(--ease);
+      animation:optin .5s var(--ease) both;animation-delay:calc(var(--i) * 70ms)}
+    @keyframes optin{from{opacity:0;transform:translateX(-14px)}to{opacity:1;transform:none}}
+    /* barrido de luz al pasar */
+    .opt::after{content:"";position:absolute;top:0;left:-70%;width:45%;height:100%;background:linear-gradient(105deg,transparent,rgba(255,255,255,.13),transparent);transform:skewX(-18deg);transition:left .55s ease}
+    .opt:hover::after{left:130%}
+    .opt:hover{border-color:rgba(241,184,206,.65);background:rgba(255,255,255,.09);transform:translateX(5px)}
+    .opt:active{transform:translateX(5px) scale(.985)}
+    .opt.sel{background:var(--grad);border-color:transparent;transform:translateX(5px);box-shadow:0 16px 40px -14px rgba(236,95,134,.75);animation:pick .45s var(--ease)}
+    @keyframes pick{0%{transform:translateX(5px) scale(1)}40%{transform:translateX(5px) scale(1.028)}100%{transform:translateX(5px) scale(1)}}
+
+    .opt__key{position:relative;flex:none;width:30px;height:30px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:rgba(245,239,228,.09);border:1px solid rgba(245,239,228,.2);font-size:12px;font-weight:700;color:rgba(245,239,228,.75);transition:all .3s var(--ease)}
     .opt:hover .opt__key{border-color:rgba(241,184,206,.6);color:var(--cream)}
+    .opt__letter,.opt__tick{position:absolute;display:flex;align-items:center;justify-content:center;transition:opacity .25s var(--ease),transform .3s var(--ease)}
+    .opt__tick{opacity:0;transform:scale(.4) rotate(-25deg)}
     .opt.sel .opt__key{background:#fff;border-color:#fff;color:var(--rose)}
+    .opt.sel .opt__letter{opacity:0;transform:scale(.4)}
+    .opt.sel .opt__tick{opacity:1;transform:none}
     .opt__txt{flex:1}
+    .opt__arrow{opacity:0;transform:translateX(-6px);transition:all .3s var(--ease);color:rgba(245,239,228,.55)}
+    .opt:hover .opt__arrow{opacity:1;transform:none}
+    .opt.sel .opt__arrow{opacity:.9;color:#fff;transform:none}
+
     .quiz__foot{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:26px;padding-top:22px;border-top:1px solid rgba(245,239,228,.12)}
     .quiz__back{background:none;border:none;color:rgba(245,239,228,.7);cursor:pointer;display:inline-flex;align-items:center;gap:8px;font-family:var(--sans);font-weight:600;font-size:15px;padding:8px 4px;transition:color .25s,transform .25s var(--ease)}
     .quiz__back:hover{color:var(--cream);transform:translateX(-3px)}
     .quiz__hint{font-size:13px;color:rgba(245,239,228,.45)}
-    .quiz__field{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+
+    .quiz__field{display:flex;flex-direction:column;gap:8px;margin-bottom:16px;animation:optin .5s var(--ease) both;animation-delay:calc(var(--i) * 90ms)}
     .quiz__field span{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:rgba(245,239,228,.6)}
-    .quiz__field input{background:rgba(245,239,228,.07);border:1.5px solid rgba(245,239,228,.2);border-radius:14px;padding:15px 17px;color:var(--cream);font-family:var(--sans);font-size:16px;transition:border-color .25s,background .25s,box-shadow .25s}
+    .quiz__field input{background:rgba(245,239,228,.07);border:1.5px solid rgba(245,239,228,.2);border-radius:14px;padding:15px 17px;color:var(--cream);font-family:var(--sans);font-size:16px;transition:border-color .3s,background .3s,box-shadow .3s}
     .quiz__field input::placeholder{color:rgba(245,239,228,.4)}
-    .quiz__field input:focus{outline:none;border-color:var(--sand);background:rgba(245,239,228,.12);box-shadow:0 0 0 4px rgba(241,184,206,.12)}
-    .quiz__done{text-align:center;padding:24px 0}
-    .quiz__doneicon{display:inline-flex;width:62px;height:62px;border-radius:50%;background:var(--grad);color:#fff;align-items:center;justify-content:center;margin-bottom:10px;box-shadow:0 18px 40px -14px rgba(236,95,134,.7);animation:pop .55s var(--ease) both}
-    @keyframes pop{0%{transform:scale(.4);opacity:0}60%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+    .quiz__field input:focus{outline:none;border-color:var(--sand);background:rgba(245,239,228,.12);box-shadow:0 0 0 4px rgba(241,184,206,.14)}
+
+    /* FINAL con destellos */
+    .quiz__done{text-align:center;padding:26px 0;animation:stepin .55s var(--ease)}
+    .quiz__doneicon{position:relative;display:inline-flex;width:66px;height:66px;border-radius:50%;background:var(--grad);color:#fff;align-items:center;justify-content:center;margin-bottom:12px;box-shadow:0 20px 44px -14px rgba(236,95,134,.75);animation:pop .6s var(--ease) both}
+    @keyframes pop{0%{transform:scale(.3) rotate(-20deg);opacity:0}55%{transform:scale(1.12) rotate(4deg)}100%{transform:scale(1) rotate(0);opacity:1}}
+    .quiz__doneicon::before{content:"";position:absolute;inset:-8px;border-radius:50%;border:2px solid rgba(236,95,134,.55);animation:halo 1.6s ease-out .35s infinite}
+    @keyframes halo{0%{transform:scale(.9);opacity:.9}100%{transform:scale(1.5);opacity:0}}
+    .spark{position:absolute;width:6px;height:6px;border-radius:50%;background:var(--sand);opacity:0;animation:spark .9s var(--ease) .25s both}
+    .spark.s1{top:-4px;left:50%} .spark.s2{top:12%;right:-6px;background:#fff}
+    .spark.s3{bottom:6%;right:0} .spark.s4{bottom:-4px;left:44%;background:#fff}
+    .spark.s5{bottom:10%;left:-6px} .spark.s6{top:10%;left:-2px;background:#fff}
+    .spark.s1{--tx:0px;--ty:-28px} .spark.s2{--tx:26px;--ty:-18px} .spark.s3{--tx:26px;--ty:18px}
+    .spark.s4{--tx:0px;--ty:28px} .spark.s5{--tx:-26px;--ty:18px} .spark.s6{--tx:-26px;--ty:-18px}
+    @keyframes spark{0%{opacity:0;transform:translate(0,0) scale(.4)}35%{opacity:1}100%{opacity:0;transform:translate(var(--tx),var(--ty)) scale(.9)}}
     .quiz__done h3{font-family:var(--serif);font-weight:400;font-size:clamp(24px,3vw,30px);margin:10px 0}
     .quiz__done p{color:rgba(245,239,228,.75);max-width:360px;margin:0 auto 22px}
-    .quiz__restart{background:none;border:none;color:rgba(245,239,228,.6);font-family:var(--sans);font-size:14px;font-weight:600;cursor:pointer;text-decoration:underline;text-underline-offset:4px;padding:6px}
+    .quiz__restart{background:none;border:none;color:rgba(245,239,228,.6);font-family:var(--sans);font-size:14px;font-weight:600;cursor:pointer;text-decoration:underline;text-underline-offset:4px;padding:6px;transition:color .25s}
     .quiz__restart:hover{color:var(--cream)}
 
     /* MANIFESTO */
@@ -974,24 +1102,40 @@ function Styles() {
     .res__card{background:rgba(255,255,255,.5);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.45);border-radius:22px;padding:22px;display:flex;flex-direction:column;gap:18px;min-width:0;overflow:hidden;transition:transform .4s var(--ease),box-shadow .4s}
     .res__card:hover{transform:translateY(-5px);box-shadow:0 34px 70px -38px rgba(124,92,230,.45)}
     .res__ba{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    .ba{display:flex;flex-direction:column;gap:14px;width:100%;min-width:0}
-    .ba__viewport{overflow:hidden;border-radius:16px;width:100%;min-width:0}
-    .ba__track{display:flex;width:100%;transition:transform .75s var(--ease)}
-    .ba__slide{flex:0 0 100%;width:100%;min-width:0;display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    .ba__slide .res__shot{min-width:0}
-    .ba__nav{display:flex;align-items:center;justify-content:center;gap:16px}
-    .ba__arrow{width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:rgba(255,255,255,.6);color:var(--ink);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .3s var(--ease)}
-    .ba__arrow:hover{background:var(--grad);color:#fff;border-color:transparent;transform:scale(1.06)}
-    .ba__dots{display:flex;gap:7px}
-    .ba__dots button{width:8px;height:8px;border-radius:50%;border:none;background:rgba(34,25,38,.22);cursor:pointer;padding:0;transition:all .3s var(--ease)}
-    .ba__dots button.on{background:var(--grad);width:26px;border-radius:100px}
-    .res__shot{position:relative;margin:0;display:flex;flex-direction:column;gap:10px}
-    .res__shot img{width:100%;aspect-ratio:3 / 4;object-fit:cover;display:block;border-radius:16px;background:rgba(124,92,230,.06)}
-    .cap{display:flex;align-items:center;justify-content:center;gap:7px;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:9px 12px;border-radius:100px}
-    .cap--before{background:var(--ink);color:var(--cream);box-shadow:0 10px 24px -12px rgba(34,25,38,.6)}
-    .cap--before::before{content:"";width:7px;height:7px;border-radius:50%;background:rgba(245,239,228,.55)}
-    .cap--after{background:var(--grad);color:#fff;box-shadow:0 10px 24px -10px rgba(236,95,134,.6)}
-    .cap--after::before{content:"";width:7px;height:7px;border-radius:50%;background:#fff}
+    .ba{display:flex;flex-direction:column;gap:16px;width:100%;min-width:0}
+    .ba__bar{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .ba__count{font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3)}
+    .ba__count b{color:var(--rose);font-weight:700}
+    .ba__nav{display:flex;gap:8px}
+    .ba__arrow{width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:rgba(255,255,255,.65);color:var(--ink);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .3s var(--ease)}
+    .ba__arrow:hover{background:var(--grad);color:#fff;border-color:transparent;transform:scale(1.08)}
+
+    .ba__viewport{overflow:hidden;border-radius:18px;width:100%;min-width:0}
+    .ba__track{display:flex;width:100%;transition:transform .8s var(--ease)}
+    .ba__slide{position:relative;flex:0 0 100%;width:100%;min-width:0;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+    .shot{position:relative;margin:0;min-width:0;border-radius:16px;overflow:hidden;background:rgba(124,92,230,.06);box-shadow:0 20px 45px -26px rgba(30,10,40,.45)}
+    .shot img{width:100%;aspect-ratio:3 / 4;object-fit:cover;display:block;transition:transform 1.4s var(--ease);filter:saturate(.82) contrast(.98)}
+    .shot--after img{filter:saturate(1.06) contrast(1.02)}
+    .shot:hover img{transform:scale(1.045)}
+    .shot::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(18,10,26,.28) 0%,transparent 34%)}
+    .shot__tag{position:absolute;top:12px;left:12px;z-index:2;display:inline-flex;align-items:center;gap:6px;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:7px 12px;border-radius:100px;backdrop-filter:blur(8px)}
+    .shot__tag::before{content:"";width:5px;height:5px;border-radius:50%}
+    .shot__tag--before{background:rgba(34,25,38,.72);color:rgba(245,239,228,.9)}
+    .shot__tag--before::before{background:rgba(245,239,228,.5)}
+    .shot__tag--after{background:var(--grad);color:#fff;box-shadow:0 8px 22px -8px rgba(236,95,134,.75)}
+    .shot__tag--after::before{background:#fff}
+
+    .ba__mid{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:3;width:34px;height:34px;border-radius:50%;background:var(--grad);color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 26px -8px rgba(236,95,134,.8),0 0 0 4px rgba(255,255,255,.55)}
+
+    .ba__quote{position:relative;margin:0;padding:20px 22px 20px 46px;background:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.5);border-radius:16px}
+    .ba__mark{position:absolute;left:16px;top:8px;font-family:var(--serif);font-size:44px;line-height:1;color:var(--rose);opacity:.55}
+    .ba__quote p{font-family:var(--serif);font-size:17px;line-height:1.55;color:var(--ink);margin:0 0 8px}
+    .ba__quote cite{font-style:normal;font-weight:700;font-size:13px;color:var(--rose)}
+
+    .ba__dots{display:flex;gap:7px;justify-content:center}
+    .ba__dots button{width:8px;height:8px;border-radius:50%;border:none;background:rgba(34,25,38,.2);cursor:pointer;padding:0;transition:all .35s var(--ease)}
+    .ba__dots button.on{background:var(--grad);width:28px;border-radius:100px}
     .res__quote{padding:4px 6px 8px}
     .res__name{font-weight:700;color:var(--rose);font-size:14px}
     .res__card--cta{background:rgba(255,255,255,.42);justify-content:center;align-items:flex-start;gap:14px;padding:38px 32px}
@@ -1076,9 +1220,11 @@ function Styles() {
       .wrap{padding:0 20px}
       .pasos__grid{grid-template-columns:1fr}
       .ba__slide{gap:8px}
-      .res__shot img{aspect-ratio:9 / 14;border-radius:12px}
-      .cap{font-size:9px;letter-spacing:.08em;padding:7px 6px;gap:5px}
-      .cap::before{width:5px;height:5px}
+      .shot img{aspect-ratio:9 / 14}
+      .shot__tag{font-size:9px;letter-spacing:.06em;padding:6px 9px;top:8px;left:8px}
+      .ba__mid{width:28px;height:28px}
+      .ba__quote{padding:16px 16px 16px 40px}
+      .ba__quote p{font-size:15px}
       .res__card{padding:16px}
       .stats__grid{grid-template-columns:1fr 1fr;gap:16px;padding:30px 20px}
       .stat{border-left:none;padding-left:0}
