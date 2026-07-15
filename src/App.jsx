@@ -562,9 +562,9 @@ export default function App() {
         <div className="wrap sobre__grid">
           <Reveal className="sobre__media">
             <div className="sobre__collage">
-              <img className="c1" src="/anto1.png" alt="Antonella compitiendo en fitness" />
-              <img className="c2" src="/anto2.png" alt="Antonella entrenando" />
-              <img className="c3" src="/anto3.png" alt="Antonella con su medalla" />
+              <img className="c1" src="/anto1.png" alt="Antonella compitiendo en fitness" loading="lazy" />
+              <img className="c2" src="/anto2.png" alt="Antonella entrenando" loading="lazy" />
+              <img className="c3" src="/anto3.png" alt="Antonella con su medalla" loading="lazy" />
             </div>
           </Reveal>
           <Reveal delay={120} className="sobre__text">
@@ -761,6 +761,7 @@ function Styles() {
       --sand:#F1B8CE;
       --line:rgba(34,25,38,.13);
       --grad:linear-gradient(120deg,#7C5CE6,#C651A8,#EC5F86,#F2926B);
+      --gradtxt:linear-gradient(120deg,#5a3cc4,#a1307f,#c24560,#b95836);
       --band:linear-gradient(125deg,#221049,#4a1685,#9a2586,#5a1a86,#221049);
       --serif:'Fraunces',Georgia,serif; --sans:'Manrope',system-ui,sans-serif;
       --ease:cubic-bezier(.16,.84,.32,1);
@@ -795,12 +796,13 @@ function Styles() {
     @keyframes silk3{from{transform:rotate(-8deg) translate(0,0) scale(1)}to{transform:rotate(-1deg) translate(5vw,-3vh) scale(1.1)}}
     .page > *:not(.bgfx):not(.scrollbar){position:relative;z-index:1}
 
-    /* gradiente suave en textos clave */
+    /* gradiente suave en textos clave (versión oscura, contraste AA) */
     .h2,.h2 em,.hero__title em,.stat__big,.eyebrow,.grad-text{
-      background:var(--grad);
+      background:var(--gradtxt);
       -webkit-background-clip:text;background-clip:text;
       -webkit-text-fill-color:transparent;color:transparent}
     .h2 em,.hero__title em{font-style:italic}
+    .hero__title em{background:var(--grad);-webkit-background-clip:text;background-clip:text}
     .stat__big{font-style:normal}
 
     .eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:12px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;margin:0 0 18px}
@@ -955,9 +957,9 @@ function Styles() {
 
     /* capa base: mesh de color que se desplaza */
     .qs1{position:absolute;inset:0;z-index:-3;pointer-events:none;
-      background:linear-gradient(125deg,#2d0f6b 0%,#5c1aa8 18%,#a3229b 38%,#e0417f 54%,#f2706b 66%,#7b28c4 84%,#2d0f6b 100%);
+      background:linear-gradient(125deg,#1c0b40 0%,#3a1568 20%,#5f1d72 40%,#7c2560 56%,#4a1a6e 74%,#241048 100%);
       background-size:300% 300%;
-      animation:meshflow 12s ease-in-out infinite;
+      animation:meshflow 14s ease-in-out infinite;
       will-change:background-position}
     @keyframes meshflow{
       0%{background-position:0% 50%}
@@ -965,15 +967,15 @@ function Styles() {
       100%{background-position:0% 50%}
     }
 
-    /* capa media: dos luces grandes que se mueven en diagonal (efecto sábana) */
-    .qs2{position:absolute;inset:-30%;z-index:-2;pointer-events:none;opacity:.85;
+    /* capa media: dos luces que derivan (efecto sábana), suaves */
+    .qs2{position:absolute;inset:-30%;z-index:-2;pointer-events:none;opacity:.55;
       background:
-        radial-gradient(closest-side, rgba(255,120,170,.9), transparent 70%),
-        radial-gradient(closest-side, rgba(130,100,255,.9), transparent 70%);
+        radial-gradient(closest-side, rgba(190,120,220,.7), transparent 70%),
+        radial-gradient(closest-side, rgba(110,90,220,.7), transparent 70%);
       background-size:75% 75%, 65% 65%;
-      background-position:12% 20%, 85% 78%;
+      background-position:14% 22%, 84% 76%;
       background-repeat:no-repeat;
-      animation:drift 16s ease-in-out infinite alternate;
+      animation:drift 18s ease-in-out infinite alternate;
       will-change:transform}
     @keyframes drift{
       from{transform:translate(-4%,-3%) rotate(-4deg) scale(1.05)}
@@ -982,17 +984,17 @@ function Styles() {
 
     /* capa superior: pliegue de luz suave que cruza */
     .qs3{position:absolute;inset:-30%;z-index:-1;pointer-events:none;
-      background:linear-gradient(102deg,transparent 24%,rgba(255,255,255,.2) 44%,rgba(255,220,235,.34) 52%,rgba(255,255,255,.18) 60%,transparent 80%);
-      filter:blur(18px);
-      animation:band 11s ease-in-out infinite alternate;
+      background:linear-gradient(102deg,transparent 26%,rgba(255,255,255,.14) 46%,rgba(230,215,255,.22) 52%,rgba(255,255,255,.12) 60%,transparent 80%);
+      filter:blur(20px);
+      animation:band 13s ease-in-out infinite alternate;
       will-change:transform}
     @keyframes band{
       from{transform:translate(-12%,7%) rotate(-7deg) scale(1.15)}
       to{transform:translate(10%,-7%) rotate(4deg) scale(1.25)}
     }
 
-    .quizcard.is-done .qs1{animation-duration:6s}
-    .quizcard.is-done .qs2{animation-duration:8s}
+    .quizcard.is-done .qs1{animation-duration:7s}
+    .quizcard.is-done .qs2{animation-duration:9s}
 
     .quiz__top{margin-bottom:26px}
     .quiz__toprow{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
@@ -1109,10 +1111,10 @@ function Styles() {
     .metodo{padding:clamp(72px,11vw,140px) 0}
     .metodo__head{max-width:760px;margin-bottom:56px}
     .metodo__list{display:flex;flex-direction:column}
-    .mstep{position:relative;display:grid;grid-template-columns:120px 1fr;gap:28px;align-items:baseline;padding:34px 10px;border-top:1px solid rgba(245,239,228,.16);transition:padding-left .4s var(--ease),background .4s}
+    .mstep{position:relative;display:grid;grid-template-columns:120px 1fr;gap:28px;align-items:baseline;padding:34px 10px;border-top:1px solid rgba(245,239,228,.16);transition:transform .4s var(--ease),background .4s}
     .mstep::before{content:"";position:absolute;left:0;top:0;height:100%;width:3px;background:var(--grad);transform:scaleY(0);transform-origin:top;transition:transform .45s var(--ease)}
     .mstep:last-child{border-bottom:1px solid rgba(245,239,228,.16)}
-    .mstep:hover{padding-left:26px;background:rgba(255,255,255,.04)}
+    .mstep:hover{transform:translateX(16px);background:rgba(255,255,255,.04)}
     .mstep:hover::before{transform:scaleY(1)}
     .mstep__n{font-family:var(--serif);font-size:clamp(34px,4vw,56px);color:var(--sand);line-height:1;transition:color .3s}
     .mstep:hover .mstep__n{color:var(--cream)}
@@ -1128,8 +1130,8 @@ function Styles() {
     .prog__badge{position:absolute;top:-13px;right:28px;background:var(--grad);color:#fff;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:7px 15px;border-radius:100px;box-shadow:0 12px 28px -12px rgba(236,95,134,.6)}
     .prog__lead{color:var(--ink2);max-width:440px}
     .prog__list{list-style:none;padding:0;margin:0 0 32px}
-    .prog__list li{display:flex;align-items:center;gap:13px;padding:13px 0;border-bottom:1px solid var(--line);font-weight:500;transition:padding-left .3s var(--ease)}
-    .prog__list li:hover{padding-left:8px}
+    .prog__list li{display:flex;align-items:center;gap:13px;padding:13px 0;border-bottom:1px solid var(--line);font-weight:500;transition:transform .3s var(--ease)}
+    .prog__list li:hover{transform:translateX(8px)}
     .prog__list li:last-child{border-bottom:none}
     .tick{flex:none;width:22px;height:22px;border-radius:50%;background:var(--grad);color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 14px -6px rgba(236,95,134,.6)}
     .dot{width:8px;height:8px;border-radius:50%;background:var(--grad);flex:none}
@@ -1179,9 +1181,11 @@ function Styles() {
     .ba__foot{display:flex;align-items:center;justify-content:space-between;gap:14px}
     .ba__count{font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);white-space:nowrap}
     .ba__count b{color:var(--rose);font-weight:700}
-    .ba__dots{display:flex;gap:8px}
-    .ba__dots button{width:8px;height:8px;border-radius:50%;border:none;background:rgba(34,25,38,.2);cursor:pointer;padding:0;transition:all .35s var(--ease)}
-    .ba__dots button.on{background:var(--grad);width:28px;border-radius:100px}
+    .ba__dots{display:flex;gap:2px}
+    .ba__dots button{position:relative;width:22px;height:34px;border:none;background:none;cursor:pointer;padding:0}
+    .ba__dots button::before{content:"";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:8px;height:8px;border-radius:50%;background:rgba(34,25,38,.2);transition:all .35s var(--ease)}
+    .ba__dots button.on{width:40px}
+    .ba__dots button.on::before{background:var(--grad);width:28px;border-radius:100px}
     .ba__swipe{font-family:var(--serif);font-style:italic;font-size:13px;color:var(--ink3);white-space:nowrap}
     .res__quote{padding:4px 6px 8px}
     .res__name{font-weight:700;color:var(--rose);font-size:14px}
@@ -1194,8 +1198,8 @@ function Styles() {
     .faqs__grid{display:grid;grid-template-columns:.7fr 1.3fr;gap:56px;align-items:start}
     .faq__item{border-top:1px solid var(--line)}
     .faq__item:last-child{border-bottom:1px solid var(--line)}
-    .faq__q{width:100%;background:none;border:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:24px 6px;font-family:var(--serif);font-size:clamp(19px,2vw,24px);color:var(--ink);text-align:left;transition:padding-left .3s var(--ease)}
-    .faq__q:hover{padding-left:14px}
+    .faq__q{width:100%;background:none;border:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:24px 6px;font-family:var(--serif);font-size:clamp(19px,2vw,24px);color:var(--ink);text-align:left;transition:transform .3s var(--ease)}
+    .faq__q:hover{transform:translateX(10px)}
     .faq__q svg{color:var(--rose);flex:none;transition:transform .3s var(--ease)}
     .faq__item.open .faq__q svg{transform:rotate(180deg)}
     .faq__a{overflow:hidden;transition:max-height .45s var(--ease)}
@@ -1283,7 +1287,16 @@ function Styles() {
       .hero__content{padding-top:88px;padding-bottom:60px}
       .hero__cta .btn{width:100%;justify-content:center}
       .prog{padding:30px 22px}
-      .quizcard{padding:24px 20px}
+      .quizcard{padding:22px 16px;border-radius:20px}
+      .quiz__body{min-height:0}
+      .quiz__q{font-size:22px}
+      .opt{padding:13px 14px;font-size:14px;gap:11px}
+      .opt__key{width:26px;height:26px;border-radius:8px}
+      .opt__arrow{display:none}
+      .quiz__chips{display:none}
+      .quiz__segs{gap:4px}
+      .quiz__foot{margin-top:20px;padding-top:18px}
+      .quiz__field input{padding:13px 15px}
       .res__ba .slot{min-height:170px}
       .contacto__cta-card{padding:28px 22px;width:100%}
       .contacto__cta-card .btn{width:100%;justify-content:center}
