@@ -1,4 +1,12 @@
-<title>Semana con Anto</title>
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#120726">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Feel&amp;Move</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400&family=Manrope:wght@400;500;600;700;800&display=swap">
@@ -43,6 +51,7 @@ img{display:block;max-width:100%}
   width:100%;max-width:430px;min-height:100vh;min-height:100dvh;position:relative;overflow:hidden;
   display:flex;flex-direction:column;background:var(--fondo);isolation:isolate;
 }
+@media(max-width:899px){ body{padding:0} .marco{max-width:none;border-radius:0} }
 @media(min-width:900px){
   body{padding:26px 20px;align-items:flex-start}
   .marco{border-radius:36px;min-height:auto;height:884px;
@@ -87,7 +96,7 @@ img{display:block;max-width:100%}
 }
 
 /* ---------- cabecera ---------- */
-.top{position:relative;padding:16px 20px 8px;flex:none;z-index:2}
+.top{position:relative;padding:calc(16px + env(safe-area-inset-top)) 20px 8px;flex:none;z-index:2}
 .top__f{display:flex;align-items:center;justify-content:space-between}
 .marca{font-weight:800;letter-spacing:.19em;font-size:9.5px;color:var(--crema-3)}
 .yo{width:31px;height:31px;border-radius:50%;background:var(--grad);display:grid;place-items:center;
@@ -355,7 +364,7 @@ img{display:block;max-width:100%}
 
 /* ---------- nav ---------- */
 .nav{flex:none;position:relative;z-index:2;display:grid;grid-template-columns:repeat(3,1fr);gap:3px;
-  padding:9px 14px 15px;background:rgba(18,7,38,.72);border-top:1px solid var(--linea);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px)}
+  padding:9px 14px calc(15px + env(safe-area-inset-bottom));background:rgba(18,7,38,.72);border-top:1px solid var(--linea);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px)}
 .nav button{display:flex;flex-direction:column;align-items:center;gap:4px;padding:7px 2px;border-radius:13px;
   font-size:9.5px;font-weight:700;color:var(--crema-3);transition:color .2s ease}
 .nav button.on{color:var(--crema)}
@@ -366,6 +375,8 @@ img{display:block;max-width:100%}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 
+</head>
+<body>
 <div class="marco">
   <div class="cielo"><i class="luz l1"></i><i class="luz l2"></i><i class="luz l3"></i><i class="luz l4"></i></div>
   <div class="velo"></div>
@@ -855,3 +866,6 @@ function pintaAnto(){
     '<button class="cta cta--l" onclick="tglVistaAnto()">👁 Ver lo que Anto ve de mí</button>';
 }
 </script>
+
+</body>
+</html>
