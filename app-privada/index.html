@@ -1,0 +1,857 @@
+<title>Semana con Anto</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400&family=Manrope:wght@400;500;600;700;800&display=swap">
+
+<style>
+/* ============================================================
+   Feel&Move — app privada
+   Dirección: atardecer volcánico de Tenerife. El fondo es un cielo
+   que respira; el contenido flota en vidrio por encima.
+   ============================================================ */
+:root{
+  --fondo:#120726;
+  --crema:#F7F1E6;
+  --crema-2:rgba(247,241,230,.74);
+  --crema-3:rgba(247,241,230,.44);
+  --linea:rgba(247,241,230,.14);
+  --violeta:#6D3FD9;
+  --magenta:#E5417A;
+  --coral:#F08A4B;
+  --rosa:#F1B8CE;
+  --ok:#57D6A8;
+  --grad:linear-gradient(112deg,#6D3FD9,#B93B94,#E5417A,#F08A4B);
+  --vidrio:rgba(247,241,230,.055);
+  --vidrio-2:rgba(247,241,230,.09);
+  --serif:'Fraunces',Georgia,serif;
+  --sans:'Manrope',system-ui,-apple-system,sans-serif;
+  --ease:cubic-bezier(.16,.84,.32,1);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--fondo);color:var(--crema);font-family:var(--sans);
+  font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;
+  display:flex;justify-content:center;
+}
+button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit}
+button:focus-visible,input:focus-visible{outline:2px solid var(--rosa);outline-offset:2px}
+img{display:block;max-width:100%}
+
+/* ---------- marco ---------- */
+.marco{
+  width:100%;max-width:430px;min-height:100vh;min-height:100dvh;position:relative;overflow:hidden;
+  display:flex;flex-direction:column;background:var(--fondo);isolation:isolate;
+}
+@media(min-width:900px){
+  body{padding:26px 20px;align-items:flex-start}
+  .marco{border-radius:36px;min-height:auto;height:884px;
+    box-shadow:0 50px 100px -34px rgba(0,0,0,.85),0 0 0 1px rgba(247,241,230,.1)}
+}
+
+/* ---------- el cielo que respira ---------- */
+.cielo{position:absolute;inset:-30%;z-index:0;pointer-events:none;filter:blur(58px)}
+.luz{position:absolute;border-radius:50%;mix-blend-mode:screen;will-change:transform}
+.l1{width:64%;aspect-ratio:1;background:#6D3FD9;top:2%;left:-10%;opacity:.85;animation:flota1 19s var(--ease) infinite alternate}
+.l2{width:58%;aspect-ratio:1;background:#E5417A;top:22%;right:-14%;opacity:.7;animation:flota2 23s var(--ease) infinite alternate}
+.l3{width:52%;aspect-ratio:1;background:#F08A4B;top:52%;left:8%;opacity:.5;animation:flota3 27s var(--ease) infinite alternate}
+.l4{width:46%;aspect-ratio:1;background:#B93B94;top:70%;right:-6%;opacity:.55;animation:flota1 21s var(--ease) infinite alternate-reverse}
+@keyframes flota1{to{transform:translate3d(16%,10%,0) scale(1.22)}}
+@keyframes flota2{to{transform:translate3d(-14%,16%,0) scale(1.16)}}
+@keyframes flota3{to{transform:translate3d(12%,-14%,0) scale(1.28)}}
+
+/* grano: quita el plástico digital */
+.grano{position:absolute;inset:0;z-index:0;pointer-events:none;opacity:.32;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E")}
+
+/* velo inferior para que el texto no pelee con la luz */
+.velo{position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:linear-gradient(180deg,rgba(18,7,38,.34) 0%,rgba(18,7,38,.62) 46%,rgba(18,7,38,.9) 100%)}
+
+/* ---------- vidrio ---------- */
+.v{
+  background:var(--vidrio);border:1px solid var(--linea);border-radius:20px;
+  -webkit-backdrop-filter:blur(22px) saturate(1.5);backdrop-filter:blur(22px) saturate(1.5);
+  box-shadow:0 12px 34px -18px rgba(0,0,0,.7),inset 0 1px 0 rgba(247,241,230,.09);
+}
+.v--alta{background:var(--vidrio-2)}
+
+#app{position:relative;z-index:1}
+
+@supports not ((backdrop-filter:blur(2px)) or (-webkit-backdrop-filter:blur(2px))){
+  .v,.dice__b,.msg__b,.plato{background:rgba(38,20,68,.9)}
+  .guia{background:linear-gradient(135deg,#3B2270,#5B2350)}
+  .nav{background:#1A0C33}
+  .campo-l input{background:rgba(38,20,68,.92)}
+  .cta--l{background:rgba(38,20,68,.9)}
+}
+
+/* ---------- cabecera ---------- */
+.top{position:relative;padding:16px 20px 8px;flex:none;z-index:2}
+.top__f{display:flex;align-items:center;justify-content:space-between}
+.marca{font-weight:800;letter-spacing:.19em;font-size:9.5px;color:var(--crema-3)}
+.yo{width:31px;height:31px;border-radius:50%;background:var(--grad);display:grid;place-items:center;
+  font-weight:800;font-size:12px;color:#fff}
+.hola{font-family:var(--serif);font-weight:400;font-size:26px;line-height:1.08;margin:11px 0 2px;letter-spacing:-.01em}
+.hola em{font-style:italic;background:linear-gradient(96deg,var(--rosa),var(--coral));
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{font-size:12px;color:var(--crema-3)}
+
+/* ---------- cuerpo ---------- */
+.cuerpo{position:relative;flex:1;overflow-y:auto;padding:6px 20px 22px;z-index:1}
+.pant{display:none}
+.pant.on{display:block}
+.sube{animation:sube .5s var(--ease) both}
+.sube:nth-child(2){animation-delay:.05s}
+.sube:nth-child(3){animation-delay:.1s}
+.sube:nth-child(4){animation-delay:.15s}
+.sube:nth-child(5){animation-delay:.2s}
+@keyframes sube{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+.rot{font-size:9.5px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--rosa);
+  margin:22px 0 10px;display:flex;justify-content:space-between;align-items:baseline}
+.rot:first-child{margin-top:6px}
+.rot span{color:var(--crema-3);letter-spacing:.02em;font-size:11px;text-transform:none;font-weight:600}
+.caja{padding:16px 17px;margin-bottom:11px}
+
+/* ============ LOGIN ============ */
+.login>*{position:relative;z-index:1}
+.login{position:relative;flex:1;display:flex;flex-direction:column;justify-content:flex-end;padding:34px 26px 38px;z-index:1}
+.login__foto{position:absolute;inset:0;z-index:0;overflow:hidden}
+.login__foto img{width:100%;height:100%;object-fit:cover;object-position:50% 12%;opacity:.5}
+.login__foto::after{content:"";position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(18,7,38,.35) 0%,rgba(18,7,38,.72) 52%,rgba(18,7,38,.97) 88%)}
+.login h1{font-family:var(--serif);font-weight:400;font-size:40px;line-height:1.02;margin:0 0 10px;letter-spacing:-.02em}
+.login h1 em{font-style:italic;display:block;background:linear-gradient(96deg,var(--rosa),var(--coral));
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+.login p{color:var(--crema-2);font-size:13.5px;margin:0 0 22px;max-width:30ch}
+.campo-l{margin-bottom:11px}
+.campo-l label{display:block;font-size:9.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--crema-3);margin-bottom:6px}
+.campo-l input{width:100%;background:rgba(247,241,230,.08);border:1px solid var(--linea);border-radius:14px;
+  padding:14px;color:var(--crema);font-size:15px;font-family:inherit;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.nota{font-size:11px;color:var(--crema-3);text-align:center;margin:14px 0 0;line-height:1.5}
+
+/* ============ ARRANQUE ============ */
+.paso-b{display:flex;gap:5px;padding:0 20px 12px;flex:none;z-index:2;position:relative}
+.paso-b i{flex:1;height:3px;border-radius:3px;background:rgba(247,241,230,.16);overflow:hidden}
+.paso-b i.on{background:var(--grad)}
+
+.dice{display:flex;gap:11px;align-items:flex-start;margin-bottom:18px;animation:sube .55s var(--ease) both}
+.dice__f{flex:none;width:44px;height:44px;border-radius:50%;overflow:hidden;border:1.5px solid rgba(241,184,206,.5)}
+.dice__f img{width:100%;height:100%;object-fit:cover}
+.dice__b{flex:1;padding:13px 15px;border-radius:5px 18px 18px 18px;background:var(--vidrio-2);
+  border:1px solid var(--linea);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);font-size:14px;line-height:1.5;color:var(--crema)}
+.dice__b b{font-weight:700}
+
+.preg{margin-bottom:16px;animation:sube .5s var(--ease) both}
+.preg__t{font-size:13.5px;font-weight:700;margin:0 0 9px;color:var(--crema)}
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip{padding:9px 14px;border-radius:100px;background:rgba(247,241,230,.07);border:1px solid var(--linea);
+  font-size:12.5px;font-weight:600;color:var(--crema-2);transition:transform .18s var(--ease),background .18s ease,color .18s ease}
+.chip:hover{transform:translateY(-1px)}
+.chip.on{background:var(--grad);color:#fff;border-color:transparent;box-shadow:0 8px 20px -10px rgba(229,65,122,.8)}
+
+/* selector numérico grande */
+.num{display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:13px 15px;border-radius:17px;background:var(--vidrio);border:1px solid var(--linea);margin-bottom:9px}
+.num__e{font-size:12.5px;color:var(--crema-2)}
+.num__c{display:flex;align-items:center;gap:11px}
+.num__c button{width:33px;height:33px;border-radius:11px;background:rgba(247,241,230,.09);
+  border:1px solid var(--linea);font-weight:800;font-size:17px;line-height:1;transition:background .18s ease}
+.num__c button:hover{background:rgba(247,241,230,.16)}
+.num__v{min-width:74px;text-align:center;font-family:var(--serif);font-size:25px;font-weight:600;
+  font-variant-numeric:tabular-nums;line-height:1}
+.num__v s{text-decoration:none;font-family:var(--sans);font-size:11px;font-weight:700;color:var(--crema-3);margin-left:3px}
+
+/* ============ ARMANDO EL PLAN ============ */
+.armando{text-align:center;padding:60px 10px}
+.armando__a{width:76px;height:76px;border-radius:50%;margin:0 auto 20px;overflow:hidden;
+  border:2px solid rgba(241,184,206,.55);animation:late 1.9s ease-in-out infinite}
+.armando__a img{width:100%;height:100%;object-fit:cover}
+@keyframes late{0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(229,65,122,.5)}
+  50%{transform:scale(1.05);box-shadow:0 0 0 16px rgba(229,65,122,0)}}
+.armando h3{font-family:var(--serif);font-weight:400;font-size:24px;margin:0 0 8px}
+.armando p{color:var(--crema-2);font-size:13.5px;margin:0 auto;max-width:26ch}
+.puntos{display:flex;gap:6px;justify-content:center;margin-top:22px}
+.puntos i{width:7px;height:7px;border-radius:50%;background:var(--rosa);animation:pulso 1.3s ease-in-out infinite}
+.puntos i:nth-child(2){animation-delay:.18s}
+.puntos i:nth-child(3){animation-delay:.36s}
+@keyframes pulso{0%,100%{opacity:.25;transform:scale(.8)}50%{opacity:1;transform:scale(1)}}
+
+/* ============ HOY ============ */
+.guia{padding:14px 16px;margin:4px 0 6px;border-radius:19px;
+  background:linear-gradient(135deg,rgba(109,63,217,.4),rgba(229,65,122,.22));
+  border:1px solid rgba(247,241,230,.2);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px)}
+.guia__h{display:flex;align-items:baseline;gap:8px;margin-bottom:10px}
+.guia__h b{font-size:15.5px}
+.guia__h span{font-size:12px;color:var(--crema-2)}
+.guia--ok{background:linear-gradient(135deg,rgba(87,214,168,.3),rgba(109,63,217,.18))}
+.guia--ok .guia__h{margin-bottom:0}
+.pend{display:inline-block;font-size:11.5px;font-weight:600;background:rgba(18,7,38,.42);
+  border:1px solid var(--linea);border-radius:100px;padding:5px 11px;color:var(--crema-2);margin:0 6px 6px 0}
+
+.agua__t{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:11px}
+.agua__n{font-family:var(--serif);font-size:44px;font-weight:600;line-height:.9;letter-spacing:-.02em}
+.agua__n s{text-decoration:none;font-family:var(--sans);font-size:13px;font-weight:700;color:var(--crema-3);margin-left:4px}
+.agua__m{font-size:11.5px;color:var(--crema-3);text-align:right;line-height:1.35}
+.tubo{height:10px;border-radius:10px;background:rgba(247,241,230,.13);overflow:hidden;margin-bottom:12px}
+.tubo i{display:block;height:100%;border-radius:10px;background:var(--grad);transition:width .45s var(--ease)}
+.env{display:flex;gap:6px;margin-bottom:12px}
+.env button{flex:1;padding:9px 3px;border-radius:12px;background:rgba(247,241,230,.06);border:1px solid var(--linea);
+  font-size:10px;font-weight:700;color:var(--crema-3);line-height:1.25;transition:all .2s ease}
+.env button.on{background:var(--grad);color:#fff;border-color:transparent}
+.env i{display:block;font-style:normal;font-size:15px;margin-bottom:2px}
+.mas{display:flex;gap:8px}
+.mas button{flex:1;padding:12px;border-radius:14px;font-weight:800;font-size:13.5px;
+  background:rgba(247,241,230,.08);border:1px solid var(--linea)}
+.mas button.pri{background:var(--grad);border-color:transparent;color:#fff;box-shadow:0 12px 26px -12px rgba(229,65,122,.8)}
+
+.fila{display:flex;gap:11px;padding:12px 0;border-bottom:1px solid var(--linea)}
+.fila:last-child{border-bottom:0;padding-bottom:2px}
+.fila__h{flex:none;width:72px;font-size:9px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--crema-3);padding-top:5px;line-height:1.3}
+.fila__c{flex:1;min-width:0}
+.list{display:flex;gap:9px;align-items:flex-start}
+.list .tk{flex:none;width:18px;height:18px;border-radius:50%;background:var(--ok);display:grid;place-items:center;
+  font-size:9px;color:#0E2A20;font-weight:800;margin-top:2px}
+.list p{margin:0;font-size:13.5px;line-height:1.4}
+.list .met{font-size:10.5px;color:var(--crema-3);margin-top:3px;display:flex;gap:9px}
+.list .met button{font-size:10.5px;font-weight:700;color:var(--rosa);text-decoration:underline;padding:0}
+.campo{width:100%;background:rgba(247,241,230,.06);border:1px dashed rgba(247,241,230,.26);border-radius:12px;
+  padding:10px 11px;color:var(--crema);font-size:13.5px;font-family:inherit}
+.campo::placeholder{color:var(--crema-3)}
+.env-b{margin-top:7px;padding:8px 16px;border-radius:100px;background:var(--grad);color:#fff;font-weight:800;font-size:12px;
+  box-shadow:0 10px 22px -12px rgba(229,65,122,.9)}
+
+.reloj{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px;padding-top:12px;border-top:1px solid var(--linea)}
+.reloj>span{font-size:12.5px;color:var(--crema-2)}
+.reloj__c{display:flex;align-items:center;gap:9px}
+.reloj__c button{width:31px;height:31px;border-radius:10px;background:rgba(247,241,230,.09);border:1px solid var(--linea);font-weight:800;font-size:16px}
+.reloj__c b{min-width:58px;text-align:center;font-size:13.5px;font-variant-numeric:tabular-nums}
+
+/* día cerrado */
+.cerr{text-align:center;padding:26px 4px}
+.cerr__i{display:inline-grid;place-items:center;width:70px;height:70px;border-radius:50%;background:var(--grad);
+  color:#fff;font-size:30px;font-weight:800;margin-bottom:15px;box-shadow:0 20px 44px -16px rgba(229,65,122,.85);
+  animation:pop .55s var(--ease) both}
+@keyframes pop{from{transform:scale(.5);opacity:0}to{transform:scale(1);opacity:1}}
+.cerr h3{font-family:var(--serif);font-weight:400;font-size:27px;margin:0 0 7px}
+.cerr>p{color:var(--crema-2);font-size:13.5px;margin:0 auto 20px;max-width:26ch}
+.cuenta{padding:16px;margin-bottom:12px;border-radius:19px}
+.cuenta span{display:block;font-size:9.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--crema-3);margin-bottom:5px}
+.cuenta b{font-family:var(--serif);font-size:31px;font-weight:600;letter-spacing:-.01em}
+.res__l{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--linea);font-size:12.5px;text-align:left}
+.res__l:last-child{border-bottom:0}
+.res__l span{color:var(--crema-2);text-align:right}
+
+/* ============ PLAN ============ */
+.ruta{margin-bottom:6px}
+.paso{display:flex;gap:12px;align-items:flex-start;padding:9px 0;position:relative}
+.paso::before{content:"";position:absolute;left:13px;top:30px;bottom:-9px;width:2px;background:var(--linea)}
+.paso:last-child::before{display:none}
+.paso__n{flex:none;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:12px;
+  font-weight:800;z-index:1;background:rgba(247,241,230,.09);color:var(--crema-3);border:1px solid var(--linea)}
+.paso b{font-size:13.5px;display:block;color:var(--crema-3)}
+.paso p{margin:1px 0 0;font-size:11.5px;color:var(--crema-3);line-height:1.4}
+.paso--pas .paso__n{background:rgba(87,214,168,.22);color:var(--ok);border-color:transparent}
+.paso--pas b{color:var(--crema-2)}
+.paso--act .paso__n{background:var(--grad);color:#fff;border-color:transparent;box-shadow:0 0 0 5px rgba(229,65,122,.15)}
+.paso--act b{color:var(--crema);font-size:14.5px}
+.paso--act p{color:var(--crema-2)}
+
+.platos{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
+.plato{border:1.5px solid var(--linea);border-radius:17px;padding:0 0 11px;overflow:hidden;text-align:left;
+  background:var(--vidrio);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);transition:transform .22s var(--ease),border-color .2s ease}
+.plato:hover{transform:translateY(-3px)}
+.plato.on{border-color:var(--magenta);box-shadow:0 14px 30px -16px rgba(229,65,122,.75)}
+.plato__f{display:block;position:relative;aspect-ratio:16/10;background:rgba(247,241,230,.06);overflow:hidden}
+.plato__f img{width:100%;height:100%;object-fit:cover}
+.plato__t{position:absolute;top:7px;right:7px;width:21px;height:21px;border-radius:50%;background:var(--grad);
+  color:#fff;display:grid;place-items:center;font-size:10px;font-weight:800}
+.plato b{display:block;font-size:12.5px;font-weight:700;padding:9px 11px 0;line-height:1.25}
+.plato s{text-decoration:none;display:block;font-size:10.5px;color:var(--crema-3);padding:2px 11px 0}
+
+.hall{display:flex;gap:10px;padding:11px 0;border-bottom:1px solid var(--linea)}
+.hall:last-child{border-bottom:0}
+.pt{flex:none;width:7px;height:7px;border-radius:50%;margin-top:6px}
+.hall b{display:block;font-size:13px;margin-bottom:1px}
+.hall p{margin:0;font-size:12px;color:var(--crema-2);line-height:1.4}
+
+/* ejercicio */
+.ejer{border-bottom:1px solid var(--linea)}
+.ejer:last-child{border-bottom:0}
+.ejer__t{display:flex;gap:12px;align-items:center;width:100%;text-align:left;padding:13px 16px}
+.ejer__b{flex:none;width:22px;height:22px;border-radius:7px;border:1.6px solid rgba(247,241,230,.3);
+  display:grid;place-items:center;font-size:10.5px;color:transparent;transition:all .2s ease}
+.ejer.ok .ejer__b{background:var(--grad);border-color:transparent;color:#fff}
+.ejer.ok .ejer__n{color:var(--crema-3);text-decoration:line-through}
+.ejer__c{flex:1;min-width:0}
+.ejer__n{font-size:13.5px;font-weight:700;display:block}
+.ejer__d{font-size:11px;color:var(--crema-3);font-variant-numeric:tabular-nums}
+.ejer__v{flex:none;font-size:9.5px;font-weight:800;color:var(--rosa);letter-spacing:.08em}
+.demo{display:none;padding:0 16px 14px;gap:11px}
+.demo.on{display:flex}
+.foto{flex:1;min-width:0;border-radius:14px;overflow:hidden;background:#fff;position:relative;aspect-ratio:4/3}
+.foto img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;opacity:0;animation:alterna 2.6s steps(1,end) infinite}
+.foto img:nth-child(2){animation-delay:1.3s}
+@keyframes alterna{0%,49%{opacity:1}50%,100%{opacity:0}}
+.foto__e{position:absolute;left:7px;bottom:7px;background:rgba(18,7,38,.85);font-size:8.5px;font-weight:800;
+  letter-spacing:.08em;padding:3px 8px;border-radius:100px;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.mapa{flex:none;width:94px;display:flex;gap:2px;background:rgba(247,241,230,.05);border-radius:14px;padding:7px 3px}
+.mapa svg{width:45px;height:auto}
+.zona{fill:rgba(247,241,230,.16)}
+.zona.act{fill:var(--magenta)}
+.pasos{padding:0 16px 14px;font-size:12.5px;color:var(--crema-2);line-height:1.5;display:none}
+.pasos.on{display:block}
+.pasos ol{margin:0;padding-left:16px}
+.pasos li{margin-bottom:5px}
+.pasos li::marker{color:var(--rosa);font-weight:800}
+.lugar{display:flex;gap:6px;background:rgba(247,241,230,.07);padding:4px;border-radius:13px;margin-bottom:11px}
+.lugar button{flex:1;padding:9px;border-radius:10px;font-size:12.5px;font-weight:700;color:var(--crema-3);transition:all .2s ease}
+.lugar button.on{background:var(--grad);color:#fff}
+
+/* ============ ANTO ============ */
+.msg{display:flex;gap:10px;align-items:flex-start;margin-bottom:12px}
+.msg__f{flex:none;width:34px;height:34px;border-radius:50%;overflow:hidden;border:1px solid rgba(241,184,206,.4)}
+.msg__f img{width:100%;height:100%;object-fit:cover}
+.msg__b{flex:1;background:var(--vidrio-2);border:1px solid var(--linea);border-radius:5px 16px 16px 16px;
+  padding:12px 14px;font-size:13px;color:var(--crema-2);line-height:1.5;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+.msg__b b{color:var(--crema)}
+.msg__h{font-size:10px;color:var(--crema-3);margin-top:5px;display:block}
+.msg--mio{flex-direction:row-reverse}
+.msg--mio .msg__b{background:rgba(109,63,217,.3);border-radius:16px 5px 16px 16px;color:var(--crema)}
+.adj{padding:9px 15px;border-radius:100px;background:rgba(247,241,230,.08);border:1px solid var(--linea);
+  font-size:12px;font-weight:700;color:var(--crema-2)}
+.clase{position:relative;overflow:hidden;padding:0}
+.clase__f{position:relative;aspect-ratio:16/9;overflow:hidden}
+.clase__f img{width:100%;height:100%;object-fit:cover;object-position:50% 14%}
+.clase__f::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 62%,rgba(18,7,38,.9))}
+.clase__c{padding:13px 16px 16px}
+.clase__c b{display:block;font-family:var(--serif);font-size:20px;font-weight:600;line-height:1.15}
+.clase__c span{display:block;font-size:11.5px;color:var(--crema-2);margin-top:2px}
+
+.dela{border:1px dashed rgba(241,184,206,.45);border-radius:20px;padding:12px;background:rgba(229,65,122,.06)}
+.ficha{display:flex;align-items:center;gap:11px;padding-bottom:12px;border-bottom:1px solid var(--linea);margin-bottom:12px}
+.ficha b{display:block;font-size:13.5px}
+.ficha s{text-decoration:none;font-size:11.5px;color:var(--crema-3)}
+.alerta{margin-left:auto;flex:none;font-size:9px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;
+  background:rgba(240,138,75,.22);color:var(--coral);padding:4px 9px;border-radius:100px}
+.resu p{margin:0 0 9px;font-size:12.5px;color:var(--crema-2);line-height:1.5}
+.resu p:last-child{margin-bottom:0}
+.resu b{color:var(--crema)}
+.resu__f{margin:12px 0 0;padding-top:10px;border-top:1px solid var(--linea);font-size:10.5px;color:var(--crema-3);line-height:1.4}
+.crudo div{font-size:11.5px;color:var(--crema-3);padding:6px 0;border-bottom:1px solid var(--linea);line-height:1.45}
+.crudo div:last-child{border-bottom:0}
+.crudo b{color:var(--rosa);font-weight:800;margin-right:4px}
+
+/* ---------- botones ---------- */
+.cta{display:block;width:100%;padding:15px;border-radius:100px;background:var(--grad);color:#fff;
+  font-weight:800;font-size:14.5px;text-align:center;margin-top:15px;
+  box-shadow:0 18px 36px -15px rgba(229,65,122,.85);transition:transform .2s var(--ease)}
+.cta:hover{transform:translateY(-2px)}
+.cta:disabled{opacity:.4;cursor:default;box-shadow:none;transform:none}
+.cta--l{background:rgba(247,241,230,.06);border:1px solid var(--linea);color:var(--crema-2);
+  box-shadow:none;font-weight:600;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+
+/* ---------- nav ---------- */
+.nav{flex:none;position:relative;z-index:2;display:grid;grid-template-columns:repeat(3,1fr);gap:3px;
+  padding:9px 14px 15px;background:rgba(18,7,38,.72);border-top:1px solid var(--linea);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px)}
+.nav button{display:flex;flex-direction:column;align-items:center;gap:4px;padding:7px 2px;border-radius:13px;
+  font-size:9.5px;font-weight:700;color:var(--crema-3);transition:color .2s ease}
+.nav button.on{color:var(--crema)}
+.nav .ic{font-size:16px;line-height:1;transition:transform .25s var(--ease)}
+.nav button.on .ic{transform:translateY(-2px)}
+.pie{position:relative;z-index:2;font-size:9.5px;color:var(--crema-3);text-align:center;padding:7px 20px;
+  background:rgba(0,0,0,.3);line-height:1.4}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="marco">
+  <div class="cielo"><i class="luz l1"></i><i class="luz l2"></i><i class="luz l3"></i><i class="luz l4"></i></div>
+  <div class="velo"></div>
+  <div class="grano"></div>
+
+  <!-- LOGIN -->
+  <div id="p-login" class="login">
+    <div class="login__foto"><img id="foto-login" alt=""></div>
+    <h1>Tu proceso<em>empieza hoy.</em></h1>
+    <p>No en una semana. Hoy contestás unas preguntas y ya tenés tu plan.</p>
+    <div class="campo-l"><label for="u">Usuario</label><input id="u" value="lucia" autocomplete="off"></div>
+    <div class="campo-l"><label for="c">Clave</label><input id="c" type="password" value="feelmove" autocomplete="off"></div>
+    <button class="cta" onclick="entrar()">Entrar</button>
+    <p class="nota">Solo entra quien contrató el acompañamiento.</p>
+  </div>
+
+  <!-- APP -->
+  <div id="app" style="display:none;flex-direction:column;flex:1;min-height:0">
+    <header class="top">
+      <div class="top__f"><span class="marca">FEEL&amp;MOVE</span><span class="yo">L</span></div>
+      <p class="hola" id="hola"></p>
+      <p class="sub" id="sub"></p>
+    </header>
+    <div class="paso-b" id="barra"></div>
+    <div class="cuerpo">
+      <section id="v-inicio" class="pant on"></section>
+      <section id="v-hoy" class="pant"></section>
+      <section id="v-plan" class="pant"></section>
+      <section id="v-anto" class="pant"></section>
+    </div>
+    <nav class="nav" id="nav" style="display:none">
+      <button class="on" onclick="ir('hoy',this)"><span class="ic">◉</span>Hoy</button>
+      <button onclick="ir('plan',this)"><span class="ic">◆</span>Mi plan</button>
+      <button onclick="ir('anto',this)"><span class="ic">✦</span>Anto</button>
+    </nav>
+    <p class="pie">Prototipo · fotos de ejercicios: Free Exercise DB (dominio público)</p>
+  </div>
+</div>
+
+<script>
+var FOTOS = {"Barbell_Squat_To_A_Bench":["https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Squat_To_A_Bench/0.jpg","https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Squat_To_A_Bench/1.jpg"],"Bent_Over_Barbell_Row":["https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Bent_Over_Barbell_Row/0.jpg","https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Bent_Over_Barbell_Row/1.jpg"],"Dumbbell_Shoulder_Press":["https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Dumbbell_Shoulder_Press/0.jpg","https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Dumbbell_Shoulder_Press/1.jpg"],"Bodyweight_Squat":["https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Bodyweight_Squat/0.jpg","https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Bodyweight_Squat/1.jpg"],"Bench_Dips":["https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Bench_Dips/0.jpg","https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Bench_Dips/1.jpg"],"Bent-Knee_Hip_Raise":["https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Bent-Knee_Hip_Raise/0.jpg","https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Bent-Knee_Hip_Raise/1.jpg"]};
+var COMIDA_FOTO = {"pollo":"https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/Grilled_chicken_breast%2C_Santo_Domingo%2C_La_Palma.jpg/330px-Grilled_chicken_breast%2C_Santo_Domingo%2C_La_Palma.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail","huevos":"https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/Nevers_Factory_-_Plate_with_Boiled_Egg_-_1983.48_-_Cleveland_Museum_of_Art.tif/lossy-page1-330px-Nevers_Factory_-_Plate_with_Boiled_Egg_-_1983.48_-_Cleveland_Museum_of_Art.tif.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail","atun":"https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Tuna_Salad_with_sweet_corn.jpg/330px-Tuna_Salad_with_sweet_corn.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail","garbanzos":"https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Edgell_Nourish_Bowl.jpg/330px-Edgell_Nourish_Bowl.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail","tofu":"https://upload.wikimedia.org/wikipedia/commons/7/70/Missing_Font_Tofu.png?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled","yogur":"https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Tuna_Salad_with_sweet_corn.jpg/330px-Tuna_Salad_with_sweet_corn.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail","salmon":"https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Cassell%27s_dictionary_of_cookery_-_containing_about_nine_thousand_recipes_%281892%29_%2814586589558%29.jpg/330px-Cassell%27s_dictionary_of_cookery_-_containing_about_nine_thousand_recipes_%281892%29_%2814586589558%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail","lentejas":"https://upload.wikimedia.org/wikipedia/commons/thumb/7/76/Holy_Land%2C_with_glimpes_of_Europe_and_Egypt_%281872%29_%2814783711692%29.jpg/330px-Holy_Land%2C_with_glimpes_of_Europe_and_Egypt_%281872%29_%2814783711692%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail","platano":"https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Fruit-49741_-_bananas_apples_tangerines_close-up_-_Hans_Braxmeier.jpg/330px-Fruit-49741_-_bananas_apples_tangerines_close-up_-_Hans_Braxmeier.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail","frutos":"https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/MixedNuts.JPG/330px-MixedNuts.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"};
+var ANTO = {"anto3":"https://raw.githubusercontent.com/Ekstrakaa/anto-leoni/main/public/anto3.png"};
+
+document.getElementById('foto-login').src = ANTO.anto3;
+
+/* ================= estado ================= */
+var etapa = 'arranque';   // arranque | armando | app
+var tanda = 0;            // 0,1,2 durante el arranque
+var perfil = {edad:34, peso:72, altura:165, meta:null};
+var resp = {};            // respuestas de las tandas
+var vista = 'hoy';
+var lugar = 'gimnasio', envase = 0, llenados = 3, abierto = null;
+var elegido = {almuerzo:'pollo', merienda:'yogur'};
+var diaCerrado = false, verAnto = false, enviados = [];
+var MOV = {que:'', min:0, enviado:false};
+var COMIDAS = [
+  {h:'Desayuno', t:'', hora:''},
+  {h:'Media mañana', t:'', hora:''},
+  {h:'Almuerzo', t:'', hora:''},
+  {h:'Merienda', t:'', hora:''},
+  {h:'Cena', t:'', hora:''}
+];
+
+var ENVASES = [{ic:'🥤',n:'Vaso',ml:250},{ic:'🧴',n:'Botella',ml:500},{ic:'💧',n:'Grande',ml:1500},{ic:'🍶',n:'Termo',ml:1000}];
+
+/* Las tandas: llegan de a una, como si Anto las mandara */
+var TANDAS = [
+  {
+    dice:'Hola Lucía, soy Anto. Antes de armarte nada quiero saber con quién estoy trabajando. <b>Son tres tandas cortas</b>, se contestan tocando.',
+    nums:[
+      {k:'edad', e:'Tu edad', u:'años', min:14, max:90, paso:1},
+      {k:'peso', e:'Tu peso', u:'kg', min:35, max:180, paso:1},
+      {k:'altura', e:'Tu altura', u:'cm', min:130, max:210, paso:1}
+    ],
+    pregs:[{k:'meta', t:'¿Qué buscás?', o:['Bajar grasa','Ganar músculo','Ponerme fuerte','Sentirme mejor'], multi:false}]
+  },
+  {
+    dice:'Ahora lo que más me importa: <b>cómo comés de verdad</b>. Sin maquillar nada, que si no te armo un plan para otra persona.',
+    pregs:[
+      {k:'levanta', t:'¿A qué hora te levantás?', o:['Antes de las 6','6 a 8','8 a 10','Más tarde'], multi:false},
+      {k:'desayuna', t:'¿Desayunás?', o:['Todos los días','A veces','Casi nunca','Nunca'], multi:false},
+      {k:'veces', t:'¿Cuántas veces comés al día?', o:['2','3','4','5 o más'], multi:false},
+      {k:'cuesta', t:'¿Qué te cuesta más dejar?', o:['Dulce','Pan','Picar entre horas','Alcohol','Refrescos','Fritos','Nada'], multi:true}
+    ]
+  },
+  {
+    dice:'Última. <b>Cómo te movés y qué tomás.</b> Con esto ya te armo el plan.',
+    pregs:[
+      {k:'mueve', t:'¿Cuánto te movés hoy por hoy?', o:['Nada','1 o 2 días','3 o 4 días','Casi todos'], multi:false},
+      {k:'donde', t:'¿Dónde podés entrenar?', o:['Gimnasio','En casa','Al aire libre'], multi:true},
+      {k:'agua', t:'¿Cuánta agua tomás al día?', o:['Menos de 1 L','1 a 2 L','Más de 2 L','Ni idea'], multi:false},
+      {k:'supl', t:'¿Tomás algún suplemento?', o:['Ninguno','Proteína','Creatina','Magnesio','Colágeno','Vitamina D','Omega 3'], multi:true}
+    ]
+  }
+];
+
+var NIVELES = [
+  {n:1,t:'Te conozco',d:'Contestaste las tres tandas. Ya sé con quién trabajo.'},
+  {n:2,t:'Tu plan',d:'Comida y entreno hechos con tus respuestas.'},
+  {n:3,t:'Constancia',d:'Se ajusta según lo que cumplís de verdad.'},
+  {n:4,t:'Autonomía',d:'Ya elegís sola. Yo superviso.'}
+];
+
+var OPCIONES = {
+  almuerzo:{titulo:'Tu proteína del almuerzo', ayuda:'Elegí la que más te guste. Todas te sirven igual.',
+    con:[{k:'pollo',n:'Pollo a la plancha',d:'una pechuga'},{k:'huevos',n:'Huevos',d:'dos o tres'},
+         {k:'atun',n:'Atún',d:'una lata escurrida'},{k:'garbanzos',n:'Garbanzos',d:'un plato hondo'}],
+    mas:['Salmón','Ternera magra','Lentejas','Tofu','Pavo','Merluza','Queso fresco','Sardinas','Tempeh','Quinoa con huevo']},
+  merienda:{titulo:'Tu merienda', ayuda:'La que te falta. Es la que corta el hambre de la noche.',
+    con:[{k:'yogur',n:'Yogur griego',d:'con fruta'}],
+    mas:['Frutos secos','Plátano','Tostada con aguacate','Requesón','Manzana con crema de cacahuete','Batido de proteína','Hummus con zanahoria']}
+};
+
+var EJ = {
+  gimnasio:[
+    {id:'Barbell_Squat_To_A_Bench',n:'Sentadilla a banco',d:'3 series · 12 repes · 40 kg',m:'quadriceps',
+     p:['Barra en la espalda alta, pies al ancho de los hombros.','Bajá hasta rozar el banco con los glúteos.','Subí empujando con los talones.']},
+    {id:'Bent_Over_Barbell_Row',n:'Remo con barra',d:'3 series · 12 repes · 30 kg',m:'middle back',
+     p:['Torso inclinado y espalda recta.','Llevá la barra al abdomen apretando los omóplatos.','Bajá despacio.']},
+    {id:'Dumbbell_Shoulder_Press',n:'Press de hombro',d:'3 series · 10 repes · 8 kg',m:'shoulders',
+     p:['Sentada, espalda apoyada, mancuernas a la altura de las orejas.','Subí sin chocarlas arriba.','Bajá contando dos segundos.']}
+  ],
+  casa:[
+    {id:'Bodyweight_Squat',n:'Sentadilla libre',d:'3 series · 15 repes',m:'quadriceps',
+     p:['Pies al ancho de los hombros.','Bajá como si te sentaras en una silla invisible.','Subí apretando los glúteos.']},
+    {id:'Bench_Dips',n:'Fondos en el sofá',d:'3 series · 10 repes',m:'triceps',
+     p:['Manos en el borde del sofá, dedos hacia adelante.','Codos hacia atrás, no hacia los lados.','Subí estirando los brazos.']},
+    {id:'Bent-Knee_Hip_Raise',n:'Elevación de cadera',d:'3 series · 15 repes',m:'abdominals',
+     p:['Tumbada, rodillas dobladas.','Llevá las rodillas al pecho despegando la cadera.','Bajá sin apoyar del todo.']}
+  ]
+};
+var NOMBRE_M={quadriceps:'Cuádriceps','middle back':'Espalda media',shoulders:'Hombros',triceps:'Tríceps',abdominals:'Abdomen'};
+
+/* ============ silueta ============ */
+function fig(v,act){
+  var r=function(m,x,y,w,h,rx){return '<rect class="zona'+(m===act?' act':'')+'" x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" rx="'+rx+'"/>';};
+  var cab='<circle cx="30" cy="9" r="6.4" fill="rgba(247,241,230,.16)"/>';
+  var c = (v==='frente')
+    ? r('neck',26.6,15,6.8,4,2)+r('shoulders',10.5,20.5,10,9,4.6)+r('shoulders',39.5,20.5,10,9,4.6)+
+      r('chest',20.4,21,9,10,3.4)+r('chest',30.6,21,9,10,3.4)+r('abdominals',23.4,32.5,13.2,16,4)+
+      r('biceps',11.2,30.5,6.4,13,3.2)+r('biceps',42.4,30.5,6.4,13,3.2)+
+      r('forearms',9.6,44.5,5.6,14,2.8)+r('forearms',44.8,44.5,5.6,14,2.8)+
+      r('quadriceps',20.2,50,6.6,25,3.3)+r('quadriceps',33.2,50,6.6,25,3.3)+
+      r('calves',21.4,77,6,17,3)+r('calves',32.6,77,6,17,3)
+    : r('traps',22,17,16,8,3.5)+r('shoulders',10.5,20.5,10,9,4.6)+r('shoulders',39.5,20.5,10,9,4.6)+
+      r('lats',18.6,25.5,9,15,3.6)+r('lats',32.4,25.5,9,15,3.6)+r('middle back',23.4,25,13.2,13,3.6)+
+      r('lower back',24.6,38.5,10.8,9,3.2)+r('triceps',11.2,30.5,6.4,13,3.2)+r('triceps',42.4,30.5,6.4,13,3.2)+
+      r('forearms',9.6,44.5,5.6,14,2.8)+r('forearms',44.8,44.5,5.6,14,2.8)+
+      r('glutes',21.2,48,8.2,10,3.8)+r('glutes',30.6,48,8.2,10,3.8)+
+      r('hamstrings',20.6,59,6.6,17,3.3)+r('hamstrings',32.8,59,6.6,17,3.3)+
+      r('calves',21.4,77,6,17,3)+r('calves',32.6,77,6,17,3);
+  return '<svg viewBox="0 0 60 98" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">'+cab+c+'</svg>';
+}
+
+/* ============ acciones ============ */
+function entrar(){
+  document.getElementById('p-login').style.display='none';
+  document.getElementById('app').style.display='flex';
+  pintar();
+}
+function ir(v,btn){
+  vista=v; verAnto=false;
+  document.querySelectorAll('.nav button').forEach(function(b){b.classList.remove('on');});
+  if(btn) btn.classList.add('on');
+  pintar();
+  document.querySelector('.cuerpo').scrollTop=0;
+}
+function setNum(k,d){
+  var n=TANDAS[0].nums.find(function(x){return x.k===k;});
+  perfil[k]=Math.min(n.max,Math.max(n.min,perfil[k]+d));
+  pintar();
+}
+function elegir(k,val,multi){
+  if(multi){
+    resp[k]=resp[k]||[];
+    var i=resp[k].indexOf(val);
+    if(i>=0) resp[k].splice(i,1); else resp[k].push(val);
+  } else {
+    if(k==='meta') perfil.meta=val; else resp[k]=val;
+  }
+  pintar();
+}
+function tandaLista(){
+  var t=TANDAS[tanda];
+  return t.pregs.every(function(p){
+    var v = (p.k==='meta') ? perfil.meta : resp[p.k];
+    return p.multi ? (v&&v.length) : !!v;
+  });
+}
+function siguienteTanda(){
+  if(tanda < TANDAS.length-1){ tanda++; pintar(); document.querySelector('.cuerpo').scrollTop=0; return; }
+  etapa='armando'; pintar();
+  setTimeout(function(){ etapa='app'; vista='plan'; pintar();
+    document.querySelectorAll('.nav button').forEach(function(b,i){ b.classList.toggle('on', i===1); });
+  }, 2600);
+}
+function setLugar(l){lugar=l;abierto=null;pintar();}
+function setEnvase(i){envase=i;pintar();}
+function sumar(n){llenados=Math.max(0,llenados+n);pintar();}
+function verEj(i){abierto=(abierto===i)?null:i;pintar();}
+function marcarEj(e){e.stopPropagation();e.currentTarget.closest('.ejer').classList.toggle('ok');}
+function elegirOpc(c,k){elegido[c]=k;pintar();}
+function tglChip(e){e.currentTarget.classList.toggle('on');}
+function setMov(q){MOV.que=q;if(q==='No me moví')MOV.min=0;pintar();}
+function setMin(m){MOV.min=Math.max(0,MOV.min+m);pintar();}
+function enviarMov(){if(MOV.que){MOV.enviado=true;pintar();}}
+function editarMov(){MOV.enviado=false;pintar();}
+function enviarComida(i){
+  var inp=document.getElementById('inp'+i);
+  if(!inp||!inp.value.trim())return;
+  COMIDAS[i].t=inp.value.trim();
+  COMIDAS[i].hora=new Date().toTimeString().slice(0,5);
+  COMIDAS[i].editando=false;
+  pintar();
+}
+function editarComida(i){COMIDAS[i].editando=true;pintar();}
+function pendientes(){
+  var f=[];
+  var s=COMIDAS.filter(function(c){return !c.t;}).length;
+  if(s) f.push('Anotar '+s+' comida'+(s>1?'s':''));
+  if(llenados===0) f.push('Anotar el agua');
+  if(!MOV.enviado) f.push('Contar si te moviste');
+  return f;
+}
+function cerrarDia(){diaCerrado=true;pintar();}
+function reabrirDia(){diaCerrado=false;pintar();}
+function tglVistaAnto(){verAnto=!verAnto;pintar();}
+function enviarMsg(){
+  var i=document.getElementById('msg-nuevo');
+  if(i&&i.value.trim()){enviados.push(i.value.trim());pintar();}
+}
+function faltaPara(){
+  var a=new Date(), m=new Date(a); m.setHours(24,0,0,0);
+  var s=Math.floor((m-a)/1000);
+  return Math.floor(s/3600)+' h '+Math.floor((s%3600)/60)+' min';
+}
+
+/* ============ pintado ============ */
+function pintar(){
+  var esArranque = etapa==='arranque', esArmando = etapa==='armando';
+  document.getElementById('nav').style.display = (etapa==='app') ? 'grid' : 'none';
+
+  document.getElementById('barra').innerHTML = esArranque
+    ? TANDAS.map(function(_,i){return '<i class="'+(i<=tanda?'on':'')+'"></i>';}).join('')
+    : '';
+
+  document.getElementById('hola').innerHTML = esArranque
+    ? 'Empecemos, <em>Lucía</em>'
+    : (esArmando ? 'Un momento…' : 'Buenas, <em>Lucía</em>');
+  document.getElementById('sub').textContent = esArranque
+    ? 'Tanda '+(tanda+1)+' de '+TANDAS.length+' · un minuto en total'
+    : (esArmando ? '' : 'Nivel 2 · tu plan está andando');
+
+  ['inicio','hoy','plan','anto'].forEach(function(k){
+    document.getElementById('v-'+k).classList.remove('on');
+  });
+
+  if(esArranque || esArmando){
+    document.getElementById('v-inicio').classList.add('on');
+    document.getElementById('v-inicio').innerHTML = esArmando ? vistaArmando() : vistaTanda();
+    return;
+  }
+
+  document.getElementById('v-'+vista).classList.add('on');
+  if(vista==='hoy') pintaHoy();
+  if(vista==='plan') pintaPlan();
+  if(vista==='anto') pintaAnto();
+}
+
+function vistaTanda(){
+  var t = TANDAS[tanda];
+  var nums = (t.nums||[]).map(function(n){
+    return '<div class="num"><span class="num__e">'+n.e+'</span><div class="num__c">'+
+      '<button onclick="setNum(\''+n.k+'\',-'+n.paso+')">−</button>'+
+      '<span class="num__v">'+perfil[n.k]+'<s>'+n.u+'</s></span>'+
+      '<button onclick="setNum(\''+n.k+'\','+n.paso+')">+</button></div></div>';
+  }).join('');
+
+  var pregs = t.pregs.map(function(p){
+    var val = (p.k==='meta') ? perfil.meta : resp[p.k];
+    return '<div class="preg"><p class="preg__t">'+p.t+(p.multi?' <span style="color:var(--crema-3);font-weight:600">· varias</span>':'')+'</p><div class="chips">'+
+      p.o.map(function(o){
+        var on = p.multi ? (val&&val.indexOf(o)>=0) : (val===o);
+        return '<button class="chip'+(on?' on':'')+'" onclick="elegir(\''+p.k+'\',\''+o+'\','+p.multi+')">'+o+'</button>';
+      }).join('')+'</div></div>';
+  }).join('');
+
+  var listo = tandaLista();
+  return '<div class="dice"><span class="dice__f"><img src="'+ANTO.anto3+'" alt="Anto"></span>'+
+      '<div class="dice__b">'+t.dice+'</div></div>'+
+    nums + pregs +
+    '<button class="cta" onclick="siguienteTanda()"'+(listo?'':' disabled')+'>'+
+      (listo ? (tanda<TANDAS.length-1 ? 'Enviar y seguir' : 'Enviar · armame el plan') : 'Contestá para seguir')+
+    '</button>';
+}
+
+function vistaArmando(){
+  return '<div class="armando">'+
+    '<div class="armando__a"><img src="'+ANTO.anto3+'" alt="Anto"></div>'+
+    '<h3>Anto está leyendo<br>tus respuestas</h3>'+
+    '<p>Con esto te arma la comida y el entreno. No hace falta esperar una semana.</p>'+
+    '<div class="puntos"><i></i><i></i><i></i></div></div>';
+}
+
+function pintaHoy(){
+  var ml = llenados*ENVASES[envase].ml, litros=(ml/1000).toFixed(1).replace('.',','), pct=Math.min(100,Math.round(ml/2000*100));
+
+  if(diaCerrado){
+    document.getElementById('v-hoy').innerHTML =
+      '<div class="cerr"><span class="cerr__i">✓</span>'+
+      '<h3>Jueves enviado</h3><p>Anto ya tiene tu día. No tenés que hacer nada más hasta mañana.</p>'+
+      '<div class="v cuenta"><span>Próximo registro en</span><b id="cuenta">'+faltaPara()+'</b></div>'+
+      '<div class="v caja" style="text-align:left">'+
+        '<p class="rot" style="margin:0 0 8px">Lo que le llegó a Anto</p>'+
+        '<div class="res__l"><b>Comidas</b><span>'+COMIDAS.filter(function(c){return c.t;}).length+' de '+COMIDAS.length+'</span></div>'+
+        '<div class="res__l"><b>Agua</b><span>'+litros+' L de 2 L</span></div>'+
+        '<div class="res__l"><b>Movimiento</b><span>'+(MOV.que||'sin registrar')+(MOV.min>0?' · '+MOV.min+' min':'')+'</span></div>'+
+      '</div>'+
+      '<button class="cta cta--l" onclick="reabrirDia()">Me olvidé algo · reabrir el día</button></div>';
+    return;
+  }
+
+  var falta = pendientes();
+  var guia = falta.length
+    ? '<div class="guia sube"><div class="guia__h"><b>Te faltan '+falta.length+'</b><span>para cerrar el jueves</span></div>'+
+      '<div>'+falta.map(function(f){return '<span class="pend">'+f+'</span>';}).join('')+'</div></div>'
+    : '<div class="guia guia--ok sube"><div class="guia__h"><b>Está todo</b><span>ya podés cerrar el día</span></div></div>';
+
+  var filas = COMIDAS.map(function(c,i){
+    var lleno = c.t && !c.editando;
+    return '<div class="fila"><span class="fila__h">'+c.h+'</span><div class="fila__c">'+
+      (lleno
+        ? '<div class="list"><span class="tk">✓</span><div><p>'+c.t+'</p><span class="met">Enviado '+c.hora+' <button onclick="editarComida('+i+')">editar</button></span></div></div>'
+        : '<input class="campo" id="inp'+i+'" value="'+(c.t||'')+'" placeholder="Escribí lo que comiste…"><button class="env-b" onclick="enviarComida('+i+')">Listo</button>')+
+    '</div></div>';
+  }).join('');
+
+  document.getElementById('v-hoy').innerHTML = guia+
+    '<p class="rot">1 · Agua <span>meta 2 L</span></p>'+
+    '<div class="v caja sube">'+
+      '<div class="agua__t"><span class="agua__n">'+litros+'<s>L</s></span>'+
+      '<span class="agua__m">'+llenados+' × '+ENVASES[envase].n.toLowerCase()+'<br>de 2 L</span></div>'+
+      '<div class="tubo"><i style="width:'+pct+'%"></i></div>'+
+      '<div class="env">'+ENVASES.map(function(e,i){
+        return '<button class="'+(i===envase?'on':'')+'" onclick="setEnvase('+i+')"><i>'+e.ic+'</i>'+e.n+'<br>'+e.ml+'ml</button>';}).join('')+'</div>'+
+      '<div class="mas"><button onclick="sumar(-1)">−</button><button class="pri" onclick="sumar(1)">+ Uno más</button></div>'+
+    '</div>'+
+    '<p class="rot">2 · Qué comiste hoy</p>'+
+    '<div class="v caja sube">'+filas+'</div>'+
+    '<p class="rot">3 · Te moviste hoy</p>'+
+    '<div class="v caja sube">'+
+      (MOV.enviado
+        ? '<div class="list"><span class="tk">✓</span><div><p>'+MOV.que+(MOV.min>0?' · '+MOV.min+' minutos':'')+'</p><span class="met">Enviado <button onclick="editarMov()">editar</button></span></div></div>'
+        : '<div class="chips">'+['Gimnasio','Caminata','Clase','En casa','No me moví'].map(function(x){
+            return '<button class="chip'+(MOV.que===x?' on':'')+'" onclick="setMov(\''+x+'\')">'+x+'</button>';}).join('')+'</div>'+
+          (MOV.que&&MOV.que!=='No me moví'
+            ? '<div class="reloj"><span>¿Cuánto tiempo?</span><div class="reloj__c"><button onclick="setMin(-15)">−</button><b>'+MOV.min+' min</b><button onclick="setMin(15)">+</button></div></div>':'')+
+          (MOV.que?'<button class="env-b" onclick="enviarMov()">Listo</button>':''))+
+    '</div>'+
+    (falta.length
+      ? '<button class="cta" disabled>Cerrar el día · te faltan '+falta.length+'</button>'
+      : '<button class="cta" onclick="cerrarDia()">Cerrar el día y enviárselo a Anto</button>');
+}
+
+function nombreDe(c){
+  var g=OPCIONES[c], o=g.con.find(function(x){return x.k===elegido[c];});
+  return o ? o.n+' · '+o.d : elegido[c];
+}
+function opcionesDe(c){
+  var g=OPCIONES[c];
+  return '<p class="rot">'+g.titulo+' <span>elegís vos</span></p>'+
+    '<p style="font-size:12px;color:var(--crema-2);margin:-4px 2px 10px">'+g.ayuda+'</p>'+
+    '<div class="platos">'+g.con.map(function(o){
+      var sel=elegido[c]===o.k;
+      return '<button class="plato'+(sel?' on':'')+'" onclick="elegirOpc(\''+c+'\',\''+o.k+'\')">'+
+        '<span class="plato__f">'+(COMIDA_FOTO[o.k]?'<img src="'+COMIDA_FOTO[o.k]+'" alt="">':'')+
+        (sel?'<span class="plato__t">✓</span>':'')+'</span><b>'+o.n+'</b><s>'+o.d+'</s></button>';
+    }).join('')+'</div>'+
+    '<div class="v caja" style="margin-top:10px">'+
+      '<p style="margin:0 0 9px;font-size:11px;color:var(--crema-3);font-weight:800;letter-spacing:.08em;text-transform:uppercase">O cualquiera de estas '+g.mas.length+'</p>'+
+      '<div class="chips">'+g.mas.map(function(x){return '<button class="chip" onclick="tglChip(event)">'+x+'</button>';}).join('')+'</div>'+
+      '<button class="cta cta--l" style="font-size:12.5px;padding:11px">No me gusta ninguna · pedile otra a Anto</button>'+
+    '</div>';
+}
+
+function baja(t){ return t ? t.charAt(0).toLowerCase()+t.slice(1) : t; }
+function pintaPlan(){
+  var meta = perfil.meta || 'Bajar grasa';
+  var desayuna = resp.desayuna || 'Casi nunca';
+  var agua = resp.agua || 'Menos de 1 L';
+
+  document.getElementById('v-plan').innerHTML =
+    '<p class="rot">Tu recorrido</p>'+
+    '<div class="v caja ruta sube">'+NIVELES.map(function(x){
+      var e = x.n<2?'pas':(x.n===2?'act':'fut');
+      return '<div class="paso paso--'+e+'"><span class="paso__n">'+(x.n<2?'✓':x.n)+'</span>'+
+        '<div><b>'+x.t+'</b><p>'+x.d+'</p></div></div>';
+    }).join('')+'</div>'+
+
+    '<p class="rot">Lo que vio Anto <span>en tus respuestas</span></p>'+
+    '<div class="v caja sube">'+
+      '<div class="hall"><span class="pt" style="background:var(--magenta)"></span><div><b>'+desayuna+' desayunás</b><p>Ahí está el hueco. Llegás al almuerzo con muchas horas encima.</p></div></div>'+
+      '<div class="hall"><span class="pt" style="background:var(--coral)"></span><div><b>Tomás '+baja(agua)+'</b><p>Poco para lo que vamos a empezar a hacer. Subimos a 2 L.</p></div></div>'+
+      '<div class="hall"><span class="pt" style="background:var(--coral)"></span><div><b>Te movés '+baja(resp.mueve||'Nada')+'</b><p>Empezamos por tres días. Con eso alcanza para que el cuerpo cambie.</p></div></div>'+
+      '<div class="hall"><span class="pt" style="background:var(--ok)"></span><div><b>Objetivo: '+baja(meta)+'</b><p>Se puede. Pero primero ordenamos las comidas, después el gimnasio.</p></div></div>'+
+    '</div>'+
+
+    '<div class="v caja v--alta sube"><div class="msg" style="margin:0">'+
+      '<span class="msg__f"><img src="'+ANTO.anto3+'" alt="Anto"></span>'+
+      '<div class="msg__b">No vamos a empezar por el gimnasio. Si comés dos veces al día no tenés con qué entrenar. '+
+      '<b>Este mes tenemos un objetivo solo: que desayunes.</b> Cuando eso salga solo, seguimos.</div></div></div>'+
+
+    opcionesDe('almuerzo')+
+    opcionesDe('merienda')+
+
+    '<p class="rot">Tu entreno <span>elegís dónde</span></p>'+
+    '<div class="lugar">'+
+      '<button class="'+(lugar==='gimnasio'?'on':'')+'" onclick="setLugar(\'gimnasio\')">En el gimnasio</button>'+
+      '<button class="'+(lugar==='casa'?'on':'')+'" onclick="setLugar(\'casa\')">En casa</button></div>'+
+    '<div class="v" style="padding:0;overflow:hidden">'+EJ[lugar].map(function(e,i){
+      var ab=abierto===i, im=FOTOS[e.id]||[];
+      return '<div class="ejer"><button class="ejer__t" onclick="verEj('+i+')">'+
+        '<span class="ejer__b" onclick="marcarEj(event)">✓</span>'+
+        '<span class="ejer__c"><b class="ejer__n">'+e.n+'</b><span class="ejer__d">'+e.d+'</span></span>'+
+        '<span class="ejer__v">'+(ab?'CERRAR':'VER')+'</span></button>'+
+        '<div class="demo'+(ab?' on':'')+'"><div class="foto">'+im.map(function(s){return '<img src="'+s+'" alt="">';}).join('')+
+        '<span class="foto__e">'+(NOMBRE_M[e.m]||e.m).toUpperCase()+'</span></div>'+
+        '<div class="mapa">'+fig('frente',e.m)+fig('espalda',e.m)+'</div></div>'+
+        '<div class="pasos'+(ab?' on':'')+'"><ol>'+e.p.map(function(t){return '<li>'+t+'</li>';}).join('')+'</ol></div></div>';
+    }).join('')+'</div>';
+}
+
+function pintaAnto(){
+  if(verAnto){
+    document.getElementById('v-anto').innerHTML =
+      '<div class="dela sube"><p class="rot" style="margin-top:2px">Lo que ve Anto <span>de vos</span></p>'+
+      '<div class="v caja">'+
+        '<div class="ficha"><span class="yo">L</span><div><b>Lucía · '+perfil.edad+' años</b>'+
+        '<s>'+perfil.peso+' kg · '+perfil.altura+' cm · '+baja(perfil.meta||'Bajar grasa')+'</s></div>'+
+        '<span class="alerta">Atención</span></div>'+
+        '<div class="resu">'+
+          '<p><b>Arranque:</b> '+baja(resp.desayuna||'Casi nunca')+' desayuna, come '+(resp.veces||'2')+' veces al día, '+
+          'toma '+baja(resp.agua||'Menos de 1 L')+' de agua y se mueve '+baja(resp.mueve||'Nada')+'.</p>'+
+          '<p><b>Le cuesta dejar:</b> '+(resp.cuesta||['Dulce']).join(', ')+'.</p>'+
+          '<p><b>Sugerencia:</b> el hueco entre comidas explica el picoteo nocturno. Antes de tocar el entreno, atacar el desayuno.</p>'+
+        '</div>'+
+        '<p class="resu__f">Resumen generado con IA sobre lo que contestó Lucía · Anto lo revisa antes de responder</p>'+
+      '</div>'+
+      '<div class="v caja"><p style="margin:0 0 9px;font-size:10.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--crema-3)">Lo que escribió, tal cual</p>'+
+        '<div class="crudo">'+
+          '<div><b>Jue</b> desayuno: nada · almuerzo: pollo con arroz · cena: pizza · movimiento: nada</div>'+
+          '<div><b>Mié</b> desayuno: café solo · almuerzo: sandwich · cena: nada · movimiento: gimnasio 60 min</div>'+
+        '</div></div>'+
+      '<button class="cta cta--l" onclick="tglVistaAnto()">← Volver a mi app</button></div>';
+    return;
+  }
+
+  document.getElementById('v-anto').innerHTML =
+    '<p class="rot">Tu clase</p>'+
+    '<div class="v clase sube">'+
+      '<div class="clase__f"><img src="'+ANTO.anto3+'" alt="Anto"></div>'+
+      '<div class="clase__c">'+
+        '<b>Martes 26 · 18:30</b><span>45 minutos por Zoom · técnica de sentadilla</span>'+
+        '<button class="cta" style="margin-top:12px">Entrar a la clase</button>'+
+      '</div>'+
+    '</div>'+
+
+    '<p class="rot">Mensajes</p>'+
+    '<div class="v caja sube">'+
+      '<div class="msg"><span class="msg__f"><img src="'+ANTO.anto3+'" alt="Anto"></span>'+
+      '<div><div class="msg__b">Leí tus respuestas. Empezamos suave: <b>desayuno y tres días</b>. Nada más por ahora.</div>'+
+      '<span class="msg__h">Hoy, 09:12</span></div></div>'+
+      enviados.map(function(t){
+        return '<div class="msg msg--mio"><div class="msg__b">'+t+'<span class="msg__h">Enviado · sin leer</span></div></div>';
+      }).join('')+
+    '</div>'+
+
+    '<p class="rot">Escribile</p>'+
+    '<div class="v caja sube">'+
+      '<input class="campo" id="msg-nuevo" placeholder="Contale cómo vas…">'+
+      '<div style="display:flex;gap:8px;margin-top:9px">'+
+        '<button class="env-b" style="margin:0" onclick="enviarMsg()">Enviar</button>'+
+        '<button class="adj">📷 Foto</button></div>'+
+      '<p style="font-size:11px;color:var(--crema-3);margin:9px 2px 0">Te responde ella, en persona.</p>'+
+    '</div>'+
+    '<button class="cta cta--l" onclick="tglVistaAnto()">👁 Ver lo que Anto ve de mí</button>';
+}
+</script>
