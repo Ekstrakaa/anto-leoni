@@ -27,6 +27,9 @@ const BASE = {
   diaCerrado: false,
   diasCerrados: 0,
   registrosPeso: [],
+  semana: 1,
+  etapaActual: 2,
+  adherenciaMedia: 0,
   mensajes: [],
 }
 
@@ -46,6 +49,9 @@ function estadoInicial() {
         i === 0 ? { ...c, t: 'Café con leche y dos tostadas', hora: '08:15' } : i === 2 ? { ...c, t: 'Pollo con arroz y ensalada', hora: '14:30' } : c
       ),
       diasCerrados: 4,
+      semana: 3,
+      etapaActual: 2,
+      adherenciaMedia: 72,
     }
     return { st: lleno, demo: true }
   }

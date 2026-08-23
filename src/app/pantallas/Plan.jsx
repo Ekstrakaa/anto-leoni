@@ -1,20 +1,22 @@
-import { Check, MessageCircle, Sparkles, Coffee, Salad, Cookie, Moon, Pill, CalendarDays } from 'lucide-react'
+import {
+  Check, MessageCircle, Sparkles, Coffee, Salad, Cookie, Moon, Pill,
+  CalendarDays, Target, TrendingUp, Lock, Loader2,
+} from 'lucide-react'
 import { MENU, RUTINAS, ANTO, baja } from '../datos.js'
+import { ETAPAS, cargaDe, faltaParaSubir, retoDeLaSemana } from '../progresion.js'
+import { usarCoach } from '../usarCoach.js'
 import { Rotulo, Chip } from '../piezas/comunes.jsx'
 import Icono from '../piezas/Icono.jsx'
 
 const IC_MENU = { desayuno: Coffee, almuerzo: Salad, merienda: Cookie, cena: Moon }
+const COLOR_TONO = { bien: 'var(--ok)', ojo: 'var(--coral)', atencion: 'var(--magenta)' }
 
 function Plato({ o, on, onPick }) {
   return (
     <button type="button" className={'plato tocar' + (on ? ' on' : '')} onClick={onPick}>
       <span className="plato-f">
         {o.foto ? <img src={o.foto} alt={o.n} loading="lazy" /> : <span className="plato-e"><Icono nombre={o.ic} size={30} strokeWidth={1.6} /></span>}
-        {on && (
-          <span className="plato-tk">
-            <Check size={12} strokeWidth={3.5} />
-          </span>
-        )}
+        {on && <span className="plato-tk"><Check size={12} strokeWidth={3.5} /></span>}
       </span>
       <b>{o.n}</b>
       <small>{o.d}</small>
@@ -23,57 +25,86 @@ function Plato({ o, on, onPick }) {
 }
 
 export default function Plan({ st, upd, irAnto }) {
-  const { perfil, resp, elegido, lugar } = st
-  const meta = perfil.meta || 'Bajar grasa'
+  const { perfil, resp, elegido, lugar, diasCerrados, semana, adherenciaMedia } = st
+
+  const { plan, estado } = usarCoach({ perfil, resp, registro: { diasCerrados, adherencia: adherenciaMedia } })
+
+  const etapa = ETAPAS.find((e) => e.n === st.etapaActual) || ETAPAS[1]
+  const semanasCumplidas = Math.max(0, semana - 1)
+  const reto = retoDeLaSemana(semana)
+  const falta = faltaParaSubir(etapa, { semanas: semana, adherenciaMedia, diasCerrados })
   const supl = (resp.supl || []).filter((s) => s !== 'Ninguno')
 
   return (
     <div className="anima">
-      {/* lo que vio Anto en las respuestas */}
-      <Rotulo ic={Sparkles} extra="en tus respuestas">Lo que vio Anto</Rotulo>
+      {/* --- dónde estás y qué falta para subir --- */}
+      <Rotulo ic={TrendingUp} extra={`semana ${semana}`}>Tu etapa</Rotulo>
+      <div className="v etapa-card">
+        <div className="etapa-top">
+          <span className="etapa-n">{etapa.n}</span>
+          <div>
+            <b>{etapa.t}</b>
+            <span>{etapa.lema}</span>
+          </div>
+        </div>
+        <p className="etapa-d">{etapa.d}</p>
+        <div className="etapa-datos">
+          <div><b>{etapa.dias}</b><span>días</span></div>
+          <div><b>{etapa.series}</b><span>series</span></div>
+          <div><b>{etapa.descanso}s</b><span>descanso</span></div>
+        </div>
+        <div className="etapa-falta">
+          <Target size={13} />
+          <span>{falta}</span>
+        </div>
+      </div>
+
+      {/* --- el reto de la semana --- */}
+      <div className="v reto-card">
+        <span className="reto-ic"><Target size={17} /></span>
+        <div>
+          <b>{reto.t}</b>
+          <p>{reto.d}</p>
+        </div>
+        <span className="reto-meta">{reto.meta}×</span>
+      </div>
+
+      {/* --- lo que leyó Anto (generado o de respaldo) --- */}
+      <Rotulo ic={Sparkles} extra={estado === 'pidiendo' ? 'leyendo…' : 'en tus respuestas'}>
+        Lo que vio Anto
+      </Rotulo>
       <div className="v caja">
-        <div className="hall">
-          <span className="pt" style={{ background: 'var(--magenta)' }} />
-          <div>
-            <b>{resp.desayuna || 'Casi nunca'} desayunás</b>
-            <p>Ahí está el hueco. Llegás al almuerzo con muchas horas encima.</p>
+        <p className="titular-ia">{plan.titular}</p>
+        {plan.lectura.map((h, i) => (
+          <div className="hall" key={i}>
+            <span className="pt" style={{ background: COLOR_TONO[h.tono] || 'var(--coral)' }} />
+            <div>
+              <b>{h.que}</b>
+              <p>{h.porque}</p>
+            </div>
           </div>
-        </div>
-        <div className="hall">
-          <span className="pt" style={{ background: 'var(--coral)' }} />
-          <div>
-            <b>Tomás {baja(resp.agua || 'Menos de 1 L')}</b>
-            <p>Poco para lo que vamos a empezar a hacer. Subimos a 2 L.</p>
-          </div>
-        </div>
-        <div className="hall">
-          <span className="pt" style={{ background: 'var(--coral)' }} />
-          <div>
-            <b>Te movés {baja(resp.mueve || 'Nada')}</b>
-            <p>Empezamos por tres días. Con eso alcanza para que el cuerpo cambie.</p>
-          </div>
-        </div>
-        <div className="hall">
-          <span className="pt" style={{ background: 'var(--ok)' }} />
-          <div>
-            <b>Objetivo: {baja(meta)}</b>
-            <p>Se puede. Pero primero ordenamos las comidas, después el gimnasio.</p>
-          </div>
-        </div>
+        ))}
+        {estado === 'pidiendo' && (
+          <p className="pista pensando"><Loader2 size={12} className="girando" /> Anto está leyendo tus respuestas…</p>
+        )}
       </div>
 
       <div className="v caja alta">
         <div className="msg" style={{ margin: 0 }}>
-          <span className="msg-foto">
-            <img src={ANTO} alt="Anto" />
-          </span>
-          <div className="globo">
-            No vamos a empezar por el gimnasio a lo loco. <b>Este mes el objetivo es uno: que desayunes y cumplas tres días.</b> Cuando eso salga solo, subimos.
-          </div>
+          <span className="msg-foto"><img src={ANTO} alt="Anto" /></span>
+          <div className="globo">{plan.mensaje}</div>
         </div>
       </div>
 
-      {/* comidas del día, con opciones de verdad */}
+      {plan.objetivoDelMes && (
+        <div className="v objetivo">
+          <span className="objetivo-et">El objetivo de este mes</span>
+          <b>{plan.objetivoDelMes}</b>
+          <p>Uno solo. Cuando salga sin pensarlo, sumamos el siguiente.</p>
+        </div>
+      )}
+
+      {/* --- comidas --- */}
       {MENU.map((m) => (
         <div key={m.k}>
           <Rotulo ic={IC_MENU[m.k]} extra="elegís vos">{m.titulo}</Rotulo>
@@ -85,11 +116,7 @@ export default function Plan({ st, upd, irAnto }) {
           </div>
           <div className="v caja" style={{ marginTop: 10 }}>
             <p className="mini-t">O cualquiera de estas {m.mas.length}</p>
-            <div className="chips">
-              {m.mas.map((x) => (
-                <Chip key={x}>{x}</Chip>
-              ))}
-            </div>
+            <div className="chips">{m.mas.map((x) => <Chip key={x}>{x}</Chip>)}</div>
             <button type="button" className="cta liso chico" onClick={irAnto}>
               <MessageCircle size={14} /> No me gusta ninguna · pedile otra a Anto
             </button>
@@ -97,19 +124,15 @@ export default function Plan({ st, upd, irAnto }) {
         </div>
       ))}
 
-      {/* suplementos, según lo que contestó */}
+      {/* --- suplementos --- */}
       <Rotulo ic={Pill}>Tus suplementos</Rotulo>
       <div className="v caja">
         {supl.length ? (
           <>
             <div className="chips" style={{ marginBottom: 10 }}>
-              {supl.map((s) => (
-                <span className="chip on" key={s}>{s}</span>
-              ))}
+              {supl.map((s) => <span className="chip on" key={s}>{s}</span>)}
             </div>
-            <p className="pista" style={{ margin: 0 }}>
-              Con esto alcanza por ahora. No sumes nada nuevo sin consultarle a Anto.
-            </p>
+            <p className="pista" style={{ margin: 0 }}>Con esto alcanza por ahora. No sumes nada nuevo sin consultarle a Anto.</p>
           </>
         ) : (
           <p className="pista" style={{ margin: 0 }}>
@@ -118,21 +141,50 @@ export default function Plan({ st, upd, irAnto }) {
         )}
       </div>
 
-      {/* la semana entera, de un vistazo */}
+      {/* --- la semana, con las cargas de esta semana --- */}
       <Rotulo ic={CalendarDays} extra={lugar === 'gimnasio' ? 'gimnasio' : 'en casa'}>Tu semana de entreno</Rotulo>
       {RUTINAS[lugar].map((d) => (
-        <div className="v caja dia-card" key={d.dia}>
-          <span className="dia-ic"><Icono nombre={d.ic} size={18} /></span>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <b>{d.dia} · {d.nombre}</b>
-            <p>{d.ejercicios.map((e) => e.n).join(' · ')}</p>
+        <div className="v dia-card" key={d.dia}>
+          <div className="dia-top">
+            <span className="dia-ic"><Icono nombre={d.ic} size={17} /></span>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <b>{d.dia}</b>
+              <span>{d.nombre}</span>
+            </div>
+            <span className="dia-n">{d.ejercicios.length}</span>
           </div>
-          <span className="dia-n">{d.ejercicios.length}</span>
+          <div className="dia-lista">
+            {d.ejercicios.slice(0, 3).map((e) => {
+              const c = cargaDe(e, semanasCumplidas)
+              return (
+                <div className="dia-ej" key={e.id}>
+                  <span>{e.n}</span>
+                  <b className={c.enTecho ? 'en-techo' : undefined}>{etapa.series} × {c.repes} · {c.texto}</b>
+                </div>
+              )
+            })}
+            {d.ejercicios.length > 3 && <div className="dia-mas">y {d.ejercicios.length - 3} más</div>}
+            {d.ejercicios.slice(0, 3).some((e) => cargaDe(e, semanasCumplidas).enTecho) && (
+              <div className="dia-techo">Llegaste al tope que sube solo. De acá lo ajusta Anto con vos.</div>
+            )}
+          </div>
         </div>
       ))}
-      <p className="pista">
-        Martes y jueves: caminata de 30 minutos. El finde, descanso de verdad — ahí es cuando el cuerpo cambia.
-      </p>
+
+      {/* --- lo que viene después --- */}
+      <Rotulo ic={Lock}>Lo que viene</Rotulo>
+      <div className="v caja">
+        {ETAPAS.filter((e) => e.n > etapa.n).map((e) => (
+          <div className="futuro" key={e.n}>
+            <span className="futuro-n">{e.n}</span>
+            <div>
+              <b>{e.t} · {e.lema}</b>
+              <p>{e.dias} días · {e.series} series · {e.descanso}s de descanso. {e.foco}</p>
+            </div>
+          </div>
+        ))}
+        {etapa.n === 4 && <p className="pista" style={{ margin: 0 }}>Llegaste a la última etapa. De acá en adelante es sostenerlo.</p>}
+      </div>
     </div>
   )
 }
