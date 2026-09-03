@@ -3,9 +3,9 @@
    viaja al navegador. Si no hay clave, responde 503 y la app usa
    sus textos de siempre — nunca se rompe por esto. */
 
-export const config = { runtime: 'nodejs' }
+import { pedirJSON, proveedor } from './_ia.js'
 
-const MODELO = 'gemini-2.0-flash'
+export const config = { runtime: 'nodejs' }
 
 /* El método de Anto, escrito como reglas. Esto es lo que hay que
    reemplazar con sus palabras reales cuando conteste el cuestionario. */
@@ -66,55 +66,29 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Usá POST' })
   }
 
-  const clave = process.env.GEMINI_API_KEY
-  if (!clave) {
-    return res.status(503).json({ error: 'sin_clave', detalle: 'Falta GEMINI_API_KEY en el entorno' })
+  if (!proveedor()) {
+    return res.status(503).json({ error: 'sin_clave', detalle: 'Falta OPENAI_API_KEY o GEMINI_API_KEY' })
   }
 
   try {
     const datos = typeof req.body === 'string' ? JSON.parse(req.body) : req.body || {}
 
-    const r = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${MODELO}:generateContent`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': clave },
-        body: JSON.stringify({
-          systemInstruction: { parts: [{ text: SISTEMA }] },
-          contents: [{ role: 'user', parts: [{ text: armarPedido(datos) }] }],
-          generationConfig: {
-            temperature: 0.8,
-            maxOutputTokens: 900,
-            responseMimeType: 'application/json',
-          },
-        }),
-      }
-    )
-
-    if (!r.ok) {
-      const t = await r.text()
-      return res.status(502).json({ error: 'gemini', detalle: t.slice(0, 300) })
-    }
-
-    const j = await r.json()
-    const texto = j?.candidates?.[0]?.content?.parts?.[0]?.text
-    if (!texto) return res.status(502).json({ error: 'respuesta_vacia' })
-
-    let plan
-    try {
-      plan = JSON.parse(texto)
-    } catch {
-      return res.status(502).json({ error: 'json_invalido', detalle: texto.slice(0, 200) })
-    }
+    const { json: plan, uso } = await pedirJSON({
+      sistema: SISTEMA,
+      usuario: armarPedido(datos),
+      maxTokens: 900,
+      temperatura: 0.8,
+    })
 
     // no dejamos pasar una forma que la app no sepa pintar
     if (!plan.titular || !Array.isArray(plan.lectura) || !plan.mensaje) {
       return res.status(502).json({ error: 'forma_inesperada' })
     }
 
+    console.log('[coach] coste', JSON.stringify(uso))
     res.setHeader('Cache-Control', 'no-store')
-    return res.status(200).json({ plan, generado: true })
+    return res.status(200).json({ plan, generado: true, uso })
   } catch (e) {
-    return res.status(500).json({ error: 'fallo', detalle: String(e).slice(0, 200) })
+    return res.status(502).json({ error: 'fallo', detalle: String(e).slice(0, 200) })
   }
 }

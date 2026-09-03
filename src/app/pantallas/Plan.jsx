@@ -2,8 +2,9 @@ import {
   Check, MessageCircle, Sparkles, Coffee, Salad, Cookie, Moon, Pill,
   CalendarDays, Target, TrendingUp, Lock, Loader2,
 } from 'lucide-react'
-import { MENU, RUTINAS, ANTO, baja } from '../datos.js'
-import { ETAPAS, cargaDe, faltaParaSubir, retoDeLaSemana } from '../progresion.js'
+import { MENU, ANTO, baja } from '../datos.js'
+import { DIAS_DE_LA_SEMANA } from '../restricciones.js'
+import { ETAPAS, faltaParaSubir, retoDeLaSemana } from '../progresion.js'
 import { usarCoach } from '../usarCoach.js'
 import { Rotulo, Chip } from '../piezas/comunes.jsx'
 import Icono from '../piezas/Icono.jsx'
@@ -141,35 +142,38 @@ export default function Plan({ st, upd, irAnto }) {
         )}
       </div>
 
-      {/* --- la semana, con las cargas de esta semana --- */}
-      <Rotulo ic={CalendarDays} extra={lugar === 'gimnasio' ? 'gimnasio' : 'en casa'}>Tu semana de entreno</Rotulo>
-      {RUTINAS[lugar].map((d) => (
-        <div className="v dia-card" key={d.dia}>
+      {/* --- cómo se reparte la semana ---
+           Los ejercicios concretos no viven acá: los elige el motor
+           cada día, según lo que tengas descansado y lo que puedas
+           hacer. Esto es la forma de la semana, no la lista. */}
+      <Rotulo ic={CalendarDays} extra={lugar === 'gimnasio' ? 'gimnasio' : 'en casa'}>Cómo se reparte tu semana</Rotulo>
+      {DIAS_DE_LA_SEMANA.map((d) => (
+        <div className="v dia-card" key={d.k}>
           <div className="dia-top">
             <span className="dia-ic"><Icono nombre={d.ic} size={17} /></span>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <b>{d.dia}</b>
-              <span>{d.nombre}</span>
+              <b>{d.t}</b>
+              <span>{d.que}</span>
             </div>
-            <span className="dia-n">{d.ejercicios.length}</span>
+            <span className="dia-n">{etapa.series}×</span>
           </div>
           <div className="dia-lista">
-            {d.ejercicios.slice(0, 3).map((e) => {
-              const c = cargaDe(e, semanasCumplidas)
-              return (
-                <div className="dia-ej" key={e.id}>
-                  <span>{e.n}</span>
-                  <b className={c.enTecho ? 'en-techo' : undefined}>{etapa.series} × {c.repes} · {c.texto}</b>
-                </div>
-              )
-            })}
-            {d.ejercicios.length > 3 && <div className="dia-mas">y {d.ejercicios.length - 3} más</div>}
-            {d.ejercicios.slice(0, 3).some((e) => cargaDe(e, semanasCumplidas).enTecho) && (
-              <div className="dia-techo">Llegaste al tope que sube solo. De acá lo ajusta Anto con vos.</div>
-            )}
+            <div className="dia-ej">
+              <span>Trabaja</span>
+              <b>{d.zonas}</b>
+            </div>
+            <div className="dia-ej">
+              <span>Descanso entre series</span>
+              <b>{etapa.descanso}s</b>
+            </div>
           </div>
         </div>
       ))}
+      <p className="pista">
+        Qué ejercicios te tocan cada día no está escrito de antemano: se elige
+        esa mañana, con lo que tengas descansado y con lo que nos dijiste que
+        no podés hacer.
+      </p>
 
       {/* --- lo que viene después --- */}
       <Rotulo ic={Lock}>Lo que viene</Rotulo>

@@ -34,3 +34,11 @@ export function frescura(marca, ahora = Date.now()) {
   const horas = (ahora - marca) / 3600000
   return Math.min(1, Math.max(0, horas / HORAS_RECUPERACION))
 }
+
+/* La forma de la semana. Los ejercicios concretos no están acá:
+   los elige el motor cada día. Esto espeja PLANTILLAS del servidor. */
+export const DIAS_DE_LA_SEMANA = [
+  { k: 'piernas', t: 'Día de piernas', que: 'Piernas y glúteos', zonas: 'Cuádriceps, glúteos, isquios, gemelos', ic: 'Footprints' },
+  { k: 'torso', t: 'Día de torso', que: 'Espalda, pecho y brazos', zonas: 'Dorsales, pecho, hombros, bíceps, tríceps', ic: 'Dumbbell' },
+  { k: 'completo', t: 'Día completo', que: 'Todo el cuerpo', zonas: 'Piernas, espalda, pecho y abdomen', ic: 'Flame' },
+]

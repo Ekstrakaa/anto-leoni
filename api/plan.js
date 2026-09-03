@@ -1,58 +1,64 @@
 /* ============================================================
-   /api/plan — devuelve el entreno de hoy.
+   /api/plan — el entreno y la comida de hoy, en una sola llamada.
 
-   La clienta nunca recibe el catálogo: sólo los cinco que le
-   tocan. El catálogo entero vive acá, en el servidor.
+   La clienta nunca recibe el catálogo: sólo los cinco ejercicios
+   que le tocan. Los 873 viven acá, en el servidor.
 
-   Orden: filtro duro (código) → elección (IA, si hay clave) →
-   verificación (código). Si la IA devuelve un id que no estaba
-   permitido, se descarta la respuesta entera y vale la elección
-   determinista. Sin clave, funciona igual.
+   Orden, y es el que importa:
+     1. el código descarta lo peligroso  (api/_motor.js)
+     2. la IA elige DENTRO de lo que quedó
+     3. el código verifica cada id que volvió
+
+   Si la IA devuelve un id que no estaba permitido, se tira la
+   respuesta entera y vale la elección determinista. Sin clave de
+   IA funciona igual, sólo que sin los textos.
+
+   COSTE. Una llamada por clienta y por día, y el plan se guarda
+   en el teléfono hasta la medianoche. El prompt se mantiene
+   corto a propósito: la lista de ejercicios va como
+   `id|nombre|músculo`, sin descripciones, y se corta en 30.
    ============================================================ */
 
-import { candidatos, elegir, plantillaDe, paraLaApp, RESTRICCIONES } from './_motor.js'
+import { candidatos, elegir, plantillaDe, paraLaApp } from './_motor.js'
+import { pedirJSON, proveedor } from './_ia.js'
 
 export const config = { runtime: 'nodejs' }
 
-const MODELO = 'gemini-2.0-flash'
+const SISTEMA = `Sos Anto Leoni, entrenadora y especialista en nutrición en Tenerife. Elegís el día de una clienta que te paga.
 
-const SISTEMA = `Sos Anto Leoni, entrenadora personal en Tenerife, eligiendo el entreno de hoy para una clienta que te paga.
-
-Te doy una lista CERRADA de ejercicios ya filtrados como seguros para ella. Tu trabajo es elegir los mejores de esa lista y explicar por qué, en su idioma.
+Te paso una LISTA CERRADA de ejercicios ya filtrados como seguros para ella.
 
 REGLAS QUE NO SE ROMPEN
-- Sólo podés usar ids que estén en la lista que te paso. Ni uno más.
-- Un id por hueco, sin repetir.
-- No inventás cargas, kilos, calorías ni plazos.
-- No diagnosticás ni opinás sobre lesiones. Si algo se sale de lo tuyo, decís que lo mira Anto en persona.
+- Sólo ids de esa lista. Ni uno inventado, ni uno repetido.
+- No das kilos ni cargas: eso lo calcula la app.
+- No das calorías, macros ni gramos. Cantidades por referencia visual
+  ("del tamaño de tu palma", "un plato hondo").
+- No prometés resultados ni plazos. No diagnosticás.
+- Nada de celebrar restricción ni déficit: hay riesgo de TCA.
 
 CÓMO ESCRIBÍS
-- Español de España, tuteando, frases cortas y concretas.
-- Nada de animadora de gimnasio. Nada de "¡tú puedes!".
-- El porqué de cada ejercicio en una frase, dirigido a ella.
+Español de España, tuteando, frases cortas. Nada de animadora de gimnasio.
 
-Devolvés SOLO JSON válido:
-{
-  "intro": "una frase sobre de qué va el día de hoy",
-  "elegidos": [{ "id": "<id de la lista>", "porque": "una frase" }]
-}`
+Devolvés SOLO este JSON:
+{"intro":"una frase sobre el día","ej":[{"id":"<de la lista>","s":<series>,"r":"<repes>","p":"por qué, una frase"}],"com":{"desayuno":"","almuerzo":"","merienda":"","cena":""},"nota":"una frase sobre la comida de hoy"}`
 
-function pedido({ perfil, restricciones, plantilla, pool, reglas }) {
-  const notas = reglas.notas.map((n) => `- ${n.t}: ${n.nota}`).join('\n')
-  const lista = pool
-    .map((e) => `${e.id} · ${e.n} · ${e.mus.join('/')} · ${e.eq} · ${e.mec}`)
-    .join('\n')
+/* Prompt corto a propósito: cada línea de la lista es lo mínimo
+   que la IA necesita para elegir bien. */
+function armarPedido({ perfil, plantilla, pool, reglas, lugar, series }) {
+  const notas = reglas.notas.map((n) => `${n.t}: ${n.nota}`).join(' · ')
+  const lista = pool.map((e) => `${e.id}|${e.n}|${e.mus[0]}`).join('\n')
+  const huecos = plantilla.huecos.map((h, i) => `${i + 1}.${h.papel}`).join(' ')
 
-  return `Clienta: ${perfil.edad || '?'} años, objetivo ${perfil.meta || 'sin definir'}.
-Entrena en: ${perfil.lugar === 'casa' ? 'casa' : 'gimnasio'}.
-${notas ? `Restricciones declaradas:\n${notas}\n` : 'Sin restricciones declaradas.\n'}
-Hoy toca: ${plantilla.t}. Huecos a llenar, en este orden:
-${plantilla.huecos.map((h, i) => `${i + 1}. ${h.papel}`).join('\n')}
+  return `${perfil.edad || '?'} años. Objetivo: ${perfil.meta || 'sin definir'}. Entrena en ${lugar}.
+${notas ? `Restricciones: ${notas}` : 'Sin restricciones.'}
+Come ${perfil.veces || '3'} veces al día. Le cuesta dejar: ${(perfil.cuesta || []).join(', ') || 'nada'}.
 
-LISTA CERRADA de ejercicios permitidos (elegí sólo de acá):
+Hoy: ${plantilla.t}. Huecos: ${huecos}. Series por ejercicio: ${series}.
+
+LISTA (id|nombre|músculo):
 ${lista}
 
-Elegí uno por hueco y escribí el porqué de cada uno.`
+Elegí uno por hueco, en orden, y armá las cuatro comidas del día.`
 }
 
 export default async function handler(req, res) {
@@ -76,69 +82,69 @@ export default async function handler(req, res) {
     if (!pasan.length) {
       return res.status(200).json({
         error: 'sin_opciones',
-        mensaje: 'Con lo que nos contaste no podemos armar un entreno sin riesgo. Esto lo arma Anto con vos.',
+        mensaje: 'Con lo que nos contaste no se puede armar un entreno sin riesgo. Esto lo arma Anto con vos.',
         revisar: true,
       })
     }
 
-    /* 1 · la elección segura, siempre */
+    /* 1 · la elección segura, que siempre existe */
     const base = elegir({ pasan, plantilla, lugar })
+    let elegidos = base.elegidos
+    let intro = null
+    let comidas = null
+    let nota = null
+    let porques = {}
+    let uso = null
+    let generado = false
 
     /* 2 · la IA afina, si hay clave */
-    let intro = null
-    let porques = {}
-    let generado = false
-    let elegidos = base.elegidos
-
-    const clave = process.env.GEMINI_API_KEY
-    if (clave && pasan.length > 5) {
+    if (proveedor() && pasan.length > 5) {
       try {
         const permitidos = new Set(pasan.map((e) => e.id))
-        const pool = pasan.slice(0, 40)
+        const pool = pasan.slice(0, 30)
+        const series = etapa <= 2 ? 3 : 4
 
-        const r = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/${MODELO}:generateContent`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'x-goog-api-key': clave },
-            body: JSON.stringify({
-              systemInstruction: { parts: [{ text: SISTEMA }] },
-              contents: [{ role: 'user', parts: [{ text: pedido({ perfil: { ...perfil, lugar }, restricciones, plantilla, pool, reglas }) }] }],
-              generationConfig: { temperature: 0.7, maxOutputTokens: 900, responseMimeType: 'application/json' },
-            }),
-          }
-        )
+        const { json: prop, uso: gasto } = await pedirJSON({
+          sistema: SISTEMA,
+          usuario: armarPedido({ perfil, plantilla, pool, reglas, lugar, series }),
+          maxTokens: 700,
+          temperatura: 0.7,
+        })
+        uso = gasto
 
-        if (r.ok) {
-          const j = await r.json()
-          const txt = j?.candidates?.[0]?.content?.parts?.[0]?.text
-          const prop = txt ? JSON.parse(txt) : null
+        /* 3 · verificación: ni un id fuera de la lista */
+        const ids = (prop?.ej || []).map((x) => x.id)
+        const valido =
+          ids.length >= 3 &&
+          ids.every((id) => permitidos.has(id)) &&
+          new Set(ids).size === ids.length
 
-          /* 3 · verificación: ni un id fuera de la lista */
-          const ids = (prop?.elegidos || []).map((x) => x.id)
-          const limpios = ids.length >= 3 &&
-            ids.every((id) => permitidos.has(id)) &&
-            new Set(ids).size === ids.length
-
-          if (limpios) {
-            const porId = Object.fromEntries(pasan.map((e) => [e.id, e]))
-            elegidos = prop.elegidos.map((x, i) => ({
-              ...porId[x.id],
-              papel: plantilla.huecos[i]?.papel || 'Extra',
-            }))
-            porques = Object.fromEntries(prop.elegidos.map((x) => [x.id, x.porque]))
-            intro = prop.intro || null
-            generado = true
-          }
+        if (valido) {
+          const porId = Object.fromEntries(pasan.map((e) => [e.id, e]))
+          elegidos = prop.ej.map((x, i) => ({
+            ...porId[x.id],
+            papel: plantilla.huecos[i]?.papel || 'Extra',
+          }))
+          porques = Object.fromEntries(prop.ej.map((x) => [x.id, x.p]))
+          intro = prop.intro || null
+          comidas = prop.com || null
+          nota = prop.nota || null
+          generado = true
+        } else {
+          console.warn('[plan] la IA devolvió ids fuera de la lista, se usa la elección determinista')
         }
-      } catch {
-        /* si algo falla, queda la elección determinista */
+      } catch (e) {
+        console.warn('[plan] sin IA:', String(e).slice(0, 120))
       }
     }
+
+    if (uso) console.log('[plan] coste', JSON.stringify(uso))
 
     return res.status(200).json({
       dia: { k: plantilla.k, t: plantilla.t },
       intro,
+      comidas,
+      nota,
       generado,
       revisar: reglas.revisar,
       obligaRevision: reglas.obligaRevision,
@@ -146,12 +152,10 @@ export default async function handler(req, res) {
       descartados,
       deCuantos: pasan.length,
       faltaron: base.faltaron,
+      uso,
       ejercicios: elegidos.map((e) => ({ ...paraLaApp(e, etapa), porque: porques[e.id] || null })),
     })
   } catch (e) {
     return res.status(500).json({ error: 'fallo', detalle: String(e).slice(0, 200) })
   }
 }
-
-/* la app necesita la lista de restricciones para el formulario */
-export const RESTRICCIONES_PUBLICAS = RESTRICCIONES

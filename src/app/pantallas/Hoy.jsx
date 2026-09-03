@@ -6,6 +6,7 @@ import Ejercicio from '../piezas/Ejercicio.jsx'
 import Icono from '../piezas/Icono.jsx'
 import MapaRecuperacion from '../piezas/MapaRecuperacion.jsx'
 import { usarPlan } from '../usarPlan.js'
+import Dictado from '../piezas/Dictado.jsx'
 
 const hoyNombre = () => DIAS_SEMANA[new Date().getDay()]
 
@@ -98,6 +99,42 @@ export default function Hoy({ st, upd }) {
     )
   }
 
+  /* Lo que dictó, volcado en el registro del día. Sólo se toca lo
+     que dijo: lo que no mencionó queda como estaba. */
+  const aplicarDictado = (d) => {
+    if (!d) return
+    const cambios = {}
+
+    if (d.comidas?.length) {
+      const sinTilde = (s) => (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
+      const nuevas = comidas.map((c) => {
+        const dicha = d.comidas.find((x) => sinTilde(x.cual) === sinTilde(c.h))
+        return dicha ? { ...c, t: dicha.que, hora: new Date().toTimeString().slice(0, 5), editando: false } : c
+      })
+      cambios.comidas = nuevas
+    }
+
+    if (d.agua) {
+      const porEnvase = { vaso: 0, botella: 1, litro: 2 }
+      const envase = porEnvase[d.agua.unidad] ?? agua.envase
+      cambios.agua = { envase, llenados: d.agua.cantidad }
+    }
+
+    if (d.movimiento) {
+      cambios.mov = { que: d.movimiento.que, min: d.movimiento.minutos || 0, enviado: true }
+    }
+
+    if (d.peso) {
+      cambios.registrosPeso = [...(st.registrosPeso || []), { kg: d.peso, cuando: Date.now() }]
+    }
+
+    if (d.nota) {
+      cambios.mensajes = [...(st.mensajes || []), { de: 'yo', t: d.nota, hora: new Date().toTimeString().slice(0, 5) }]
+    }
+
+    upd(cambios)
+  }
+
   /* ---------- helpers de comidas ---------- */
   const enviarComida = (i) => {
     const texto = (borradores[i] ?? comidas[i].t).trim()
@@ -124,6 +161,9 @@ export default function Hoy({ st, upd }) {
           </div>
         )}
       </div>
+
+      {/* contarlo hablando, en vez de rellenar cinco campos */}
+      <Dictado onDatos={aplicarDictado} />
 
       {/* cómo viene el cuerpo: de acá sale qué toca hoy */}
       <MapaRecuperacion recuperacion={recuperacion} hoy={zonasDeHoy} />
@@ -172,6 +212,22 @@ export default function Hoy({ st, upd }) {
 
       {/* 2 · comidas */}
       <Rotulo ic={Utensils}>2 · Qué comiste hoy</Rotulo>
+
+      {plan?.comidas && (
+        <div className="v sugerido">
+          <p className="mini-t" style={{ margin: '0 0 9px' }}>Lo que te propone Anto hoy</p>
+          {['desayuno', 'almuerzo', 'merienda', 'cena'].map((k) =>
+            plan.comidas[k] ? (
+              <div className="sug-fila" key={k}>
+                <span>{k}</span>
+                <b>{plan.comidas[k]}</b>
+              </div>
+            ) : null
+          )}
+          {plan.nota && <p className="sug-nota">{plan.nota}</p>}
+        </div>
+      )}
+
       <div className="v caja">
         {comidas.map((c, i) => {
           const llena = c.t && !c.editando
