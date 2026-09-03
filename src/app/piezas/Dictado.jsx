@@ -1,24 +1,25 @@
 import { useEffect, useRef, useState } from 'react'
-import { Mic, Square, Loader2, Check, X, Keyboard } from 'lucide-react'
+import { Mic, Square, Loader2, Check, X, Keyboard, ChevronDown } from 'lucide-react'
 
 /* ============================================================
    Contarlo en voz alta en vez de rellenar campos.
 
+   Va plegado: es un atajo, no la tarea principal del día, y
+   cerrado ocupa una línea. Abierto es donde se habla.
+
    El dictado lo hace el propio teléfono (SpeechRecognition del
    navegador): no se sube audio a ningún lado y no cuesta nada.
-   A la IA sólo le llega el texto, que es un puñado de palabras.
-
-   Si el navegador no sabe dictar, aparece el mismo cuadro para
-   escribir. No se pierde la función, cambia cómo se entra.
+   A la IA sólo le llega el texto.
    ============================================================ */
 
 const Reconocedor =
   typeof window !== 'undefined' ? window.SpeechRecognition || window.webkitSpeechRecognition : null
 
 export default function Dictado({ onDatos }) {
+  const [desplegado, setDesplegado] = useState(false)
   const [escuchando, setEscuchando] = useState(false)
   const [texto, setTexto] = useState('')
-  const [estado, setEstado] = useState('quieto') // quieto | oyendo | pensando | listo | error
+  const [estado, setEstado] = useState('quieto')
   const [escribir, setEscribir] = useState(!Reconocedor)
   const [resumen, setResumen] = useState(null)
   const rec = useRef(null)
@@ -84,95 +85,103 @@ export default function Dictado({ onDatos }) {
     setTexto('')
     setResumen(null)
     setEstado('quieto')
+    setDesplegado(false)
   }
 
   return (
-    <div className="v dictado">
-      {estado !== 'listo' && (
-        <>
-          <div className="dictado-cab">
-            <p className="mini-t" style={{ margin: 0 }}>Contámelo y yo lo anoto</p>
-            {Reconocedor && (
-              <button type="button" className="dictado-alt" onClick={() => setEscribir((x) => !x)}>
-                {escribir ? <><Mic size={12} /> hablar</> : <><Keyboard size={12} /> escribir</>}
-              </button>
-            )}
-          </div>
+    <div className={'dictado' + (desplegado ? ' abierto' : '')}>
+      <button type="button" className="dictado-barra" onClick={() => setDesplegado((x) => !x)}>
+        <span className="dictado-punta"><Mic size={15} /></span>
+        <span className="dictado-lema">
+          <b>Contámelo y yo lo anoto</b>
+          <small>Hablá una vez y se llena todo el día</small>
+        </span>
+        <ChevronDown size={16} style={{ transform: desplegado ? 'rotate(180deg)' : 'none', transition: 'transform .3s' }} />
+      </button>
 
-          {escribir ? (
-            <textarea
-              className="campo dictado-campo"
-              rows={3}
-              value={texto}
-              placeholder="Hoy almorcé pollo con arroz, tomé dos botellas y en el gimnasio hice 50 kilos en pecho…"
-              onChange={(ev) => setTexto(ev.target.value)}
-            />
-          ) : (
-            <button
-              type="button"
-              className={'dictado-boton' + (escuchando ? ' on' : '')}
-              onClick={escuchando ? parar : arrancar}
-            >
-              <span className="dictado-ic">
-                {escuchando ? <Square size={20} fill="currentColor" /> : <Mic size={22} />}
-              </span>
-              <b>{escuchando ? 'Tocá para parar' : 'Mantené y contame tu día'}</b>
-              {escuchando && <i className="dictado-onda" />}
-            </button>
+      {desplegado && (
+        <div className="dictado-panel">
+          {estado !== 'listo' && (
+            <>
+              {escribir ? (
+                <textarea
+                  className="campo dictado-campo"
+                  rows={3}
+                  value={texto}
+                  placeholder="Hoy almorcé pollo con arroz, tomé dos botellas y en el gimnasio hice 50 kilos en pecho…"
+                  onChange={(ev) => setTexto(ev.target.value)}
+                />
+              ) : (
+                <button
+                  type="button"
+                  className={'dictado-boton' + (escuchando ? ' on' : '')}
+                  onClick={escuchando ? parar : arrancar}
+                >
+                  <span className="dictado-ic">
+                    {escuchando ? <Square size={17} fill="currentColor" /> : <Mic size={19} />}
+                  </span>
+                  <b>{escuchando ? 'Tocá para parar' : 'Tocá y contame tu día'}</b>
+                </button>
+              )}
+
+              {Reconocedor && (
+                <button type="button" className="dictado-alt" onClick={() => setEscribir((x) => !x)}>
+                  {escribir ? <><Mic size={12} /> prefiero hablarlo</> : <><Keyboard size={12} /> prefiero escribirlo</>}
+                </button>
+              )}
+
+              {texto && <p className="dictado-txt">{texto}</p>}
+
+              {texto && estado !== 'pensando' && (
+                <button type="button" className="cta" onClick={mandar}>Anotalo por mí</button>
+              )}
+
+              {estado === 'pensando' && (
+                <p className="pista pensando"><Loader2 size={12} className="girando" /> Ordenando lo que dijiste…</p>
+              )}
+
+              {estado === 'error' && (
+                <p className="pista" style={{ margin: '10px 0 0' }}>
+                  No se pudo. Probá escribiéndolo con el botón de arriba.
+                </p>
+              )}
+            </>
           )}
 
-          {texto && <p className="dictado-txt">{texto}</p>}
-
-          {texto && estado !== 'pensando' && (
-            <button type="button" className="cta" onClick={mandar}>
-              Anotalo por mí
-            </button>
-          )}
-
-          {estado === 'pensando' && (
-            <p className="pista pensando"><Loader2 size={12} className="girando" /> Ordenando lo que dijiste…</p>
-          )}
-
-          {estado === 'error' && (
-            <p className="pista">
-              No se pudo. Probá escribiéndolo — el botón de arriba cambia a teclado.
-            </p>
-          )}
-        </>
-      )}
-
-      {estado === 'listo' && resumen && (
-        <>
-          <p className="mini-t" style={{ margin: '0 0 10px' }}>Esto entendí</p>
-          <div className="dictado-lista">
-            {resumen.comidas?.map((c, i) => (
-              <div className="dictado-dato" key={'c' + i}><span>{c.cual || 'comida'}</span><b>{c.que}</b></div>
-            ))}
-            {resumen.agua && (
-              <div className="dictado-dato"><span>agua</span><b>{resumen.agua.cantidad} × {resumen.agua.unidad}</b></div>
-            )}
-            {resumen.movimiento && (
-              <div className="dictado-dato"><span>movimiento</span><b>{resumen.movimiento.que}{resumen.movimiento.minutos ? ` · ${resumen.movimiento.minutos} min` : ''}</b></div>
-            )}
-            {resumen.series?.map((s, i) => (
-              <div className="dictado-dato" key={'s' + i}>
-                <span>{s.ejercicio}</span>
-                <b>{[s.kilos ? s.kilos + ' kg' : null, s.repeticiones ? s.repeticiones + ' repes' : null].filter(Boolean).join(' · ') || '—'}</b>
+          {estado === 'listo' && resumen && (
+            <>
+              <p className="mini-t" style={{ margin: '0 0 10px' }}>Esto entendí</p>
+              <div className="dictado-lista">
+                {resumen.comidas?.map((c, i) => (
+                  <div className="dictado-dato" key={'c' + i}><span>{c.cual || 'comida'}</span><b>{c.que}</b></div>
+                ))}
+                {resumen.agua && (
+                  <div className="dictado-dato"><span>agua</span><b>{resumen.agua.cantidad} × {resumen.agua.unidad}</b></div>
+                )}
+                {resumen.movimiento && (
+                  <div className="dictado-dato"><span>movimiento</span><b>{resumen.movimiento.que}{resumen.movimiento.minutos ? ` · ${resumen.movimiento.minutos} min` : ''}</b></div>
+                )}
+                {resumen.series?.map((s, i) => (
+                  <div className="dictado-dato" key={'s' + i}>
+                    <span>{s.ejercicio}</span>
+                    <b>{[s.kilos ? s.kilos + ' kg' : null, s.repeticiones ? s.repeticiones + ' repes' : null].filter(Boolean).join(' · ') || '—'}</b>
+                  </div>
+                ))}
+                {resumen.peso && <div className="dictado-dato"><span>tu peso</span><b>{resumen.peso} kg</b></div>}
+                {resumen.nota && <div className="dictado-nota">Para Anto: {resumen.nota}</div>}
               </div>
-            ))}
-            {resumen.peso && <div className="dictado-dato"><span>tu peso</span><b>{resumen.peso} kg</b></div>}
-            {resumen.nota && <div className="dictado-nota">Para Anto: {resumen.nota}</div>}
-          </div>
 
-          <div className="dictado-acciones">
-            <button type="button" className="cta liso" onClick={() => { setResumen(null); setEstado('quieto') }}>
-              <X size={14} /> No es eso
-            </button>
-            <button type="button" className="cta" onClick={confirmar}>
-              <Check size={14} /> Está bien
-            </button>
-          </div>
-        </>
+              <div className="dictado-acciones">
+                <button type="button" className="cta liso" onClick={() => { setResumen(null); setEstado('quieto') }}>
+                  <X size={14} /> No es eso
+                </button>
+                <button type="button" className="cta" onClick={confirmar}>
+                  <Check size={14} /> Está bien
+                </button>
+              </div>
+            </>
+          )}
+        </div>
       )}
     </div>
   )

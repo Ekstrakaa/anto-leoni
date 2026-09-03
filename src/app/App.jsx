@@ -54,6 +54,13 @@ function estadoInicial() {
       semana: 3,
       etapaActual: 2,
       adherenciaMedia: 72,
+      /* ?listo=1 deja el día terminado, para ver el estado de cierre */
+      ...(new URLSearchParams(location.search).get('listo')
+        ? {
+            comidas: COMIDAS_BASE.map((c) => ({ ...c, t: 'Anotado', hora: '13:00' })),
+            mov: { que: 'Caminata', min: 45, enviado: true },
+          }
+        : {}),
       /* ?lesion=cadera,hombro — para ver cómo cambia el entreno */
       restricciones: (new URLSearchParams(location.search).get('lesion') || 'ninguna').split(','),
     }
@@ -129,7 +136,7 @@ export default function App() {
               <span className="marca">FEEL&MOVE</span>
               <span className="yo">L</span>
             </div>
-            <p className="hola">
+            {!(enApp && st.vista === 'hoy') && <p className="hola">
               {enArranque ? (
                 <>Empecemos, <em>Lucía</em></>
               ) : st.etapa === 'armando' ? (
@@ -137,8 +144,8 @@ export default function App() {
               ) : (
                 <>Buenas, <em>Lucía</em></>
               )}
-            </p>
-            {sub && <p className="sub">{sub}</p>}
+            </p>}
+            {sub && !(enApp && st.vista === 'hoy') && <p className="sub">{sub}</p>}
           </header>
 
           {enArranque && (
