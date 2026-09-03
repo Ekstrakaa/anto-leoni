@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
-import { Check, Plus, Minus, Send, RotateCcw, Zap, Droplets, Utensils, Footprints, Dumbbell } from 'lucide-react'
-import { ENVASES, META_AGUA, RUTINAS, DIAS_SEMANA, diaDeHoy } from '../datos.js'
+import { Check, Plus, Minus, Send, RotateCcw, Zap, Droplets, Utensils, Footprints, Dumbbell, Loader2, ShieldAlert } from 'lucide-react'
+import { ENVASES, META_AGUA, DIAS_SEMANA } from '../datos.js'
 import { Rotulo, Chip } from '../piezas/comunes.jsx'
 import Ejercicio from '../piezas/Ejercicio.jsx'
 import Icono from '../piezas/Icono.jsx'
+import MapaRecuperacion from '../piezas/MapaRecuperacion.jsx'
+import { usarPlan } from '../usarPlan.js'
 
 const hoyNombre = () => DIAS_SEMANA[new Date().getDay()]
 
@@ -26,12 +28,32 @@ function Cuenta() {
 }
 
 export default function Hoy({ st, upd }) {
-  const { agua, comidas, mov, series, lugar, modoCorto, diaCerrado } = st
-  const foco = new URLSearchParams(location.search).get('foco')
-  const [abierto, setAbierto] = useState(() =>
-    foco === 'entreno' ? RUTINAS[st.lugar][diaDeHoy().idx].ejercicios[0].id : null
-  )
+  const { agua, comidas, mov, series, lugar, modoCorto, diaCerrado, recuperacion = {} } = st
+  const [abierto, setAbierto] = useState(null)
   const [borradores, setBorradores] = useState({})
+
+  /* El entreno de hoy lo arma el motor en el servidor: acá sólo
+     llegan los cinco que le tocan, ya filtrados por lo que declaró. */
+  const { plan, estado } = usarPlan({
+    perfil: st.perfil,
+    restricciones: st.restricciones?.length ? st.restricciones : ['ninguna'],
+    lugar,
+    nivel: st.etapaActual >= 3 ? 'Media' : 'Inicio',
+    etapa: st.etapaActual,
+    recuperacion,
+  })
+
+  const todos = plan?.ejercicios || []
+  const ejercicios = modoCorto ? todos.slice(0, 3) : todos
+  const zonasDeHoy = [...new Set(todos.map((e) => e.z))]
+
+  /* ?foco=entreno abre la app directamente en el entreno del día */
+  useEffect(() => {
+    if (new URLSearchParams(location.search).get('foco') !== 'entreno') return
+    if (!todos.length) return
+    const t = setTimeout(() => document.querySelector('.lugar')?.scrollIntoView({ block: 'start' }), 250)
+    return () => clearTimeout(t)
+  }, [todos.length])
 
   const ml = agua.llenados * ENVASES[agua.envase].ml
   const litros = (ml / 1000).toFixed(1).replace('.', ',')
@@ -43,13 +65,6 @@ export default function Hoy({ st, upd }) {
   if (agua.llenados === 0) pendientes.push('Anotar el agua')
   if (!mov.enviado) pendientes.push('Contar si te moviste')
 
-  const { idx, descanso } = diaDeHoy()
-  useEffect(() => {
-    if (foco !== 'entreno') return
-    setTimeout(() => document.querySelector('.lugar')?.scrollIntoView({ block: 'start' }), 700)
-  }, [])
-  const rutina = RUTINAS[lugar][idx]
-  const ejercicios = modoCorto ? rutina.ejercicios.slice(0, 3) : rutina.ejercicios
 
   /* ---------- día ya enviado ---------- */
   if (diaCerrado) {
@@ -109,6 +124,9 @@ export default function Hoy({ st, upd }) {
           </div>
         )}
       </div>
+
+      {/* cómo viene el cuerpo: de acá sale qué toca hoy */}
+      <MapaRecuperacion recuperacion={recuperacion} hoy={zonasDeHoy} />
 
       {/* 1 · agua */}
       <Rotulo ic={Droplets} extra="meta 2 L">1 · Agua</Rotulo>
@@ -249,44 +267,75 @@ export default function Hoy({ st, upd }) {
         )}
       </div>
 
-      {/* 4 · entreno del día */}
-      <Rotulo ic={Dumbbell} extra={rutina.dia}>4 · Tu entreno · {rutina.nombre}</Rotulo>
-      {descanso && (
-        <div className="v caja" style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-          <span className="dia-ic"><Icono nombre="Flame" size={18} /></span>
-          <p style={{ margin: 0, fontSize: 13, color: 'var(--crema-2)' }}>
-            Hoy toca descanso: una caminata alcanza. Este es tu próximo entreno, por si querés adelantarlo.
-          </p>
-        </div>
-      )}
+      {/* 4 · entreno del día, armado por el motor */}
+      <Rotulo ic={Dumbbell} extra={plan?.dia?.t || ''}>4 · Tu entreno de hoy</Rotulo>
+
       <div className="lugar">
         {['gimnasio', 'casa'].map((l) => (
           <button key={l} type="button" className={lugar === l ? 'on' : ''} onClick={() => { upd({ lugar: l }); setAbierto(null) }}>
-            {lugar === l && <span className="pastilla" layoutId="pastilla-lugar"  />}
             {l === 'gimnasio' ? 'En el gimnasio' : 'En casa'}
           </button>
         ))}
       </div>
-      <div className="v" style={{ padding: 0, overflow: 'hidden' }}>
-        {ejercicios.map((ej) => (
-          <Ejercicio
-            key={ej.id}
-            ej={ej}
-            hechas={series[ej.id] || []}
-            onSerie={(nuevas) => upd({ series: { ...series, [ej.id]: nuevas } })}
-            abierto={abierto === ej.id}
-            onAbrir={setAbierto}
-          />
-        ))}
-      </div>
-      <button
-        type="button"
-        className="cta liso"
-       
-        onClick={() => upd({ modoCorto: !modoCorto })}
-      >
+
+      {estado === 'pidiendo' && (
+        <div className="v caja bib-cargando">
+          <Loader2 size={18} className="girando" />
+          <p className="pista" style={{ margin: 0 }}>Armando tu entreno de hoy…</p>
+        </div>
+      )}
+
+      {estado === 'falla' && (
+        <div className="v caja">
+          <p className="pista" style={{ margin: 0 }}>
+            No se pudo armar el entreno ahora. Probá de nuevo con conexión.
+          </p>
+        </div>
+      )}
+
+      {plan?.revisar && (
+        <div className="v aviso-revisar">
+          <span className="aviso-ic"><ShieldAlert size={17} /></span>
+          <div>
+            <b>{plan.obligaRevision ? 'Esto lo cierra Anto con vos' : 'Pendiente de que lo vea Anto'}</b>
+            <p>
+              Por lo que nos contaste, dejamos fuera {plan.descartados} ejercicios y
+              elegimos entre {plan.deCuantos}. Es para reducir el riesgo, no es un alta
+              médica: que lo mire ella antes de que lo hagas.
+            </p>
+            {plan.notas?.map((n) => (
+              <span className="aviso-nota" key={n.t}><b>{n.t}:</b> {n.nota}</span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {plan?.intro && <p className="intro-dia">{plan.intro}</p>}
+
+      {ejercicios.length > 0 && (
+        <div className="v" style={{ padding: 0, overflow: 'hidden' }}>
+          {ejercicios.map((ej) => (
+            <Ejercicio
+              key={ej.id}
+              ej={ej}
+              hechas={series[ej.id] || []}
+              onSerie={(nuevas) => upd({ series: { ...series, [ej.id]: nuevas } })}
+              abierto={abierto === ej.id}
+              onAbrir={setAbierto}
+            />
+          ))}
+        </div>
+      )}
+
+      {plan?.faltaron?.length > 0 && (
+        <p className="pista">
+          No pudimos cubrir: {plan.faltaron.join(', ').toLowerCase()}. Anto lo completa a mano.
+        </p>
+      )}
+
+      <button type="button" className="cta liso" onClick={() => upd({ modoCorto: !modoCorto })}>
         <Zap size={15} />
-        {modoCorto ? 'Volver a la rutina completa' : 'Hoy no puedo · dame la versión corta'}
+        {modoCorto ? 'Volver al entreno completo' : 'Hoy no puedo · dame la versión corta'}
       </button>
 
       {/* cerrar el día */}
@@ -295,8 +344,14 @@ export default function Hoy({ st, upd }) {
         className="cta"
        
         disabled={pendientes.length> 0}
-        whileTap={{ scale: 0.97 }}
-        onClick={() => upd({ diaCerrado: true, diasCerrados: st.diasCerrados + 1 })}
+        onClick={() => {
+          /* al cerrar el día se marcan como cansadas las zonas que
+             se entrenaron: eso es lo que mueve el mapa mañana */
+          const ahora = Date.now()
+          const marcas = { ...recuperacion }
+          zonasDeHoy.forEach((z) => { marcas[z] = ahora })
+          upd({ diaCerrado: true, diasCerrados: st.diasCerrados + 1, recuperacion: marcas })
+        }}
       >
         {pendientes.length ? `Cerrar el día · te faltan ${pendientes.length}` : 'Cerrar el día y enviárselo a Anto'}
       </button>

@@ -33,7 +33,7 @@ export const TANDAS = [
     ],
   },
   {
-    dice: 'Última. Cómo te movés y qué tomás. Con esto ya te armo el plan.',
+    dice: 'Cómo te movés y qué tomás.',
     preguntas: [
       { k: 'mueve', t: '¿Cuánto te movés hoy por hoy?', opciones: ['Nada', '1 o 2 días', '3 o 4 días', 'Casi todos'] },
       { k: 'donde', t: '¿Dónde podés entrenar?', varias: true, opciones: ['Gimnasio', 'En casa', 'Al aire libre'] },
@@ -41,7 +41,41 @@ export const TANDAS = [
       { k: 'supl', t: '¿Tomás algún suplemento?', varias: true, opciones: ['Ninguno', 'Proteína', 'Creatina', 'Magnesio', 'Colágeno', 'Vitamina D', 'Omega 3'] },
     ],
   },
+  {
+    dice: 'Y la última, que es la que más me importa: ¿hay algo que tu cuerpo no pueda hacer? Con esto decido qué ejercicios NO te mando. Si no estás segura, marcalo igual — prefiero pasarme.',
+    preguntas: [
+      {
+        k: 'lesiones',
+        t: '¿Algo que deba saber antes de mandarte nada?',
+        varias: true,
+        opciones: [
+          'Nada, estoy bien', 'Cadera', 'Rodilla', 'Hombro', 'Espalda baja',
+          'Muñecas', 'Embarazo o posparto', 'Tensión alta',
+          'No puedo saltar', 'Me cuesta el suelo',
+        ],
+      },
+    ],
+  },
 ]
+
+/* La etiqueta que ve la persona y la clave que entiende el motor. */
+export const CLAVE_LESION = {
+  'Nada, estoy bien': 'ninguna',
+  Cadera: 'cadera',
+  Rodilla: 'rodilla',
+  Hombro: 'hombro',
+  'Espalda baja': 'espalda',
+  Muñecas: 'muneca',
+  'Embarazo o posparto': 'embarazo',
+  'Tensión alta': 'tension',
+  'No puedo saltar': 'impacto',
+  'Me cuesta el suelo': 'suelo',
+}
+
+export const clavesDeLesiones = (etiquetas = []) => {
+  const k = etiquetas.map((e) => CLAVE_LESION[e]).filter(Boolean)
+  return k.length ? k : ['ninguna']
+}
 
 export const NIVELES = [
   { n: 1, t: 'Te conozco', d: 'Contestaste las tres tandas. Ya sé con quién trabajo.' },

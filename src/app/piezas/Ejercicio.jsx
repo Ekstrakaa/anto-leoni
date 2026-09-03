@@ -4,7 +4,10 @@ import { Check, ChevronDown, Timer } from 'lucide-react'
 import Silueta from './Silueta.jsx'
 import { fotoEjercicio, NOMBRE_MUSCULO } from '../datos.js'
 
-const DESCANSO = 60 // segundos entre series
+const DESCANSO_POR_DEFECTO = 60
+
+/* El plan viejo guarda `musculo`, el que arma el motor guarda `m`. */
+export const musculoDe = (ej) => ej.musculo || ej.m
 
 /* Las dos fotos del ejercicio se alternan solas: inicio y final del movimiento. */
 function FotoDemo({ ej }) {
@@ -25,17 +28,17 @@ function FotoDemo({ ej }) {
           loading="lazy"
         />
       ))}
-      <span className="foto-et">{(NOMBRE_MUSCULO[ej.musculo] || ej.musculo).toUpperCase()}</span>
+      <span className="foto-et">{(NOMBRE_MUSCULO[musculoDe(ej)] || musculoDe(ej)).toUpperCase()}</span>
     </div>
   )
 }
 
 /* Cronómetro de descanso: arranca solo al marcar una serie. */
-function Descanso({ activo, onFin }) {
-  const [seg, setSeg] = useState(DESCANSO)
+function Descanso({ activo, onFin, segundos = DESCANSO_POR_DEFECTO }) {
+  const [seg, setSeg] = useState(segundos)
   useEffect(() => {
     if (!activo) return
-    setSeg(DESCANSO)
+    setSeg(segundos)
     const t = setInterval(() => {
       setSeg((s) => {
         if (s <= 1) { clearInterval(t); onFin(); return 0 }
@@ -78,7 +81,7 @@ export default function Ejercicio({ ej, hechas = [], onSerie, abierto, onAbrir }
         <span className="ejer-c">
           <b className="ejer-n">{ej.n}</b>
           <span className="ejer-d">
-            {ej.series} × {ej.repes} · {ej.peso}
+            {ej.series} × {ej.repes}{ej.peso ? ' · ' + ej.peso : ''}
           </span>
         </span>
         <motion.span className="ejer-v" animate={{ rotate: abierto ? 180 : 0 }}>
@@ -98,7 +101,7 @@ export default function Ejercicio({ ej, hechas = [], onSerie, abierto, onAbrir }
           >
             <div className="demo">
               <FotoDemo ej={ej} />
-              <Silueta musculo={ej.musculo} />
+              <Silueta musculo={musculoDe(ej)} />
             </div>
 
             <div className="series">
@@ -116,17 +119,27 @@ export default function Ejercicio({ ej, hechas = [], onSerie, abierto, onAbrir }
                 </motion.button>
               ))}
               <AnimatePresence>
-                {descansando && <Descanso activo={descansando} onFin={() => setDescansando(false)} />}
+                {descansando && <Descanso activo={descansando} segundos={ej.descanso || DESCANSO_POR_DEFECTO} onFin={() => setDescansando(false)} />}
               </AnimatePresence>
             </div>
 
-            <div className="pasos">
-              <ol>
-                {ej.pasos.map((p) => (
-                  <li key={p}>{p}</li>
-                ))}
-              </ol>
-            </div>
+            {ej.pasos?.length ? (
+              <div className="pasos">
+                <ol>
+                  {ej.pasos.map((p) => (
+                    <li key={p}>{p}</li>
+                  ))}
+                </ol>
+              </div>
+            ) : (
+              <div className="pasos">
+                {ej.porque && <p className="porque">{ej.porque}</p>}
+                <p className="pista" style={{ margin: 0 }}>
+                  Las dos fotos son el inicio y el final del movimiento. Si algo te
+                  molesta, paralo y escribile a Anto.
+                </p>
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>

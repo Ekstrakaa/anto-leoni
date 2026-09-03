@@ -127,8 +127,14 @@ const catalogo = crudo
     a.n.localeCompare(b.n, 'es')
   )
 
+/* El catálogo vive en el servidor, no en public/: la clienta nunca
+   descarga los 873. Sólo le llegan los cinco que le tocan hoy. */
 const salida = JSON.stringify(catalogo)
-writeFileSync(new URL('../public/ejercicios.json', import.meta.url), salida)
+writeFileSync(
+  new URL('../api/_catalogo.js', import.meta.url),
+  '/* GENERADO por herramientas/armar-ejercicios.mjs — no editar a mano. */\n' +
+    'export default ' + salida + '\n'
+)
 
 const limpios = catalogo.filter((e) => !e.crudo).length
 console.log('catálogo:', catalogo.length, 'ejercicios ·', (Buffer.byteLength(salida) / 1024).toFixed(0), 'KB')
