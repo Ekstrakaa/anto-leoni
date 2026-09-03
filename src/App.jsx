@@ -159,14 +159,98 @@ const QUIZ = [
 ];
 const TOTAL = QUIZ.length + 1; // + paso final (datos)
 
+/* -------------------- RESULTADO DEL TEST --------------------
+   Todo lo que lee la persona al terminar sale de aquí.
+   Para cambiar un texto no hace falta tocar el componente: se edita abajo. */
+
+const PERFIL = {
+  "Sin motivación": {
+    titulo: "Volver a empezar, en pequeño",
+    lectura: "No te falta información, te falta que arrancar no se sienta una montaña. En tu caso funciona mejor empezar por debajo de lo que crees que puedes y sostenerlo, que hacer una semana perfecta y desaparecer.",
+  },
+  "Estancado/a": {
+    titulo: "Tu cuerpo ya se acostumbró",
+    lectura: "Cuando haces siempre lo mismo, tu cuerpo deja de tener motivos para cambiar. No necesitas entrenar más horas: necesitas que lo que ya haces progrese.",
+  },
+  "Sin energía": {
+    titulo: "Antes de entrenar más, recuperar",
+    lectura: "Cuando falta energía, sumar entrenamientos casi siempre lo empeora. Primero ordenamos descanso, comidas e hidratación. El rendimiento viene detrás, no al revés.",
+  },
+  "Con ganas de un cambio": {
+    titulo: "Estás en el mejor momento para empezar",
+    lectura: "Las ganas son el recurso que más rápido se gasta. Lo importante ahora es convertirlas en algo que siga funcionando dentro de dos meses, cuando ya no estén.",
+  },
+};
+
+const SEMANA = {
+  "2-3 días": {
+    titulo: "3 días bien aprovechados",
+    lineas: [
+      "2 sesiones de fuerza de cuerpo completo",
+      "1 sesión de movilidad o una caminata larga",
+      "Con 3 días constantes se avanza. Con 6 irregulares, no.",
+    ],
+  },
+  "4-5 días": {
+    titulo: "4 días con estructura",
+    lineas: [
+      "3 sesiones de fuerza repartidas por zonas",
+      "1 sesión de movilidad, pilates o yoga",
+      "Caminar a diario, aunque sea poco",
+    ],
+  },
+  "Todos los días": {
+    titulo: "6 días y uno de descanso de verdad",
+    lineas: [
+      "4 sesiones de fuerza",
+      "2 sesiones suaves: movilidad, yoga o caminata",
+      "1 día de descanso real. No es opcional: es cuando el cuerpo cambia.",
+    ],
+  },
+  "Aún no lo sé": {
+    titulo: "Empezar por 3 y ajustar",
+    lineas: [
+      "3 sesiones a la semana para arrancar",
+      "Se sube cuando esas 3 ya salen solas",
+      "Mejor quedarse corta al principio que abandonar en la semana 3",
+    ],
+  },
+};
+
+const META_FOCO = {
+  "Perder grasa": "Fuerza para mantener el músculo y un déficit que puedas sostener. Sin dietas de choque.",
+  "Ganar fuerza": "Ejercicios básicos, subir la carga poco a poco y registrar lo que levantas.",
+  "Ganar energía": "Sueño, hidratación y comidas a horas regulares, antes que cualquier suplemento.",
+  "Mejorar mis hábitos": "Pocos hábitos a la vez y medidos. Tres sostenidos valen más que diez apuntados.",
+  "Sentirme mejor": "Constancia por encima de intensidad. El objetivo es que entrenar deje de costar.",
+  "Reconectar conmigo": "Movilidad, respiración y entrenar sin castigo. El cuerpo también se escucha.",
+};
+
+const MODALIDAD_TXT = {
+  "Online": "Seguimiento online y una clase privada por Zoom cada semana.",
+  "Presencial (Tenerife)": "Nos vemos en Tenerife Sur y ajusto la técnica contigo en cada sesión.",
+  "Combinado": "Presencial cuando puedas venir, y seguimiento online el resto de la semana.",
+  "Aún no lo sé": "Lo vemos juntas: según tus horarios te diré qué modalidad te va a costar menos sostener.",
+};
+
+function buildPlan(ans) {
+  const perfil = PERFIL[ans.estado] || PERFIL["Con ganas de un cambio"];
+  const semana = SEMANA[ans.tiempo] || SEMANA["Aún no lo sé"];
+  const metas = (ans.metas || []).filter((m) => META_FOCO[m]).slice(0, 3);
+  const modalidad = MODALIDAD_TXT[ans.modalidad] || MODALIDAD_TXT["Aún no lo sé"];
+  return { perfil, semana, metas, modalidad };
+}
+
 function Quiz() {
   const [step, setStep] = useState(0);
   const [ans, setAns] = useState({});
   const [form, setForm] = useState({ nombre: "", contacto: "" });
   const [done, setDone] = useState(false);
 
-  const isForm = step === QUIZ.length;
+  const isPlan = step === QUIZ.length;      // resultado: se ve antes de pedir el contacto
+  const isForm = step === QUIZ.length + 1;  // datos de contacto
   const s = QUIZ[step];
+  const plan = isPlan || isForm || done ? buildPlan(ans) : null;
 
   const pick = (id, val, multi) => {
     setAns((a) => {
@@ -174,15 +258,23 @@ function Quiz() {
       const cur = a[id] || [];
       return { ...a, [id]: cur.includes(val) ? cur.filter((x) => x !== val) : [...cur, val] };
     });
-    if (!multi) setTimeout(() => setStep((x) => Math.min(QUIZ.length, x + 1)), 380);
+    // Avanzamos sólo si seguimos en la pregunta desde la que se pulsó.
+    // Si no, un doble toque programaba dos avances y se saltaba una pregunta entera.
+    if (!multi) {
+      const desde = step;
+      const siguiente = Math.min(QUIZ.length, desde + 1);
+      setTimeout(() => setStep((x) => (x === desde ? siguiente : x)), 380);
+    }
   };
 
   const canNext = isForm
     ? form.nombre.trim() && form.contacto.trim()
+    : isPlan ? true
     : s.type === "multi" ? (ans[s.id]?.length > 0) : !!ans[s.id];
 
   const buildMsg = () => {
     const L = ["¡Hola Anto! Hice el test de Feel&Move y quiero mi plan 💪"];
+    if (plan) L.push(`• Mi punto de partida: ${plan.perfil.titulo}`);
     if (ans.estado) L.push(`• Cómo me siento: ${ans.estado}`);
     if (ans.metas?.length) L.push(`• Quiero lograr: ${ans.metas.join(", ")}`);
     if (ans.tiempo) L.push(`• Tiempo disponible: ${ans.tiempo}`);
@@ -205,7 +297,7 @@ function Quiz() {
         <div className="quiz__toprow">
           <span className="quiz__step">
             <span className="quiz__pulse" />
-            Paso <b>{Math.min(step + 1, TOTAL)}</b> de {TOTAL}
+            {isPlan ? "Tu resultado" : <>Paso <b>{Math.min(step + 1, TOTAL)}</b> de {TOTAL}</>}
           </span>
           <span className="quiz__pct">{pct}%</span>
         </div>
@@ -235,6 +327,44 @@ function Quiz() {
             <button className="quiz__restart" onClick={() => { setDone(false); setStep(0); setAns({}); setForm({ nombre: "", contacto: "" }); }}>
               Volver a empezar
             </button>
+          </div>
+        ) : isPlan ? (
+          <div className="stepin plan">
+            <p className="plan__eyebrow">Tu punto de partida</p>
+            <h3 className="plan__title">{plan.perfil.titulo}</h3>
+            <p className="plan__lead">{plan.perfil.lectura}</p>
+
+            <div className="plan__block">
+              <h4 className="plan__h">Tu semana · {plan.semana.titulo}</h4>
+              <ul className="plan__list">
+                {plan.semana.lineas.map((l) => (
+                  <li key={l}><span className="plan__tick"><Check size={11} strokeWidth={3.4} /></span><span>{l}</span></li>
+                ))}
+              </ul>
+            </div>
+
+            {plan.metas.length > 0 && (
+              <div className="plan__block">
+                <h4 className="plan__h">En qué nos centraríamos</h4>
+                <ul className="plan__list">
+                  {plan.metas.map((m) => (
+                    <li key={m}>
+                      <span className="plan__tick"><Check size={11} strokeWidth={3.4} /></span>
+                      <span><b>{m}.</b> {META_FOCO[m]}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            <div className="plan__block plan__block--soft">
+              <h4 className="plan__h">Cómo trabajaríamos</h4>
+              <p className="plan__p">{plan.modalidad}</p>
+            </div>
+
+            <p className="plan__note">
+              Es un punto de partida orientativo, armado con tus respuestas. Tu plan real lo ajusto yo, contigo.
+            </p>
           </div>
         ) : isForm ? (
           <div className="stepin">
@@ -285,6 +415,10 @@ function Quiz() {
           {isForm ? (
             <button className="btn btn--wine" disabled={!canNext} onClick={submit}>
               <MessageCircle size={18} /> Recibir mi propuesta
+            </button>
+          ) : isPlan ? (
+            <button className="btn btn--wine" onClick={() => setStep((x) => x + 1)}>
+              Que Anto me lo revise <ArrowRight size={18} />
             </button>
           ) : s.type === "multi" ? (
             <button className="btn btn--wine" disabled={!canNext} onClick={() => setStep((x) => x + 1)}>
@@ -1059,6 +1193,22 @@ function Styles() {
     .quiz__field input:focus{outline:none;border-color:var(--sand);background:rgba(245,239,228,.12);box-shadow:0 0 0 4px rgba(241,184,206,.14)}
 
     /* FINAL con destellos */
+    /* --- Resultado del test --- */
+    .plan{text-align:left}
+    .plan__eyebrow{font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--sand);margin:0 0 8px}
+    .plan__title{font-family:var(--serif);font-weight:400;font-size:clamp(24px,3.2vw,34px);line-height:1.12;margin:0 0 12px;color:var(--cream)}
+    .plan__lead{color:rgba(245,239,228,.82);margin:0 0 22px;font-size:15.5px;line-height:1.6}
+    .plan__block{border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);border-radius:16px;padding:16px 18px;margin-bottom:12px;animation:stepin .5s var(--ease) both}
+    .plan__block:nth-of-type(2){animation-delay:.06s}
+    .plan__block:nth-of-type(3){animation-delay:.12s}
+    .plan__block--soft{background:rgba(255,255,255,.03)}
+    .plan__h{font-size:11.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--sand);margin:0 0 11px}
+    .plan__list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:9px}
+    .plan__list li{display:flex;gap:10px;align-items:flex-start;color:rgba(245,239,228,.88);font-size:14.5px;line-height:1.5}
+    .plan__list b{color:var(--cream);font-weight:700}
+    .plan__tick{flex:none;width:18px;height:18px;border-radius:50%;background:var(--grad);color:#fff;display:inline-flex;align-items:center;justify-content:center;margin-top:2px}
+    .plan__p{margin:0;color:rgba(245,239,228,.88);font-size:14.5px;line-height:1.55}
+    .plan__note{margin:16px 0 0;font-size:12.5px;line-height:1.5;color:rgba(245,239,228,.55)}
     .quiz__done{text-align:center;padding:26px 0;animation:stepin .55s var(--ease)}
     .quiz__doneicon{position:relative;display:inline-flex;width:66px;height:66px;border-radius:50%;background:var(--grad);color:#fff;align-items:center;justify-content:center;margin-bottom:12px;box-shadow:0 20px 44px -14px rgba(236,95,134,.75);animation:pop .6s var(--ease) both}
     @keyframes pop{0%{transform:scale(.3) rotate(-20deg);opacity:0}55%{transform:scale(1.12) rotate(4deg)}100%{transform:scale(1) rotate(0);opacity:1}}

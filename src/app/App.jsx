@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Flame, Dumbbell, TrendingUp, MessageCircle } from 'lucide-react'
+import { Flame, Dumbbell, TrendingUp, MessageCircle, LibraryBig } from 'lucide-react'
 import { TANDAS, COMIDAS_BASE, ELEGIDO_BASE, DIAS_SEMANA } from './datos.js'
 import Entrada from './pantallas/Entrada.jsx'
 import { Tanda, Armando } from './pantallas/Arranque.jsx'
@@ -8,6 +8,7 @@ import Hoy from './pantallas/Hoy.jsx'
 import Plan from './pantallas/Plan.jsx'
 import Progreso from './pantallas/Progreso.jsx'
 import Anto from './pantallas/Anto.jsx'
+import Biblioteca from './pantallas/Biblioteca.jsx'
 
 const CLAVE = 'feelmove_v1'
 
@@ -41,7 +42,7 @@ function estadoInicial() {
     const lleno = {
       ...BASE,
       etapa: demo === 'arranque' ? 'arranque' : 'app',
-      vista: ['hoy', 'plan', 'progreso', 'anto'].includes(demo) ? demo : 'hoy',
+      vista: ['hoy', 'plan', 'biblioteca', 'progreso', 'anto'].includes(demo) ? demo : 'hoy',
       perfil: { edad: 34, peso: 72, altura: 165, meta: 'Bajar grasa' },
       resp: { levanta: '6 a 8', desayuna: 'Casi nunca', veces: '2', cuesta: ['Dulce', 'Picar entre horas'], mueve: 'Nada', donde: ['Gimnasio'], agua: 'Menos de 1 L', supl: ['Proteína'] },
       agua: { envase: 1, llenados: 3 },
@@ -95,11 +96,12 @@ export default function App() {
     ? `Tanda ${st.tanda + 1} de ${TANDAS.length} · un minuto en total`
     : st.etapa === 'armando'
       ? ''
-      : { hoy: `${hoy} · nivel 2`, plan: 'Hecho con tus respuestas', progreso: 'Semana a semana', anto: 'Ella, del otro lado' }[st.vista]
+      : { hoy: `${hoy} · nivel 2`, plan: 'Hecho con tus respuestas', biblioteca: '873 ejercicios con fotos', progreso: 'Semana a semana', anto: 'Ella, del otro lado' }[st.vista]
 
   const NAV = [
     { k: 'hoy', t: 'Hoy', I: Flame },
     { k: 'plan', t: 'Mi plan', I: Dumbbell },
+    { k: 'biblioteca', t: 'Ejercicios', I: LibraryBig },
     { k: 'progreso', t: 'Progreso', I: TrendingUp },
     { k: 'anto', t: 'Anto', I: MessageCircle },
   ]
@@ -162,6 +164,7 @@ export default function App() {
               <div key={st.vista} className="anima">
                   {st.vista === 'hoy' && <Hoy st={st} upd={upd} />}
                   {st.vista === 'plan' && <Plan st={st} upd={upd} irAnto={() => upd({ vista: 'anto' })} />}
+                  {st.vista === 'biblioteca' && <Biblioteca irAnto={() => upd({ vista: 'anto' })} />}
                   {st.vista === 'progreso' && <Progreso st={st} upd={upd} />}
                   {st.vista === 'anto' && <Anto st={st} upd={upd} onReiniciar={reiniciar} />}
                 </div>

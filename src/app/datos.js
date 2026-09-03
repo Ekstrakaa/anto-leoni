@@ -131,7 +131,7 @@ export const ELEGIDO_BASE = { desayuno: 'fruta', almuerzo: 'pollo', merienda: 'f
 
 /* ---------- Ejercicios: Free Exercise DB ---------- */
 
-const EJ = 'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/'
+const EJ = 'https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@main/exercises/'
 export const fotoEjercicio = (id, n) => `${EJ}${encodeURIComponent(id)}/${n}.jpg`
 
 /* Rutina semanal: tres días con nombre, para gimnasio y para casa.
