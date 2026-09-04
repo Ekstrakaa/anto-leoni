@@ -1,7 +1,9 @@
+import { useState } from 'react'
 import {
   Check, MessageCircle, Sparkles, Coffee, Salad, Cookie, Moon, Pill,
-  CalendarDays, Target, TrendingUp, Lock, Loader2,
+  CalendarDays, Target, TrendingUp, Lock, Loader2, FileDown,
 } from 'lucide-react'
+import Hoja from './Hoja.jsx'
 import { MENU, ANTO, baja } from '../datos.js'
 import { DIAS_DE_LA_SEMANA } from '../restricciones.js'
 import { ETAPAS, faltaParaSubir, retoDeLaSemana } from '../progresion.js'
@@ -27,6 +29,8 @@ function Plato({ o, on, onPick }) {
 
 export default function Plan({ st, upd, irAnto }) {
   const { perfil, resp, elegido, lugar, diasCerrados, semana, adherenciaMedia } = st
+  /* ?hoja=1 la abre directo, para poder enseñarla */
+  const [verHoja, setVerHoja] = useState(() => new URLSearchParams(location.search).has('hoja'))
 
   const { plan, estado } = usarCoach({ perfil, resp, registro: { diasCerrados, adherencia: adherenciaMedia } })
 
@@ -104,6 +108,17 @@ export default function Plan({ st, upd, irAnto }) {
           <p>Uno solo. Cuando salga sin pensarlo, sumamos el siguiente.</p>
         </div>
       )}
+
+      {/* La hoja es lo único que la persona se lleva de la app.
+         Se guarda con el propio navegador: en el teléfono aparece
+         "Guardar en PDF" y no cuesta ni una llamada a la IA. */}
+      <button type="button" className="v crema hoja-boton" onClick={() => setVerHoja(true)}>
+        <span className="hoja-boton-ic"><FileDown size={19} /></span>
+        <span className="hoja-boton-t">
+          <b>Llevate tu semana en papel</b>
+          <small>Comidas, entreno y tu reto. Para la nevera, o guardada en PDF.</small>
+        </span>
+      </button>
 
       {/* --- comidas --- */}
       {MENU.map((m) => (
@@ -189,6 +204,8 @@ export default function Plan({ st, upd, irAnto }) {
         ))}
         {etapa.n === 4 && <p className="pista" style={{ margin: 0 }}>Llegaste a la última etapa. De acá en adelante es sostenerlo.</p>}
       </div>
+
+      {verHoja && <Hoja st={st} plan={plan} onCerrar={() => setVerHoja(false)} />}
     </div>
   )
 }

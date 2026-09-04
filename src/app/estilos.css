@@ -18,6 +18,20 @@
   --grad: linear-gradient(112deg, #6d3fd9, #b93b94, #e5417a, #f08a4b);
   --vidrio: rgba(247, 241, 230, 0.055);
   --vidrio-2: rgba(247, 241, 230, 0.09);
+
+  /* Superficies SÓLIDAS. El vidrio transparente sobre un degradado
+     no tiene bordes ni peso: por eso parecía una página a medio
+     hacer. Estas tienen cara, canto y sombra propia. */
+  --sup: #241547;
+  --sup-alta: #2f1b59;
+  --sup-baja: #1c1038;
+  --canto: rgba(11, 4, 26, 0.75);
+
+  /* La crema deja de ser sólo tinta y pasa a ser superficie. */
+  --crema-sup: #f3e9da;
+  --tinta: #241241;
+  --tinta-2: rgba(36, 18, 65, 0.66);
+  --tinta-3: rgba(36, 18, 65, 0.42);
   --serif: 'Fraunces', Georgia, serif;
   --sans: 'Manrope', system-ui, -apple-system, sans-serif;
   --ease: cubic-bezier(0.16, 0.84, 0.32, 1);
@@ -988,3 +1002,254 @@ a.cta { text-decoration: none; }
 .reto-meta { display: flex; flex-direction: column; align-items: center; flex: none; }
 .reto-meta b { font-family: var(--serif); font-size: 20px; font-weight: 600; line-height: 1; color: var(--coral); }
 .reto-meta i { font-style: normal; font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--crema-3); margin-top: 2px; }
+
+/* ============================================================
+   MATERIAL — de vidrio transparente a superficie con cuerpo
+
+   Todo era `rgba(247,241,230,.055)` con blur: sobre un fondo
+   degradado eso no tiene borde ni peso, y por eso se leía como
+   un esqueleto sin terminar.
+
+   Cada tarjeta ahora tiene cuatro capas de luz:
+     1. una línea clara arriba  — de dónde viene la luz
+     2. una sombra interior abajo — el hueco de la propia pieza
+     3. un canto sólido debajo  — el grosor, lo que la hace tocable
+     4. la sombra proyectada    — cuánto flota sobre el fondo
+   Al apretarla el canto desaparece y la pieza se hunde.
+   ============================================================ */
+
+.v,
+.paso-caja,
+.dictado-panel,
+.etapa-card,
+.reto-card,
+.dia-card,
+.objetivo,
+.racha,
+.racha-grande {
+  background: linear-gradient(170deg, var(--sup-alta) 0%, var(--sup) 56%, var(--sup-baja) 100%);
+  border: 1px solid rgba(247, 241, 230, 0.085);
+  border-radius: 22px;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  box-shadow:
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.11),
+    inset 0 -20px 30px -24px rgba(0, 0, 0, 1),
+    0 2px 0 var(--canto),
+    0 16px 30px -14px rgba(8, 3, 20, 0.8);
+}
+
+/* la crema: se usa poco y a propósito, para lo que tiene que mirar */
+.v.crema, .racha {
+  background: linear-gradient(170deg, #fdf8f0 0%, var(--crema-sup) 60%, #e7dac6 100%);
+  border-color: rgba(120, 90, 55, 0.18);
+  color: var(--tinta);
+  box-shadow:
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -16px 26px -22px rgba(120, 80, 40, 0.5),
+    0 2px 0 rgba(150, 115, 75, 0.32),
+    0 16px 30px -14px rgba(8, 3, 20, 0.6);
+}
+.v.crema b, .v.crema h3, .racha b { color: var(--tinta); }
+.v.crema p, .v.crema span, .racha span:not(.racha-n) { color: var(--tinta-2); }
+.v.crema .mini-t, .v.crema .pista { color: var(--tinta-3); }
+
+/* el canto también en la barra de dictado y en el aviso */
+.dictado-barra, .aviso-revisar, .sugerido {
+  box-shadow:
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.1),
+    0 2px 0 rgba(11, 4, 26, 0.5),
+    0 12px 24px -14px rgba(8, 3, 20, 0.7);
+}
+
+/* ---------- los botones se aprietan como un caramelo ---------- */
+
+.cta {
+  border-radius: 100px;
+  box-shadow:
+    inset 0 1.6px 0 rgba(255, 255, 255, 0.3),
+    0 3px 0 rgba(116, 22, 62, 0.62),
+    0 16px 30px -13px rgba(229, 65, 122, 0.78);
+  transition: transform 0.14s var(--ease), box-shadow 0.14s var(--ease);
+}
+.cta:active:not(:disabled) {
+  transform: translateY(3px);
+  box-shadow:
+    inset 0 1.6px 0 rgba(255, 255, 255, 0.22),
+    0 0 0 rgba(116, 22, 62, 0.62),
+    0 6px 14px -9px rgba(229, 65, 122, 0.6);
+}
+.cta.liso {
+  background: linear-gradient(170deg, var(--sup-alta), var(--sup-baja));
+  border: 1px solid rgba(247, 241, 230, 0.1);
+  -webkit-backdrop-filter: none; backdrop-filter: none;
+  box-shadow:
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.09),
+    0 2px 0 var(--canto),
+    0 10px 20px -12px rgba(8, 3, 20, 0.8);
+}
+.cta.liso:active { transform: translateY(2px); box-shadow: inset 0 1.5px 0 rgba(255, 255, 255, 0.06), 0 0 0, 0 5px 12px -9px rgba(8, 3, 20, 0.8); }
+.cta:disabled { opacity: 1; }
+
+/* las fichas y pastillas también tienen canto */
+.chip, .env button, .lugar button, .tocar, .enviar, .adj, .serie {
+  transition: transform 0.14s var(--ease), box-shadow 0.14s var(--ease), background 0.2s;
+}
+.chip:active, .env button:active, .lugar button:active, .tocar:active, .enviar:active, .adj:active {
+  transform: translateY(2px) scale(0.985);
+}
+.chip.on, .env button.on, .lugar button.on {
+  box-shadow: inset 0 1.4px 0 rgba(255, 255, 255, 0.28), 0 2px 0 rgba(116, 22, 62, 0.5), 0 10px 20px -11px rgba(229, 65, 122, 0.8);
+}
+
+/* la marca del paso, con volumen */
+.paso-marca {
+  box-shadow: inset 0 1.4px 0 rgba(255, 255, 255, 0.16), 0 2px 0 rgba(11, 4, 26, 0.5);
+}
+.paso-hecho .paso-marca {
+  box-shadow: inset 0 1.5px 0 rgba(255, 255, 255, 0.5), 0 2px 0 rgba(14, 82, 58, 0.7), 0 8px 18px -8px rgba(87, 214, 168, 0.85);
+}
+.paso-actual .paso-marca {
+  box-shadow: inset 0 1.5px 0 rgba(255, 255, 255, 0.32), 0 2px 0 rgba(116, 22, 62, 0.6), 0 10px 22px -8px rgba(229, 65, 122, 0.95);
+}
+
+/* el fondo se hunde un poco más para que las piezas floten */
+.velo {
+  background: linear-gradient(180deg, rgba(15, 6, 32, 0.42) 0%, rgba(15, 6, 32, 0.7) 46%, rgba(13, 5, 28, 0.93) 100%);
+}
+.nav {
+  background: #170b2f;
+  box-shadow: 0 -12px 26px -18px rgba(0, 0, 0, 0.95);
+}
+
+/* ============================================================
+   LA HOJA IMPRIMIBLE
+
+   En crema con tinta oscura: está pensada para salir por una
+   impresora, y la pantalla oscura de la app se comería la tinta.
+   Se guarda con el propio navegador — en el teléfono aparece
+   "Guardar en PDF" y no cuesta nada.
+   ============================================================ */
+
+.hoja-manta {
+  position: fixed; inset: 0; z-index: 60; overflow-y: auto;
+  background: #0d0520;
+  animation: aparecer 0.25s var(--ease);
+}
+
+.hoja-barra {
+  position: sticky; top: 0; z-index: 2;
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: calc(12px + env(safe-area-inset-top)) 16px 12px;
+  background: rgba(13, 5, 32, 0.92);
+  -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(247, 241, 230, 0.1);
+}
+.hoja-barra > span { font-size: 12px; font-weight: 700; color: var(--crema-2); }
+.hoja-barra > button:first-child {
+  width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center;
+  background: rgba(247, 241, 230, 0.09); color: var(--crema);
+}
+.hoja-imprimir {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 9px 15px; border-radius: 100px; font-size: 12.5px; font-weight: 800; color: #fff;
+  background: var(--grad);
+  box-shadow: inset 0 1.4px 0 rgba(255, 255, 255, 0.3), 0 2px 0 rgba(116, 22, 62, 0.6);
+}
+
+.hoja {
+  display: block; max-width: 640px; margin: 16px auto 40px; padding: 30px 28px 24px;
+  background: linear-gradient(172deg, #fdf8f0, #f1e6d5);
+  color: var(--tinta); border-radius: 20px;
+  box-shadow: 0 26px 60px -22px rgba(0, 0, 0, 0.9);
+  font-size: 13.5px; line-height: 1.5;
+}
+
+.hoja-cab { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding-bottom: 18px; border-bottom: 2px solid rgba(36, 18, 65, 0.14); }
+.hoja-marca { display: block; font-size: 9.5px; font-weight: 800; letter-spacing: 0.17em; text-transform: uppercase; color: var(--tinta-3); }
+.hoja-cab h1 { margin: 7px 0 4px; font-family: var(--serif); font-size: 32px; font-weight: 600; line-height: 1; letter-spacing: -0.02em; }
+.hoja-cab p { margin: 0; font-size: 12px; color: var(--tinta-2); }
+.hoja-sello {
+  flex: none; width: 62px; height: 62px; border-radius: 50%; display: grid; place-content: center;
+  text-align: center; background: var(--grad); color: #fff;
+}
+.hoja-sello b { display: block; font-family: var(--serif); font-size: 24px; font-weight: 600; line-height: 1; }
+.hoja-sello span { font-size: 9px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.9; }
+
+.hoja-objetivo {
+  margin: 18px 0; padding: 15px 17px; border-radius: 14px;
+  background: rgba(109, 63, 217, 0.09); border: 1.5px solid rgba(109, 63, 217, 0.28);
+}
+.hoja-objetivo span { font-size: 9.5px; font-weight: 800; letter-spacing: 0.13em; text-transform: uppercase; color: var(--violeta); }
+.hoja-objetivo b { display: block; margin: 5px 0 4px; font-family: var(--serif); font-size: 21px; font-weight: 600; line-height: 1.15; }
+.hoja-objetivo p { margin: 0; font-size: 12px; color: var(--tinta-2); }
+
+.hoja-bloque { margin-top: 22px; }
+.hoja-bloque h2 {
+  margin: 0 0 11px; font-size: 10px; font-weight: 800; letter-spacing: 0.15em;
+  text-transform: uppercase; color: var(--magenta);
+}
+
+.hoja-reto { padding: 14px 16px; border-radius: 13px; background: rgba(240, 138, 75, 0.11); border: 1px solid rgba(240, 138, 75, 0.3); }
+.hoja-reto b { font-size: 15px; }
+.hoja-reto > span { display: block; font-size: 12.5px; color: var(--tinta-2); margin-top: 2px; }
+.hoja-casillas { display: flex; gap: 7px; margin: 11px 0 6px; }
+.hoja-casillas i { width: 26px; height: 26px; border-radius: 7px; border: 1.6px solid rgba(36, 18, 65, 0.3); background: rgba(255, 255, 255, 0.55); }
+.hoja-reto small { font-size: 10.5px; color: var(--tinta-3); }
+
+.hoja-tabla { width: 100%; border-collapse: collapse; }
+.hoja-tabla th {
+  text-align: left; vertical-align: top; width: 34%; padding: 10px 12px 10px 0;
+  font-size: 10.5px; font-weight: 800; letter-spacing: 0.07em; text-transform: uppercase;
+  color: var(--tinta-3); border-top: 1px solid rgba(36, 18, 65, 0.13);
+}
+.hoja-tabla td { padding: 10px 0; border-top: 1px solid rgba(36, 18, 65, 0.13); }
+.hoja-tabla td b { display: block; font-size: 14px; }
+.hoja-tabla td span { display: block; font-size: 11.5px; color: var(--tinta-2); margin-top: 2px; }
+
+.hoja-dias { display: grid; gap: 9px; }
+.hoja-dia { padding: 12px 14px; border-radius: 12px; background: rgba(36, 18, 65, 0.05); border: 1px solid rgba(36, 18, 65, 0.12); }
+.hoja-dia b { display: block; font-size: 14px; }
+.hoja-dia span { display: block; font-size: 11.5px; color: var(--tinta-2); margin-top: 2px; }
+.hoja-dia small { display: block; font-size: 10.5px; color: var(--tinta-3); margin-top: 4px; }
+.hoja-nota { margin: 11px 0 0; font-size: 11.5px; color: var(--tinta-3); line-height: 1.5; }
+
+.hoja-cuidado { padding: 15px 17px; border-radius: 14px; background: rgba(229, 65, 122, 0.07); border: 1.5px solid rgba(229, 65, 122, 0.26); }
+.hoja-cuidado p { margin: 0 0 6px; font-size: 12.5px; }
+.hoja-aviso { color: var(--tinta-3); font-size: 11.5px !important; margin-top: 9px !important; }
+
+.hoja-pie {
+  display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  margin-top: 26px; padding-top: 14px; border-top: 2px solid rgba(36, 18, 65, 0.14);
+  font-size: 10.5px; color: var(--tinta-3);
+}
+
+/* ---------- lo que sale por la impresora ---------- */
+
+@media print {
+  @page { margin: 14mm; }
+  body { background: #fff; }
+  .marco, .cielo, .velo, .grano, .no-imprimir, .nav, .pie, .top { display: none !important; }
+  .hoja-manta { position: static; background: #fff; overflow: visible; animation: none; }
+  .hoja {
+    max-width: none; margin: 0; padding: 0; border-radius: 0;
+    background: #fff; box-shadow: none; color: #16092b;
+  }
+  .hoja-sello { background: #16092b !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .hoja-objetivo, .hoja-reto, .hoja-cuidado, .hoja-dia { break-inside: avoid; }
+  .hoja-bloque { break-inside: avoid; }
+}
+
+/* el botón que lleva a la hoja: en crema, porque lo que ofrece es papel */
+.hoja-boton {
+  display: flex; align-items: center; gap: 13px; width: 100%; text-align: left;
+  padding: 15px 16px; margin-bottom: 14px;
+}
+.hoja-boton-ic {
+  flex: none; width: 40px; height: 40px; border-radius: 13px; display: grid; place-items: center;
+  background: var(--grad); color: #fff;
+  box-shadow: inset 0 1.4px 0 rgba(255, 255, 255, 0.3), 0 2px 0 rgba(116, 22, 62, 0.5);
+}
+.hoja-boton-t { flex: 1; min-width: 0; }
+.hoja-boton-t b { display: block; font-size: 14px; color: var(--tinta); }
+.hoja-boton-t small { display: block; font-size: 11.5px; color: var(--tinta-2); margin-top: 2px; line-height: 1.4; }
