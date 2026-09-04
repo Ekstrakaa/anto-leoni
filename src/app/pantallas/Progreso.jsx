@@ -1,18 +1,32 @@
 import { useMemo, useState } from 'react'
-import { Check, Plus, Minus, Activity, Scale, Trophy } from 'lucide-react'
-import { NIVELES } from '../datos.js'
+import { Check, Plus, Minus, Activity, Scale, Flame, Trophy } from 'lucide-react'
+import { ETAPAS } from '../progresion.js'
 import { Rotulo } from '../piezas/comunes.jsx'
 
-/* Serie de arranque, marcada como ejemplo hasta que haya registros reales. */
-const DEMO = [
-  { et: 'sem 1', kg: 72.0 },
-  { et: 'sem 2', kg: 71.6 },
-  { et: 'sem 3', kg: 71.8 },
-  { et: 'sem 4', kg: 71.2 },
-]
+/* ============================================================
+   Progreso
 
-/* Línea de peso: una sola serie, un solo tono de marca, texto en tinta.
-   El último punto va destacado y con su valor al lado. */
+   Acá NO hay datos de ejemplo. Antes esta pantalla dibujaba una
+   línea de peso inventada de cuatro semanas mientras decía
+   "0 pesajes tuyos": parecía su historia y no lo era.
+
+   Con un solo registro tampoco se dibuja línea — una línea de un
+   punto no dice nada. Se muestra el número y se pide el segundo.
+   ============================================================ */
+
+const kg = (n) => n.toString().replace('.', ',')
+
+/* Los pesos pueden venir del formulario (con `fecha`) o del dictado
+   (con `cuando`). Se normalizan acá, no en cada sitio que los lea. */
+function normalizar(registros = []) {
+  return registros
+    .map((r) => {
+      const d = r.cuando ? new Date(r.cuando) : null
+      return { kg: r.kg, et: r.fecha || (d ? d.getDate() + '/' + (d.getMonth() + 1) : ''), cuando: r.cuando || 0 }
+    })
+    .sort((a, b) => a.cuando - b.cuando)
+}
+
 function LineaPeso({ puntos, seleccion, onSel }) {
   const An = 300, Al = 96, mx = 14, my = 14
   const vals = puntos.map((p) => p.kg)
@@ -26,7 +40,7 @@ function LineaPeso({ puntos, seleccion, onSel }) {
   const sel = seleccion ?? ult
 
   return (
-    <svg viewBox={`0 0 ${An} ${Al + 14}`} className="linea-peso" role="img" aria-label="Evolución del peso">
+    <svg viewBox={`0 0 ${An} ${Al + 14}`} className="linea-peso" role="img" aria-label="Evolución de tu peso">
       <defs>
         <linearGradient id="gPeso" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor="#E5417A" stopOpacity="0.30" />
@@ -37,22 +51,13 @@ function LineaPeso({ puntos, seleccion, onSel }) {
       <polyline points={linea} fill="none" stroke="#E5417A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
       {puntos.map((p, i) => (
         <g key={i} onClick={() => onSel(i)} style={{ cursor: 'pointer' }}>
-          {/* blanco de toque generoso, invisible */}
           <circle cx={X(i)} cy={Y(p.kg)} r="13" fill="transparent" />
-          <circle
-            cx={X(i)} cy={Y(p.kg)}
-            r={i === sel ? 4.5 : 2.5}
-            fill={i === sel ? '#E5417A' : '#120726'}
-            stroke="#E5417A"
-            strokeWidth="1.6"
-          />
+          <circle cx={X(i)} cy={Y(p.kg)} r={i === sel ? 4.5 : 2.5}
+            fill={i === sel ? '#E5417A' : '#120726'} stroke="#E5417A" strokeWidth="1.6" />
         </g>
       ))}
-      {/* valor del punto elegido, en tinta */}
-      <text x={Math.min(An - 34, Math.max(30, X(sel)))} y={Math.max(11, Y(puntos[sel].kg) - 9)} textAnchor="middle" className="linea-v">
-        {puntos[sel].kg.toString().replace('.', ',')} kg
-      </text>
-      {/* etiquetas de borde, discretas */}
+      <text x={Math.min(An - 34, Math.max(30, X(sel)))} y={Math.max(11, Y(puntos[sel].kg) - 9)}
+        textAnchor="middle" className="linea-v">{kg(puntos[sel].kg)} kg</text>
       <text x={mx} y={Al + 11} className="linea-e">{puntos[0].et}</text>
       <text x={An - mx} y={Al + 11} textAnchor="end" className="linea-e">{puntos[ult].et}</text>
     </svg>
@@ -60,57 +65,95 @@ function LineaPeso({ puntos, seleccion, onSel }) {
 }
 
 export default function Progreso({ st, upd }) {
-  const { registrosPeso, diasCerrados, perfil } = st
+  const { registrosPeso = [], diasCerrados, perfil, racha = 0, mejorRacha = 0 } = st
   const [nuevo, setNuevo] = useState(perfil.peso)
   const [sel, setSel] = useState(null)
 
-  const puntos = useMemo(
-    () => [...DEMO, ...registrosPeso.map((r, i) => ({ et: r.fecha, kg: r.kg }))],
-    [registrosPeso]
-  )
-  const soloDemo = registrosPeso.length === 0
+  const puntos = useMemo(() => normalizar(registrosPeso), [registrosPeso])
+  const etapa = ETAPAS.find((e) => e.n === st.etapaActual) || ETAPAS[1]
+
+  const guardar = () => {
+    const hoy = new Date()
+    upd({
+      registrosPeso: [...registrosPeso, { fecha: hoy.getDate() + '/' + (hoy.getMonth() + 1), kg: nuevo, cuando: Date.now() }],
+      perfil: { ...perfil, peso: Math.round(nuevo) },
+    })
+    setSel(null)
+  }
+
+  const diferencia = puntos.length >= 2 ? puntos[puntos.length - 1].kg - puntos[0].kg : null
 
   return (
     <div className="anima">
-      {/* números que salen del uso real */}
-      <Rotulo ic={Activity}>Cómo venís</Rotulo>
-      <div className="tiles">
-        <div className="v tile">
-          <b>{diasCerrados}</b>
-          <span>día{diasCerrados === 1 ? '' : 's'} enviado{diasCerrados === 1 ? '' : 's'}</span>
+      {/* la racha manda: es lo que se pierde si mañana no entra */}
+      <Rotulo ic={Flame}>Tu constancia</Rotulo>
+      <div className="v racha-grande">
+        <div>
+          <span className="racha-n">{racha}</span>
+          <b>{racha === 1 ? 'día seguido' : 'días seguidos'}</b>
         </div>
-        <div className="v tile">
-          <b>2</b>
-          <span>nivel actual</span>
+        <div className="racha-lado">
+          <div><b>{diasCerrados}</b><span>días en total</span></div>
+          <div><b>{mejorRacha}</b><span>tu récord</span></div>
         </div>
-        <div className="v tile">
-          <b>{registrosPeso.length}</b>
-          <span>pesajes tuyos</span>
+      </div>
+      <p className="pista" style={{ marginBottom: 16 }}>
+        {racha === 0
+          ? 'Cerrá el día de hoy y arranca la cuenta.'
+          : racha >= mejorRacha && racha > 1
+            ? 'Estás en tu mejor momento. Mañana no la cortes.'
+            : `Te faltan ${mejorRacha - racha + 1} para pasar tu récord.`}
+      </p>
+
+      {/* en qué etapa está, con su nombre y no con un número suelto */}
+      <Rotulo ic={Activity} extra={`semana ${st.semana}`}>Tu etapa</Rotulo>
+      <div className="v caja etapa-mini">
+        <span className="etapa-mini-n">{etapa.n}</span>
+        <div>
+          <b>{etapa.t}</b>
+          <p>{etapa.lema}</p>
         </div>
       </div>
 
-      {/* el peso */}
-      <Rotulo ic={Scale} extra={soloDemo ? 'datos de ejemplo' : 'con tus registros'}>Tu peso</Rotulo>
+      {/* el peso: sin datos inventados */}
+      <Rotulo ic={Scale} extra={puntos.length ? `${puntos.length} registro${puntos.length === 1 ? '' : 's'}` : ''}>
+        Tu peso
+      </Rotulo>
       <div className="v caja">
-        <LineaPeso puntos={puntos} seleccion={sel} onSel={setSel} />
+        {puntos.length >= 2 ? (
+          <>
+            <LineaPeso puntos={puntos} seleccion={sel} onSel={setSel} />
+            {diferencia !== null && (
+              <p className="peso-dif">
+                {diferencia === 0
+                  ? 'Igual que al empezar.'
+                  : `${diferencia < 0 ? '−' : '+'}${kg(Math.abs(Math.round(diferencia * 10) / 10))} kg desde tu primer registro.`}
+              </p>
+            )}
+          </>
+        ) : puntos.length === 1 ? (
+          <div className="peso-uno">
+            <b>{kg(puntos[0].kg)} kg</b>
+            <span>Tu primer registro, del {puntos[0].et}. Con el segundo ya se ve la línea.</span>
+          </div>
+        ) : (
+          <div className="peso-vacio">
+            <Scale size={22} />
+            <p>Todavía no te pesaste. Cuando registres el primero, acá aparece tu línea — no la de nadie más.</p>
+          </div>
+        )}
+
         <div className="reloj" style={{ marginTop: 4 }}>
           <span>Registrar el de hoy</span>
           <div className="reloj-c">
-            <button type="button" onClick={() => setNuevo((v) => Math.max(35, Math.round((v - 0.5) * 10) / 10))} aria-label="menos"><Minus size={14} /></button>
-            <b>{nuevo.toString().replace('.', ',')} kg</b>
-            <button type="button" onClick={() => setNuevo((v) => Math.min(180, Math.round((v + 0.5) * 10) / 10))} aria-label="más"><Plus size={14} /></button>
+            <button type="button" aria-label="menos"
+              onClick={() => setNuevo((v) => Math.max(35, Math.round((v - 0.5) * 10) / 10))}><Minus size={14} /></button>
+            <b>{kg(nuevo)} kg</b>
+            <button type="button" aria-label="más"
+              onClick={() => setNuevo((v) => Math.min(180, Math.round((v + 0.5) * 10) / 10))}><Plus size={14} /></button>
           </div>
         </div>
-        <button
-          type="button"
-          className="enviar"
-          onClick={() => {
-            const hoy = new Date()
-            const fecha = hoy.getDate() + '/' + (hoy.getMonth() + 1)
-            upd({ registrosPeso: [...registrosPeso, { fecha, kg: nuevo }], perfil: { ...perfil, peso: Math.round(nuevo) } })
-            setSel(null)
-          }}
-        >
+        <button type="button" className="enviar" onClick={guardar}>
           <Check size={12} strokeWidth={3.5} /> Guardar
         </button>
         <p className="pista" style={{ margin: '10px 0 0' }}>
@@ -118,30 +161,21 @@ export default function Progreso({ st, upd }) {
         </p>
       </div>
 
-      {/* el recorrido */}
-      <Rotulo ic={Trophy}>Tu recorrido</Rotulo>
+      {/* lo que ya conseguiste, con lo que hizo de verdad */}
+      <Rotulo ic={Trophy}>Lo que llevás hecho</Rotulo>
       <div className="v caja">
-        {NIVELES.map((x) => {
-          const estado = x.n < 2 ? 'pasado' : x.n === 2 ? 'actual' : ''
+        {ETAPAS.map((x) => {
+          const estado = x.n < etapa.n ? 'pasado' : x.n === etapa.n ? 'actual' : ''
           return (
-            <div className={'paso ' + estado} key={x.n}>
-              <span className="paso-n">{x.n < 2 ? <Check size={12} strokeWidth={3.5} /> : x.n}</span>
+            <div className={'hito ' + estado} key={x.n}>
+              <span className="hito-n">{x.n < etapa.n ? <Check size={12} strokeWidth={3.5} /> : x.n}</span>
               <div>
                 <b>{x.t}</b>
-                <p>{x.d}</p>
+                <p>{x.n <= etapa.n ? x.d : `${x.dias} días · ${x.series} series · ${x.descanso}s`}</p>
               </div>
             </div>
           )
         })}
-      </div>
-      <div className="v caja">
-        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12.5 }}>
-          <span style={{ color: 'var(--crema-2)' }}>Días para el nivel 3</span>
-          <b>{Math.max(0, 14 - diasCerrados)} de 14</b>
-        </div>
-        <div className="tubo" style={{ marginTop: 8, marginBottom: 0 }}>
-          <i style={{ width: Math.min(100, Math.round((diasCerrados / 14) * 100)) + '%' }}  />
-        </div>
       </div>
     </div>
   )

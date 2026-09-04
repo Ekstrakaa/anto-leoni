@@ -1,18 +1,19 @@
 import { useRef, useState } from 'react'
-import { Camera, Send, Eye, ArrowLeft, RotateCcw, Video, CalendarDays, MessageCircle, PenLine } from 'lucide-react'
+import { Camera, Send, Eye, ArrowLeft, RotateCcw, Video, CalendarDays, MessageCircle, Play } from 'lucide-react'
 import { ANTO, VIDEO_ANTO, baja } from '../datos.js'
 import { Rotulo } from '../piezas/comunes.jsx'
 
 export default function Anto({ st, upd, onReiniciar }) {
   const { perfil, resp, mensajes, comidas, agua, mov } = st
   const [verAnto, setVerAnto] = useState(false)
+  const [reproduciendo, setReproduciendo] = useState(false)
   const [texto, setTexto] = useState('')
   const archivo = useRef(null)
 
   const enviar = (img) => {
     const t = texto.trim()
     if (!t && !img) return
-    upd({ mensajes: [...mensajes, { t: t || '📷 Foto', img: img || null }] })
+    upd({ mensajes: [...mensajes, { t: t || 'Te mandé una foto', img: img || null, hora: new Date().toTimeString().slice(0, 5) }] })
     setTexto('')
   }
 
@@ -60,39 +61,17 @@ export default function Anto({ st, upd, onReiniciar }) {
 
   return (
     <div className="anima">
-      {/* el video real de Anto */}
-      <Rotulo ic={Video}>Un mensaje de Anto</Rotulo>
-      <div className="v video-caja">
-        <video src={VIDEO_ANTO} controls playsInline preload="metadata" />
-      </div>
-
-      {/* la clase */}
-      <Rotulo ic={CalendarDays}>Tu clase</Rotulo>
-      <div className="v clase">
-        <div className="clase-f">
-          <img src={ANTO} alt="Anto" />
-        </div>
-        <div className="clase-c">
-          <b>Martes · 18:30</b>
-          <span>45 minutos por Zoom · técnica de sentadilla</span>
-          <button type="button" className="cta" style={{ marginTop: 12 }}>
-            Entrar a la clase
-          </button>
-        </div>
-      </div>
-
-      {/* mensajes */}
-      <Rotulo ic={MessageCircle}>Mensajes</Rotulo>
+      {/* La conversación va primero: es lo que se paga.
+         Antes estaba tercera, debajo de dos vídeos. */}
+      <Rotulo ic={MessageCircle}>Hablá con ella</Rotulo>
       <div className="v caja">
         <div className="msg">
-          <span className="msg-foto">
-            <img src={ANTO} alt="Anto" />
-          </span>
+          <span className="msg-foto"><img src={ANTO} alt="Anto" /></span>
           <div>
             <div className="globo">
               Leí tus respuestas. Empezamos suave: <b>desayuno y tres días</b>. Nada más por ahora.
             </div>
-            <span className="msg-h">Hoy, 09:12</span>
+            <span className="msg-h">Al empezar</span>
           </div>
         </div>
         {mensajes.map((m, i) => (
@@ -100,45 +79,71 @@ export default function Anto({ st, upd, onReiniciar }) {
             <div className="globo">
               {m.img && <img className="msg-img" src={m.img} alt="Foto enviada" />}
               {m.t}
-              <span className="msg-h">Enviado · sin leer</span>
+              {m.hora && <span className="msg-h">Enviado {m.hora}</span>}
             </div>
           </div>
         ))}
-      </div>
 
-      {/* escribirle */}
-      <Rotulo ic={PenLine}>Escribile</Rotulo>
-      <div className="v caja">
-        <input
-          className="campo"
-          placeholder="Contale cómo vas…"
-          value={texto}
-          onChange={(e) => setTexto(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && enviar()}
-        />
-        <div style={{ display: 'flex', gap: 8, marginTop: 9 }}>
-          <button type="button" className="enviar tocar" onClick={() => enviar()}>
-            <Send size={12} /> Enviar
-          </button>
-          <button type="button" className="adj tocar" onClick={() => archivo.current?.click()}>
-            <Camera size={13} /> Foto
-          </button>
+        <div className="escribir">
           <input
-            ref={archivo}
-            type="file"
-            accept="image/*"
-            hidden
+            className="campo"
+            placeholder="Contale cómo vas…"
+            value={texto}
+            onChange={(e) => setTexto(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && enviar()}
+          />
+          <button type="button" className="adj tocar" onClick={() => archivo.current?.click()} aria-label="Adjuntar foto">
+            <Camera size={15} />
+          </button>
+          <button type="button" className={'enviar' + (texto.trim() ? '' : ' apagado')} onClick={() => enviar()} aria-label="Enviar">
+            <Send size={14} />
+          </button>
+          <input ref={archivo} type="file" accept="image/*" hidden
             onChange={(e) => {
               const f = e.target.files?.[0]
               if (f) enviar(URL.createObjectURL(f))
               e.target.value = ''
-            }}
-          />
+            }} />
         </div>
         <p className="pista" style={{ margin: '9px 2px 0' }}>
           Te responde ella, en persona. Suele contestar en el día.
         </p>
       </div>
+
+      {/* el vídeo, con su portada: no el reproductor pelado del navegador */}
+      <Rotulo ic={Video}>Un mensaje suyo</Rotulo>
+      <div className="v video-caja">
+        {reproduciendo ? (
+          <video src={VIDEO_ANTO} controls autoPlay playsInline />
+        ) : (
+          <button type="button" className="video-tapa" onClick={() => setReproduciendo(true)}>
+            <img src={ANTO} alt="" />
+            <span className="video-play"><Play size={22} fill="currentColor" /></span>
+            <span className="video-pie">Cómo arrancamos · 32 s</span>
+          </button>
+        )}
+      </div>
+
+      {/* La clase sale de lo que agende Anto. Sin agenda no se
+         inventa una hora: se dice que todavía no hay. */}
+      <Rotulo ic={CalendarDays}>Tu clase en directo</Rotulo>
+      {st.clase ? (
+        <div className="v clase">
+          <div className="clase-f"><img src={ANTO} alt="Anto" /></div>
+          <div className="clase-c">
+            <b>{st.clase.cuando}</b>
+            <span>{st.clase.detalle}</span>
+            <a className="cta" href={st.clase.enlace} target="_blank" rel="noreferrer" style={{ marginTop: 12 }}>
+              Entrar a la clase
+            </a>
+          </div>
+        </div>
+      ) : (
+        <div className="v caja sin-clase">
+          <CalendarDays size={19} />
+          <p>Todavía no hay ninguna agendada. Cuando Anto ponga una, te aparece acá con el enlace.</p>
+        </div>
+      )}
 
       <button type="button" className="cta liso" onClick={() => setVerAnto(true)}>
         <Eye size={15} /> Ver lo que Anto ve de mí

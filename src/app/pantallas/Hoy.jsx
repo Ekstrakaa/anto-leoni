@@ -10,6 +10,7 @@ import Dictado from '../piezas/Dictado.jsx'
 import Paso from '../piezas/Paso.jsx'
 import Anillo from '../piezas/Anillo.jsx'
 import { usarPlan } from '../usarPlan.js'
+import { HOY_ISO } from '../App.jsx'
 
 const hoyNombre = () => DIAS_SEMANA[new Date().getDay()]
 
@@ -67,6 +68,22 @@ export default function Hoy({ st, upd }) {
         <span className="cerrado-ic"><Check size={30} strokeWidth={3} /></span>
         <h3>{hoyNombre()} enviado</h3>
         <p>Anto ya tiene tu día. No tenés que hacer nada más hasta mañana.</p>
+
+        {/* La racha es lo que hace volver: se ve lo que se pierde. */}
+        <div className="racha">
+          <span className="racha-n">{st.racha || 1}</span>
+          <div>
+            <b>{(st.racha || 1) === 1 ? 'día seguido' : 'días seguidos'}</b>
+            <span>
+              {(st.racha || 1) >= (st.mejorRacha || 0) && (st.racha || 1) > 1
+                ? 'Es tu mejor racha hasta ahora.'
+                : (st.mejorRacha || 0) > 1
+                  ? `Tu mejor racha fue de ${st.mejorRacha}.`
+                  : 'Mañana van dos.'}
+            </span>
+          </div>
+        </div>
+
         <div className="v cuenta">
           <span>Próximo registro en</span>
           <Cuenta />
@@ -338,7 +355,17 @@ export default function Hoy({ st, upd }) {
     const ahora = Date.now()
     const marcas = { ...recuperacion }
     zonasDeHoy.forEach((z) => { marcas[z] = ahora })
-    upd({ diaCerrado: true, diasCerrados: st.diasCerrados + 1, recuperacion: marcas })
+
+    const hoy = HOY_ISO()
+    const racha = (st.racha || 0) + 1
+    upd({
+      diaCerrado: true,
+      diasCerrados: st.diasCerrados + 1,
+      recuperacion: marcas,
+      ultimoCierre: hoy,
+      racha,
+      mejorRacha: Math.max(st.mejorRacha || 0, racha),
+    })
   }
 
   return (

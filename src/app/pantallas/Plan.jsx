@@ -67,7 +67,7 @@ export default function Plan({ st, upd, irAnto }) {
           <b>{reto.t}</b>
           <p>{reto.d}</p>
         </div>
-        <span className="reto-meta">{reto.meta}×</span>
+        <span className="reto-meta"><b>{reto.meta}</b><i>días</i></span>
       </div>
 
       {/* --- lo que leyó Anto (generado o de respaldo) --- */}

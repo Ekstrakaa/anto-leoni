@@ -33,6 +33,46 @@ const BASE = {
   etapaActual: 2,
   adherenciaMedia: 0,
   mensajes: [],
+  /* de qué día es el registro que está en pantalla, y cuántos días
+     seguidos lleva cerrados. Sin esto la app servía un solo día. */
+  diaDelRegistro: null,
+  ultimoCierre: null,
+  racha: 0,
+  mejorRacha: 0,
+}
+
+export const HOY_ISO = () => {
+  const d = new Date()
+  d.setMinutes(d.getMinutes() - d.getTimezoneOffset())
+  return d.toISOString().slice(0, 10)
+}
+
+const ayerDe = (iso) => {
+  const d = new Date(iso + 'T12:00:00')
+  d.setDate(d.getDate() - 1)
+  return d.toISOString().slice(0, 10)
+}
+
+/* Lo que se borra al cambiar el día y lo que se conserva.
+   Se conserva todo lo acumulado: racha, días cerrados, peso,
+   recuperación y la conversación con Anto. */
+function abrirDiaNuevo(guardado) {
+  const hoy = HOY_ISO()
+  if (guardado.diaDelRegistro === hoy) return guardado
+
+  /* si se saltó un día, la racha se corta */
+  const seguida = guardado.ultimoCierre === ayerDe(hoy) || guardado.ultimoCierre === hoy
+  return {
+    ...guardado,
+    diaDelRegistro: hoy,
+    agua: { ...BASE.agua, envase: guardado.agua?.envase ?? 0 },
+    comidas: COMIDAS_BASE,
+    mov: { que: '', min: 0, enviado: false },
+    series: {},
+    modoCorto: false,
+    diaCerrado: false,
+    racha: seguida ? guardado.racha || 0 : 0,
+  }
 }
 
 /* ?demo=hoy|plan|progreso|anto salta directo a esa pantalla con datos
@@ -54,6 +94,9 @@ function estadoInicial() {
       semana: 3,
       etapaActual: 2,
       adherenciaMedia: 72,
+      racha: 4,
+      mejorRacha: 6,
+      ultimoCierre: HOY_ISO(),
       /* ?listo=1 deja el día terminado, para ver el estado de cierre */
       ...(new URLSearchParams(location.search).get('listo')
         ? {
@@ -68,9 +111,9 @@ function estadoInicial() {
   }
   try {
     const g = localStorage.getItem(CLAVE)
-    if (g) return { st: { ...BASE, ...JSON.parse(g) }, demo: false }
+    if (g) return { st: abrirDiaNuevo({ ...BASE, ...JSON.parse(g) }), demo: false }
   } catch {}
-  return { st: BASE, demo: false }
+  return { st: { ...BASE, diaDelRegistro: HOY_ISO() }, demo: false }
 }
 
 export default function App() {
@@ -86,6 +129,21 @@ export default function App() {
       localStorage.setItem(CLAVE, JSON.stringify({ ...resto, mensajes: mensajes.filter((m) => !m.img) }))
     } catch {}
   }, [st])
+
+  /* La app suele quedar abierta toda la noche en el teléfono. Si pasa
+     la medianoche con la pantalla puesta, el día se abre igual. */
+  useEffect(() => {
+    if (inicial.demo) return
+    const t = setInterval(() => {
+      setSt((s) => (s.diaDelRegistro === HOY_ISO() ? s : abrirDiaNuevo(s)))
+    }, 60000)
+    const alVolver = () => setSt((s) => (s.diaDelRegistro === HOY_ISO() ? s : abrirDiaNuevo(s)))
+    document.addEventListener('visibilitychange', alVolver)
+    return () => {
+      clearInterval(t)
+      document.removeEventListener('visibilitychange', alVolver)
+    }
+  }, [])
 
   const seguirTanda = () => {
     if (st.tanda < TANDAS.length - 1) return upd({ tanda: st.tanda + 1 })
@@ -107,7 +165,7 @@ export default function App() {
     ? `Tanda ${st.tanda + 1} de ${TANDAS.length} · un minuto en total`
     : st.etapa === 'armando'
       ? ''
-      : { hoy: `${hoy} · nivel 2`, plan: 'Hecho con tus respuestas', progreso: 'Semana a semana', anto: 'Ella, del otro lado' }[st.vista]
+      : { plan: 'Lo que armó con tus respuestas', progreso: 'Lo que llevás hecho', anto: 'Ella, del otro lado' }[st.vista]
 
   const NAV = [
     { k: 'hoy', t: 'Hoy', I: Flame },
@@ -142,7 +200,7 @@ export default function App() {
               ) : st.etapa === 'armando' ? (
                 <>Un momento…</>
               ) : (
-                <>Buenas, <em>Lucía</em></>
+                { plan: <>Tu <em>plan</em></>, progreso: <>Tu <em>progreso</em></>, anto: <>Hablá con <em>Anto</em></> }[st.vista]
               )}
             </p>}
             {sub && !(enApp && st.vista === 'hoy') && <p className="sub">{sub}</p>}
