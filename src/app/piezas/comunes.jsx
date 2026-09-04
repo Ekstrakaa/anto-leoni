@@ -1,4 +1,6 @@
 import { motion } from 'framer-motion'
+import Icono from './Icono.jsx'
+import { ICONO_OPCION } from '../datos.js'
 
 /* Animación de entrada compartida: los bloques suben una vez,
    al montarse — nunca al responder algo. */
@@ -17,26 +19,30 @@ export function Rotulo({ children, extra, ic: Ic }) {
   )
 }
 
-export function Chip({ on, onClick, children }) {
+export function Chip({ on, onClick, ic, children }) {
   return (
     <motion.button
       type="button"
-      className={'chip' + (on ? ' on' : '')}
+      className={'chip' + (on ? ' on' : '') + (ic ? ' con-ic' : '')}
       onClick={onClick}
       whileTap={{ scale: 0.93 }}
     >
+      {ic && <Icono nombre={ic} size={14} strokeWidth={2.1} />}
       {children}
     </motion.button>
   )
 }
 
-/* Selector de una o varias opciones en fichas */
+/* Selector de una o varias opciones en fichas.
+   El icono no decora: ayuda a encontrar la respuesta sin leerlas
+   todas. Cuatro preguntas seguidas de texto plano se leen como un
+   formulario, y esto es lo primero que ve una clienta que pagó. */
 export function Chips({ opciones, valor, varias, onPick }) {
   const activo = (o) => (varias ? (valor || []).includes(o) : valor === o)
   return (
     <div className="chips">
       {opciones.map((o) => (
-        <Chip key={o} on={activo(o)} onClick={() => onPick(o)}>
+        <Chip key={o} on={activo(o)} ic={ICONO_OPCION[o]} onClick={() => onPick(o)}>
           {o}
         </Chip>
       ))}

@@ -117,9 +117,9 @@ export const MENU = [
     ayuda: 'Lo más importante del mes. Elegí el que te salga fácil.',
     con: [
       { k: 'fruta', n: 'Fruta fresca + café', d: 'plátano o manzana', foto: W + '2/21/Fruit-49741_-_bananas_apples_tangerines_close-up_-_Hans_Braxmeier.jpg/330px-Fruit-49741_-_bananas_apples_tangerines_close-up_-_Hans_Braxmeier.jpg' },
-      { k: 'tostada', n: 'Tostada con tomate', d: 'pan integral y aceite', ic: 'Sandwich' },
+      { k: 'tostada', n: 'Tostada con tomate', d: 'pan integral y aceite', foto: W + '1/1b/Pa_amb_tom%C3%A0quet_-_001.jpg/400px-Pa_amb_tom%C3%A0quet_-_001.jpg' },
       { k: 'avena', n: 'Avena con leche', d: 'y canela', ic: 'Wheat' },
-      { k: 'revuelto', n: 'Huevos revueltos', d: 'dos huevos', ic: 'Egg' },
+      { k: 'revuelto', n: 'Huevos revueltos', d: 'dos huevos', foto: W + 'e/e4/Scrambled_eggs_on_toast_-_Joe%27s_Cafe_2024-04-14.jpg/400px-Scrambled_eggs_on_toast_-_Joe%27s_Cafe_2024-04-14.jpg' },
     ],
     mas: ['Yogur con granola', 'Tortitas de avena', 'Tostada con aguacate', 'Batido de fruta'],
   },
@@ -141,7 +141,7 @@ export const MENU = [
     ayuda: 'La que te falta. Es la que corta el hambre de la noche.',
     con: [
       { k: 'frutos', n: 'Frutos secos', d: 'un puñado', foto: W + '9/97/MixedNuts.JPG/330px-MixedNuts.JPG' },
-      { k: 'yogur', n: 'Yogur griego', d: 'con fruta', ic: 'Milk' },
+      { k: 'yogur', n: 'Yogur griego', d: 'con fruta', foto: W + '0/0b/Yogurt_with_raisins_and_banana_-_Massachusetts.jpg/400px-Yogurt_with_raisins_and_banana_-_Massachusetts.jpg' },
       { k: 'batido', n: 'Batido de proteína', d: 'con leche o agua', ic: 'GlassWater' },
       { k: 'hummus', n: 'Hummus con zanahoria', d: 'o pepino', ic: 'Carrot' },
     ],
@@ -152,8 +152,8 @@ export const MENU = [
     titulo: 'Tu cena',
     ayuda: 'Liviana, que dormís mejor. Verdura + proteína.',
     con: [
-      { k: 'tortilla', n: 'Tortilla + ensalada', d: 'dos huevos', ic: 'Egg' },
-      { k: 'verdura', n: 'Verduras salteadas', d: 'con queso fresco', ic: 'Salad' },
+      { k: 'tortilla', n: 'Tortilla + ensalada', d: 'dos huevos', foto: W + '3/37/Tortilla_de_patata_t%C3%ADpica_de_Betanzos.jpg/400px-Tortilla_de_patata_t%C3%ADpica_de_Betanzos.jpg' },
+      { k: 'verdura', n: 'Verduras salteadas', d: 'con queso fresco', foto: W + '5/5e/Stir_Fry_Vegetables_in_Pan.jpg/400px-Stir_Fry_Vegetables_in_Pan.jpg' },
       { k: 'lentejas', n: 'Lentejas estofadas', d: 'plato hondo', ic: 'CookingPot' },
       { k: 'pescado', n: 'Merluza a la plancha', d: 'con limón', ic: 'Fish' },
     ],
@@ -301,3 +301,46 @@ export const DIAS_SEMANA = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves'
 
 /* baja la primera letra sin tocar unidades (L, kg…) */
 export const baja = (t) => (t ? t.charAt(0).toLowerCase() + t.slice(1) : t)
+
+/* ---------- Iconos para las respuestas del cuestionario ----------
+   Cuatro preguntas seguidas de fichas sólo con texto se leen como
+   un formulario de gestoría. El icono no decora: ayuda a encontrar
+   la respuesta sin leerlas todas. */
+
+export const ICONO_OPCION = {
+  /* qué buscás */
+  'Bajar grasa': 'TrendingDown', 'Ganar músculo': 'Dumbbell',
+  'Ponerme fuerte': 'Zap', 'Sentirme mejor': 'Heart',
+
+  /* a qué hora te levantás */
+  'Antes de las 6': 'Moon', '6 a 8': 'Sunrise', '8 a 10': 'Sun', 'Más tarde': 'CloudSun',
+
+  /* desayunás */
+  'Todos los días': 'CalendarCheck', 'A veces': 'CalendarClock',
+  'Casi nunca': 'CalendarX', Nunca: 'Ban',
+
+  /* qué te cuesta dejar */
+  Dulce: 'Candy', Pan: 'Croissant', 'Picar entre horas': 'Cookie',
+  Alcohol: 'Wine', Refrescos: 'CupSoda', Fritos: 'Drumstick', Nada: 'Check',
+
+  /* cuánto te movés */
+  'Nada, estoy bien': 'Check', '1 o 2 días': 'Footprints',
+  '3 o 4 días': 'Activity', 'Casi todos': 'Flame',
+
+  /* dónde entrenás */
+  Gimnasio: 'Dumbbell', 'En casa': 'Home', 'Al aire libre': 'Trees',
+
+  /* agua */
+  'Menos de 1 L': 'Droplet', '1 a 2 L': 'Droplets',
+  'Más de 2 L': 'GlassWater', 'Ni idea': 'CircleHelp',
+
+  /* suplementos */
+  Ninguno: 'Ban', Proteína: 'Milk', Creatina: 'Pill', Magnesio: 'Pill',
+  Colágeno: 'Pill', 'Vitamina D': 'Sun', 'Omega 3': 'Fish',
+
+  /* lesiones */
+  Cadera: 'PersonStanding', Rodilla: 'Footprints', Hombro: 'MoveHorizontal',
+  'Espalda baja': 'MoveVertical', Muñecas: 'Hand',
+  'Embarazo o posparto': 'Baby', 'Tensión alta': 'HeartPulse',
+  'No puedo saltar': 'ArrowDownToLine', 'Me cuesta el suelo': 'ArrowUpFromLine',
+}

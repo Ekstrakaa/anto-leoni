@@ -1428,3 +1428,22 @@ a.cta { text-decoration: none; }
 }
 .ejer-fila.hecho .ejer-marca { background: rgba(87, 214, 168, 0.2); color: var(--ok); }
 .ejer-fila.hecho .ejer-txt b { color: var(--crema-2); }
+
+/* fichas con icono: el icono ayuda a encontrar la respuesta */
+.chip.con-ic { display: inline-flex; align-items: center; gap: 6px; }
+.chip.con-ic svg { flex: none; opacity: 0.72; }
+.chip.con-ic.on svg { opacity: 1; }
+
+/* la tarjeta de comida sin foto deja de parecer un hueco:
+   se trata como una viñeta, no como una foto que falta */
+.plato-e {
+  background:
+    radial-gradient(120px 90px at 50% 26%, rgba(241, 184, 206, 0.2), transparent 68%),
+    linear-gradient(168deg, #33205e, #1e1140) !important;
+  color: var(--rosa);
+}
+.plato-e::after {
+  content: ''; position: absolute; inset: 0;
+  background-image: radial-gradient(rgba(247, 241, 230, 0.09) 1px, transparent 1px);
+  background-size: 9px 9px;
+}

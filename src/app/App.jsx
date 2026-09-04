@@ -82,7 +82,9 @@ function estadoInicial() {
   if (demo) {
     const lleno = {
       ...BASE,
-      etapa: demo === 'arranque' ? 'arranque' : 'app',
+      etapa: demo === 'arranque' ? 'arranque' : demo === 'armando' ? 'armando' : 'app',
+      /* ?tanda=2 para poder ver cada tanda del alta */
+      tanda: Number(new URLSearchParams(location.search).get('tanda') || 0),
       vista: ['hoy', 'plan', 'progreso', 'anto'].includes(demo) ? demo : 'hoy',
       perfil: { edad: 34, peso: 72, altura: 165, meta: 'Bajar grasa' },
       resp: { levanta: '6 a 8', desayuna: 'Casi nunca', veces: '2', cuesta: ['Dulce', 'Picar entre horas'], mueve: 'Nada', donde: ['Gimnasio'], agua: 'Menos de 1 L', supl: ['Proteína'] },
