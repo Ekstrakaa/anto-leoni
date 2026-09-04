@@ -1,0 +1,17 @@
+{
+  "name": "Feel&Move · Anto Leoni",
+  "short_name": "Feel&Move",
+  "description": "Tu seguimiento con Anto: comidas, entreno y hábitos, día a día.",
+  "start_url": "/app/",
+  "scope": "/app/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#120726",
+  "theme_color": "#120726",
+  "lang": "es-ES",
+  "icons": [
+    { "src": "/icono/icono-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icono/icono-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icono/icono-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

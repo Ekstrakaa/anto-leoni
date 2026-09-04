@@ -9,11 +9,11 @@
 export const ANTO = '/anto3.png'
 export const VIDEO_ANTO = '/video1.mp4'
 
-/* ---------- El arranque: tres tandas que llegan de a una ---------- */
+/* ---------- El arranque: cuatro tandas que llegan de a una ---------- */
 
 export const TANDAS = [
   {
-    dice: 'Hola, soy Anto. Antes de armarte nada quiero saber con quién estoy trabajando. Son tres tandas cortas, se contestan tocando.',
+    dice: 'Hola, soy Anto. Antes de armarte nada quiero saber con quién estoy trabajando. Son cuatro tandas cortas, se contestan tocando.',
     numeros: [
       { k: 'edad', e: 'Tu edad', u: 'años', min: 14, max: 90 },
       { k: 'peso', e: 'Tu peso', u: 'kg', min: 35, max: 180 },
@@ -78,7 +78,7 @@ export const clavesDeLesiones = (etiquetas = []) => {
 }
 
 export const NIVELES = [
-  { n: 1, t: 'Te conozco', d: 'Contestaste las tres tandas. Ya sé con quién trabajo.' },
+  { n: 1, t: 'Te conozco', d: 'Contestaste las cuatro tandas. Ya sé con quién trabajo.' },
   { n: 2, t: 'Tu plan', d: 'Comida y entreno hechos con tus respuestas.' },
   { n: 3, t: 'Constancia', d: 'Se ajusta según lo que cumplís de verdad.' },
   { n: 4, t: 'Autonomía', d: 'Ya elegís sola. Yo superviso.' },

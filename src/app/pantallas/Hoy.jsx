@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react'
 import {
   Check, Plus, Minus, Send, RotateCcw, Zap, Loader2, ShieldAlert, ArrowDown,
 } from 'lucide-react'
-import { ENVASES, META_AGUA, DIAS_SEMANA } from '../datos.js'
+import { ENVASES, META_AGUA, DIAS_SEMANA, fotoEjercicio } from '../datos.js'
 import Ejercicio from '../piezas/Ejercicio.jsx'
+import Entreno from './Entreno.jsx'
 import Icono from '../piezas/Icono.jsx'
 import MapaRecuperacion from '../piezas/MapaRecuperacion.jsx'
 import Dictado from '../piezas/Dictado.jsx'
@@ -33,7 +34,11 @@ function Cuenta() {
 
 export default function Hoy({ st, upd }) {
   const { agua, comidas, mov, series, lugar, modoCorto, diaCerrado, recuperacion = {} } = st
-  const [abiertoEj, setAbiertoEj] = useState(null)
+  /* el ejercicio abierto va a pantalla completa: se usa de pie,
+     con una mano, y dentro de la tarjeta quedaba diminuto */
+  const [entrenando, setEntrenando] = useState(
+    () => (new URLSearchParams(location.search).has('ej') ? 0 : null)
+  )
   const [borradores, setBorradores] = useState({})
   /* ?paso=entreno abre ese paso directo: sirve para enseñar la pantalla */
   const [abierto, setAbierto] = useState(
@@ -323,13 +328,23 @@ export default function Hoy({ st, upd }) {
 
           {ejercicios.length > 0 && (
             <div className="ejer-lista">
-              {ejercicios.map((ej) => (
-                <Ejercicio key={ej.id} ej={ej}
-                  hechas={series[ej.id] || []}
-                  onSerie={(nuevas) => upd({ series: { ...series, [ej.id]: nuevas } })}
-                  abierto={abiertoEj === ej.id}
-                  onAbrir={setAbiertoEj} />
-              ))}
+              {ejercicios.map((ej, i) => {
+                const hechas = (series[ej.id] || []).filter(Boolean).length
+                const total = ej.series || 3
+                return (
+                  <button type="button" className={'ejer-fila' + (hechas >= total ? ' hecho' : '')}
+                    key={ej.id} onClick={() => setEntrenando(i)}>
+                    <span className="ejer-foto"><img src={fotoEjercicio(ej.id, 0)} alt="" loading="lazy" /></span>
+                    <span className="ejer-txt">
+                      <b>{ej.n}</b>
+                      <small>{ej.papel} · {total} × {ej.repes}</small>
+                    </span>
+                    <span className="ejer-marca">
+                      {hechas >= total ? <Check size={14} strokeWidth={3.4} /> : `${hechas}/${total}`}
+                    </span>
+                  </button>
+                )
+              })}
             </div>
           )}
 
@@ -407,6 +422,17 @@ export default function Hoy({ st, upd }) {
       </div>
 
       <MapaRecuperacion recuperacion={recuperacion} hoy={zonasDeHoy} />
+
+      {entrenando !== null && ejercicios[entrenando] && (
+        <Entreno
+          ejercicios={ejercicios}
+          indice={entrenando}
+          series={series}
+          onSerie={(id, nuevas) => upd({ series: { ...series, [id]: nuevas } })}
+          onIr={setEntrenando}
+          onCerrar={() => setEntrenando(null)}
+        />
+      )}
 
       <button type="button" className={'cta cerrar' + (todoHecho ? ' listo' : '')}
         disabled={!todoHecho} onClick={cerrarDia}>

@@ -3,7 +3,7 @@ import { ArrowRight } from 'lucide-react'
 import { TANDAS, ANTO } from '../datos.js'
 import { lista, item, Chips, Stepper } from '../piezas/comunes.jsx'
 
-/* Las tres tandas del primer día. Llegan de a una, como si Anto las mandara. */
+/* Las tandas del primer día. Llegan de a una, como si Anto las mandara. */
 export function Tanda({ tanda, perfil, resp, onPerfil, onResp, onSeguir }) {
   const t = TANDAS[tanda]
 

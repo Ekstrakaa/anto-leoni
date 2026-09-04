@@ -162,7 +162,7 @@ export default function App() {
   const hoy = DIAS_SEMANA[new Date().getDay()]
 
   const sub = enArranque
-    ? `Tanda ${st.tanda + 1} de ${TANDAS.length} · un minuto en total`
+    ? `Tanda ${st.tanda + 1} de ${TANDAS.length} · dos minutos en total`
     : st.etapa === 'armando'
       ? ''
       : { plan: 'Lo que armó con tus respuestas', progreso: 'Lo que llevás hecho', anto: 'Ella, del otro lado' }[st.vista]
