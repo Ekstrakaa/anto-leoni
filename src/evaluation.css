@@ -1,0 +1,4 @@
+@media (max-width: 380px) {
+  .evaluation .quiz__foot { flex-wrap: wrap; }
+  .evaluation .quiz__foot .btn { width: 100%; justify-content: center; }
+}
