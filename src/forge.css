@@ -44,3 +44,10 @@
 .f-hero h1{font-size:clamp(64px,8.1vw,110px);line-height:1.08}.f-hero h1 span{white-space:nowrap}@media(max-width:600px){.f-hero h1{font-size:clamp(35px,11.5vw,68px);line-height:1.12;letter-spacing:-.025em}}
 .f-nav .f-logo{flex-shrink:0}.f-nav .f-logo small{font-size:8px;letter-spacing:1.6px;line-height:1;margin-top:5px;color:#e4ddec}@media(max-width:600px){.f-nav .f-logo small{font-size:7px;letter-spacing:1.35px}}
 .f-nav .f-logo{display:flex;align-items:center;gap:10px}.f-brand-dumbbells{width:36px;height:36px;color:var(--accent);flex-shrink:0;transition:transform 700ms var(--ease)}.f-brand-name{display:block}@media(hover:hover) and (pointer:fine){.f-logo:hover .f-brand-dumbbells{transform:rotate(-8deg)}}@media(max-width:600px){.f-brand-dumbbells{width:28px;height:28px}.f-nav .f-logo{gap:7px}}@media(prefers-reduced-motion:reduce){.f-brand-dumbbells{transform:none!important}}
+/* Respiración sutil de los símbolos, independiente de la entrada de cada bloque. */
+@media(prefers-reduced-motion:no-preference){
+.f-process-step.f-visible .f-process-art{animation:process-breathe 5s ease-in-out infinite;animation-delay:800ms}.f-process-step:nth-child(2).f-visible .f-process-art{animation-delay:1200ms}.f-process-step:nth-child(3).f-visible .f-process-art{animation-delay:1600ms}.f-process-step:nth-child(4).f-visible .f-process-art{animation-delay:2000ms}.f-brand-dumbbells{animation:brand-breathe 5.5s ease-in-out infinite;transform-origin:center}
+@keyframes process-breathe{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-5px) scale(1.035)}}
+@keyframes brand-breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.065)}}
+}
+@media(prefers-reduced-motion:reduce){.f-process-art,.f-brand-dumbbells{animation:none!important;transform:none!important}}
