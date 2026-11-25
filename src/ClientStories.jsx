@@ -23,12 +23,12 @@ export default function ClientStories() {
 function ComparisonPhoto({phase,active,originals}){
  const [ready,setReady]=useState(false)
  const key=`${phase}${active+1}`,mask=`/media/clientes/${key}.png`,original=`/${key}.jpg`
- const bounds=photoBounds[key],id=`mask-${key}`
+ const bounds=photoBounds[key],id=`mask-${key}`,refine=phase==="despues"&&(active===0||active===2)
  useEffect(()=>{let cancelled=false;setReady(false);const image=new Image();image.onload=()=>{if(!cancelled)setReady(true)};image.src=mask;return()=>{cancelled=true}},[mask])
  const label=`${phase==='antes'?'Antes':'Después'} del acompañamiento — cliente ${active+1}`
  if(originals||!ready||!bounds)return <img src={original} alt={label} loading="lazy"/>
  // La foto original aporta todos los píxeles visibles; la imagen procesada sólo aporta transparencia.
- return <svg className="f-client-cutout" viewBox={bounds.box.join(' ')} preserveAspectRatio="xMidYMid meet" role="img" aria-label={label}><defs><mask id={id} maskUnits="userSpaceOnUse" x="0" y="0" width={bounds.width} height={bounds.height} style={{maskType:'alpha'}}><image href={mask} width={bounds.width} height={bounds.height}/></mask></defs><image href={original} width={bounds.width} height={bounds.height} preserveAspectRatio="xMidYMid meet" mask={`url(#${id})`}/></svg>
+ return <svg className="f-client-cutout" viewBox={bounds.box.join(' ')} preserveAspectRatio="xMidYMid meet" role="img" aria-label={label}><defs>{refine&&<filter id={`${id}-edge`} colorInterpolationFilters="sRGB" x="-2%" y="-2%" width="104%" height="104%"><feMorphology in="SourceAlpha" operator="erode" radius={active===2?4.2:1.8}/><feGaussianBlur stdDeviation="0.55"/><feComponentTransfer><feFuncA type="linear" slope="1.12" intercept="-0.06"/></feComponentTransfer></filter>}<mask id={id} maskUnits="userSpaceOnUse" x="0" y="0" width={bounds.width} height={bounds.height} style={{maskType:'alpha'}}><image href={mask} width={bounds.width} height={bounds.height} filter={refine?`url(#${id}-edge)`:undefined}/></mask></defs><image href={original} width={bounds.width} height={bounds.height} preserveAspectRatio="xMidYMid meet" mask={`url(#${id})`}/></svg>
 }
 const demoReviews = [
  {name:'Ejemplo 01',topic:'ENTRENAMIENTO',text:'Me ayuda tener una rutina clara y saber por dónde empezar. Puedo avanzar a mi ritmo y consultar lo que no entiendo.'},
