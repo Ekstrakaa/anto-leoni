@@ -39,6 +39,9 @@ export default defineConfig({
     rollupOptions: {
       input: {
         landing: resolve(__dirname, 'index.html'),
+        entrenamiento: resolve(__dirname, 'entrenamiento/index.html'),
+        alimentacion: resolve(__dirname, 'alimentacion/index.html'),
+        bienestar: resolve(__dirname, 'bienestar/index.html'),
         app: resolve(__dirname, 'app/index.html'),
         evaluacion: resolve(__dirname, 'evaluacion/index.html'),
       },

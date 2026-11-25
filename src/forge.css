@@ -51,3 +51,4 @@
 @keyframes brand-breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.065)}}
 }
 @media(prefers-reduced-motion:reduce){.f-process-art,.f-brand-dumbbells{animation:none!important;transform:none!important}}
+.f-pillar{display:block}.f-pillar-explore{display:flex;align-items:center;justify-content:space-between;gap:16px;color:var(--accent);font:500 13px Oswald;text-transform:uppercase;letter-spacing:.8px;border-top:1px solid #3c3049;padding-top:18px;margin-top:24px}.f-pillar-explore svg{transition:transform 350ms var(--ease)}.f-pillar:hover .f-pillar-explore svg{transform:translateX(4px)}.f-pillar:focus-visible{outline:2px solid var(--accent);outline-offset:6px}.f-pillar.f-pending{transition-duration:1300ms}.f-pillar:nth-child(2){transition-delay:160ms}.f-pillar:nth-child(3){transition-delay:320ms}.f-word-mask>span{transition-duration:1350ms,1050ms}@media(prefers-reduced-motion:reduce){.f-pillar-explore svg{transition:none}}
