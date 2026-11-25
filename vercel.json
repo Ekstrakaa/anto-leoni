@@ -1,0 +1,10 @@
+{
+  "rewrites": [
+    { "source": "/entrenamiento", "destination": "/entrenamiento/index.html" },
+    { "source": "/entrenamiento/", "destination": "/entrenamiento/index.html" },
+    { "source": "/alimentacion", "destination": "/alimentacion/index.html" },
+    { "source": "/alimentacion/", "destination": "/alimentacion/index.html" },
+    { "source": "/bienestar", "destination": "/bienestar/index.html" },
+    { "source": "/bienestar/", "destination": "/bienestar/index.html" }
+  ]
+}
