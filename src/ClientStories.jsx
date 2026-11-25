@@ -15,7 +15,7 @@ export default function ClientStories() {
       </div>
       <div className="f-story-sidebar"><span className="f-kicker">ANTES / DESPUÉS</span><p className="f-story-counter" aria-live="polite" aria-atomic="true">0{active+1}<span> / 04</span></p><p>Elegí un caso para ver sus dos fotografías.</p><div className="f-story-choices" aria-label="Elegir caso">{[0,1,2,3].map(i=><button key={i} aria-label={`Ver caso ${i+1}`} aria-pressed={active===i} aria-controls="client-comparison" onClick={()=>setActive(i)}><span>0{i+1}</span><span>Caso {i+1}</span><ArrowUpRight size={18}/></button>)}</div><div className="f-story-arrows"><button aria-label="Caso anterior" disabled={active===0} onClick={()=>setActive(i=>i-1)}><ChevronLeft size={20}/></button><button aria-label="Siguiente caso" disabled={active===3} onClick={()=>setActive(i=>i+1)}><ChevronRight size={20}/></button></div><p className="f-story-note">Cada proceso es individual. Las fotografías muestran momentos distintos y no garantizan un resultado concreto.</p></div>
     </div>
-    <Reviews/>
+
   </section>
 }
 const demoReviews = [
@@ -24,7 +24,7 @@ const demoReviews = [
  {name:'Ejemplo 03',topic:'ACOMPAÑAMIENTO',text:'Valoro poder contar cómo me siento y adaptar el plan a mi semana. Sentirme escuchada marca la diferencia.'},
  {name:'Ejemplo 04',topic:'ALIMENTACIÓN',text:'Me gusta pensar en comidas que encajen con mis gustos y mis horarios. Cuidarme también puede ser algo que disfrute.'},
 ]
-function Reviews(){
+export function Reviews(){
  const [paused,setPaused]=useState(false)
  const demo=googleReviews.length===0
  const reviews=demo?demoReviews:googleReviews
