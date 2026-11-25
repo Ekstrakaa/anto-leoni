@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import photoBounds from './client-photo-bounds.json'
 import { ArrowUpRight, ChevronLeft, ChevronRight, Star, Pause, Play } from 'lucide-react'
 
 // Incorporar únicamente reseñas reales y su enlace público de origen.
@@ -7,16 +8,27 @@ const googleProfileUrl = ''
 
 export default function ClientStories() {
   const [active, setActive] = useState(0)
+  const [originals,setOriginals]=useState(false)
   return <section className="f-section f-stories" id="historias" aria-labelledby="stories-title">
     <div className="f-stories-heading"><div><span className="f-kicker">PERSONAS QUE CONFIARON EN ANTO</span><h2 id="stories-title">CADA PERSONA.<br/><span>SU PROCESO.</span></h2></div><p>Antes y después de clientes de Anto. Cuatro recorridos distintos, con un punto de partida propio.</p></div>
     <div className="f-story-layout">
-      <div className="f-story-pair" key={active} id="client-comparison" aria-label={`Antes y después, caso ${active + 1}`}>
-        {['antes','despues'].map((phase)=><figure key={phase}><figcaption>{phase==='antes'?'Antes':'Después'}<span aria-hidden="true">{phase==='antes'?'01':'02'}</span></figcaption><div><img src={`/${phase}${active+1}.jpg`} alt={`${phase==='antes'?'Antes':'Después'} del acompañamiento — cliente ${active+1}`} loading="lazy"/></div></figure>)}
+      <div className={`f-story-pair ${originals?"":"f-story-isolated"}`} key={`${active}-${originals}`} id="client-comparison" aria-label={`Antes y después, caso ${active + 1}`}>
+        {['antes','despues'].map((phase)=><figure key={phase}><figcaption>{phase==='antes'?'Antes':'Después'}<span aria-hidden="true">{phase==='antes'?'01':'02'}</span></figcaption><div><ComparisonPhoto phase={phase} active={active} originals={originals}/></div></figure>)}
       </div>
-      <div className="f-story-sidebar"><span className="f-kicker">ANTES / DESPUÉS</span><p className="f-story-counter" aria-live="polite" aria-atomic="true">0{active+1}<span> / 04</span></p><p>Elegí un caso para ver sus dos fotografías.</p><div className="f-story-choices" aria-label="Elegir caso">{[0,1,2,3].map(i=><button key={i} aria-label={`Ver caso ${i+1}`} aria-pressed={active===i} aria-controls="client-comparison" onClick={()=>setActive(i)}><span>0{i+1}</span><span>Caso {i+1}</span><ArrowUpRight size={18}/></button>)}</div><div className="f-story-arrows"><button aria-label="Caso anterior" disabled={active===0} onClick={()=>setActive(i=>i-1)}><ChevronLeft size={20}/></button><button aria-label="Siguiente caso" disabled={active===3} onClick={()=>setActive(i=>i+1)}><ChevronRight size={20}/></button></div><p className="f-story-note">Cada proceso es individual. Las fotografías muestran momentos distintos y no garantizan un resultado concreto.</p></div>
+      <div className="f-story-sidebar"><span className="f-kicker">ANTES / DESPUÉS</span><p className="f-story-counter" aria-live="polite" aria-atomic="true">0{active+1}<span> / 04</span></p><p>Elegí un caso para ver sus dos fotografías.</p><div className="f-story-choices" aria-label="Elegir caso">{[0,1,2,3].map(i=><button key={i} aria-label={`Ver caso ${i+1}`} aria-pressed={active===i} aria-controls="client-comparison" onClick={()=>setActive(i)}><span>0{i+1}</span><span>Caso {i+1}</span><ArrowUpRight size={18}/></button>)}</div><div className="f-story-arrows"><button aria-label="Caso anterior" disabled={active===0} onClick={()=>setActive(i=>i-1)}><ChevronLeft size={20}/></button><button aria-label="Siguiente caso" disabled={active===3} onClick={()=>setActive(i=>i+1)}><ChevronRight size={20}/></button></div><button className="f-story-originals" onClick={()=>setOriginals(p=>!p)} aria-pressed={originals}>{originals?"Ver sin fondo":"Ver fotos originales"}</button><p className="f-story-note">Cada proceso es individual. Las fotografías muestran momentos distintos y no garantizan un resultado concreto.</p></div>
     </div>
 
   </section>
+}
+function ComparisonPhoto({phase,active,originals}){
+ const [ready,setReady]=useState(false)
+ const key=`${phase}${active+1}`,mask=`/media/clientes/${key}.png`,original=`/${key}.jpg`
+ const bounds=photoBounds[key],id=`mask-${key}`
+ useEffect(()=>{let cancelled=false;setReady(false);const image=new Image();image.onload=()=>{if(!cancelled)setReady(true)};image.src=mask;return()=>{cancelled=true}},[mask])
+ const label=`${phase==='antes'?'Antes':'Después'} del acompañamiento — cliente ${active+1}`
+ if(originals||!ready||!bounds)return <img src={original} alt={label} loading="lazy"/>
+ // La foto original aporta todos los píxeles visibles; la imagen procesada sólo aporta transparencia.
+ return <svg className="f-client-cutout" viewBox={bounds.box.join(' ')} preserveAspectRatio="xMidYMid meet" role="img" aria-label={label}><defs><mask id={id} maskUnits="userSpaceOnUse" x="0" y="0" width={bounds.width} height={bounds.height} style={{maskType:'alpha'}}><image href={mask} width={bounds.width} height={bounds.height}/></mask></defs><image href={original} width={bounds.width} height={bounds.height} preserveAspectRatio="xMidYMid meet" mask={`url(#${id})`}/></svg>
 }
 const demoReviews = [
  {name:'Ejemplo 01',topic:'ENTRENAMIENTO',text:'Me ayuda tener una rutina clara y saber por dónde empezar. Puedo avanzar a mi ritmo y consultar lo que no entiendo.'},
